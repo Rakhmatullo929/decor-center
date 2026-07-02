@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: depo
+      POSTGRES_USER: depo
+      POSTGRES_PASSWORD: depo
+    ports:
+      # 5433 on the host: local Postgres already occupies 5432
+      - "5433:5432"
+    volumes:
+      # postgres:18 keeps PGDATA under /var/lib/postgresql/18/, not .../data
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U depo -d depo"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  backend:
+    build: ./backend
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py seed_initial_data &&
+             python manage.py seed_demo_data &&
+             python manage.py runserver 0.0.0.0:8000"
+    # UzbekVoice TTS key (UZBEKVOICE_API_KEY) + DEPO_TTS_VOICE_UZ live here (gitignored).
+    env_file:
+      - backend/.env
+    environment:
+      DATABASE_URL: postgres://depo:depo@db:5432/depo
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    environment:
+      # The browser runs on the host, so it reaches the backend via localhost
+      REACT_APP_HOST_API: http://localhost:8000
+    ports:
+      - "3000:3000"
+    # CRA dev server exits without an attached stdin/tty
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

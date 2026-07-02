@@ -1,0 +1,25 @@
+# --- Stage 1: build the CRA static bundle -----------------------------------
+FROM node:20-bookworm-slim AS builder
+
+WORKDIR /app
+
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile --network-timeout 600000
+
+COPY . .
+
+# REACT_APP_* are baked at build time by CRA. Point the SPA at the production API.
+ARG REACT_APP_HOST_API=https://api.lokomotiv-depo.uz
+ENV REACT_APP_HOST_API=${REACT_APP_HOST_API}
+# CRA treats warnings as errors when CI=true; keep them as warnings for the prod build.
+ENV CI=false
+RUN yarn build
+
+# --- Stage 2: serve the static bundle with nginx ----------------------------
+FROM nginx:1.27-alpine
+
+COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/build /usr/share/nginx/html
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

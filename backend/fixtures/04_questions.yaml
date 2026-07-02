@@ -1,0 +1,957 @@
+# Test bank questions
+# Modules: specialty | tech_safety | industrial_safety
+# correct_option — index 0-3
+# Each module / specialty has >= 10 approved questions (DEPO_QUESTIONS_PER_TEST=10)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SPECIALTY 1 — Машинист электропоезда (pk=1)   [10 approved]
+# ══════════════════════════════════════════════════════════════════════════════
+
+- model: assessments.question
+  pk: 1
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 1
+    text: "Какое напряжение подаётся на контактный рельс метрополитена?"
+    options: ["375 В постоянного тока", "750 В постоянного тока", "825 В постоянного тока", "1500 В постоянного тока"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 2
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 1
+    text: "При каком значении давления воздуха в тормозной магистрали производится экстренное торможение?"
+    options: ["Ниже 3,5 атм", "Ниже 2,7 атм", "Ниже 4,0 атм", "Ниже 5,0 атм"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 3
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 1
+    text: "Какова минимально допустимая толщина гребня колёсной пары?"
+    options: ["5 мм", "7 мм", "10 мм", "12 мм"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 19
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 1
+    text: "Что обязан сделать машинист при обнаружении постороннего предмета на пути?"
+    options: ["Продолжить движение с уменьшенной скоростью", "Остановить поезд и доложить поездному диспетчеру", "Подать сигнал и увеличить скорость", "Переключить режим тяги"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 20
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 1
+    text: "С какой скоростью разрешается следовать по стрелочному переводу на боковой путь?"
+    options: ["15 км/ч", "25 км/ч", "35 км/ч", "50 км/ч"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 21
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 1
+    text: "Какой сигнал разрешает отправление поезда со станции?"
+    options: ["Жёлтый огонь светофора", "Зелёный огонь светофора", "Мигающий белый огонь", "Синий огонь светофора"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 22
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 1
+    text: "Что означает красный огонь на выходном светофоре?"
+    options: ["Разрешается движение с уменьшенной скоростью", "Стоп — запрещается проезжать сигнал", "Разрешается маневровое движение", "Готовность к отправлению"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 23
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 1
+    text: "Какова максимальная скорость движения поезда в пределах станции метрополитена?"
+    options: ["40 км/ч", "60 км/ч", "35 км/ч", "80 км/ч"]
+    correct_option: 0
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 24
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 1
+    text: "При каком давлении воздуха в главных резервуарах машинист обязан остановить поезд?"
+    options: ["Ниже 6,0 атм", "Ниже 5,0 атм", "Ниже 4,5 атм", "Ниже 3,5 атм"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 25
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 1
+    text: "Сколько секунд машинист обязан удерживать рукоятку бдительности при срабатывании педали безопасности?"
+    options: ["Не менее 3 с", "Не менее 5 с", "Не менее 7 с", "Не менее 10 с"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SPECIALTY 2 — Помощник машиниста (pk=2)   [10 approved]
+# ══════════════════════════════════════════════════════════════════════════════
+
+- model: assessments.question
+  pk: 4
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 2
+    text: "Какой сигнал подаётся при обнаружении неисправности в пути?"
+    options: ["Один длинный", "Два коротких", "Три коротких", "Один длинный и два коротких"]
+    correct_option: 0
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 5
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 2
+    text: "В какое положение должен быть переведён реверс при аварийной остановке в тоннеле?"
+    options: ["«Вперёд»", "«Назад»", "«0» (нейтраль)", "Положение не меняется"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 26
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 2
+    text: "Какова обязанность помощника машиниста при посадке и высадке пассажиров?"
+    options: ["Наблюдать за показаниями приборов", "Контролировать посадку через зеркала заднего вида и сигнализировать машинисту", "Объявлять остановки", "Открывать двери вагонов вручную"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 27
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 2
+    text: "При каком условии помощник машиниста вправе покинуть кабину во время движения?"
+    options: ["По распоряжению машиниста", "Только при возникновении пожара", "Только в случае болезни машиниста", "Запрещено при любых обстоятельствах"]
+    correct_option: 3
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 28
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 2
+    text: "Что обязан сделать помощник машиниста при срабатывании УАВА?"
+    options: ["Нажать кнопку сброса", "Доложить машинисту и зафиксировать время срабатывания", "Самостоятельно найти неисправность", "Остановить поезд стоп-краном"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 29
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 2
+    text: "Какой документ должен иметь при себе помощник машиниста во время поездки?"
+    options: ["Только удостоверение личности", "Свидетельство помощника машиниста и медицинскую справку", "Приказ о назначении на смену", "Технический паспорт состава"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 30
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 2
+    text: "При каком давлении в тормозных цилиндрах считается, что тормоза отпущены?"
+    options: ["0 атм", "0,5 атм", "1,0 атм", "1,5 атм"]
+    correct_option: 0
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 31
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 2
+    text: "Что означает сигнал «два длинных свистка» локомотивного сигнала?"
+    options: ["Вперёд", "Назад", "Стоп", "Тревога"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 32
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 2
+    text: "В каком случае разрешается проезд на запрещающий сигнал?"
+    options: ["При разрешении дежурного по станции", "Только по команде поездного диспетчера с разрешения машиниста", "Запрещено в любом случае", "При неисправности сигнализации"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 33
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 2
+    text: "Как помощник машиниста должен действовать при потере сознания машинистом?"
+    options: ["Продолжить движение до ближайшей станции", "Немедленно применить экстренное торможение и вызвать помощь", "Снизить скорость и ждать команды диспетчера", "Открыть двери кабины"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SPECIALTY 3 — Электромеханик (pk=3)   [10 approved]
+# ══════════════════════════════════════════════════════════════════════════════
+
+- model: assessments.question
+  pk: 6
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 3
+    text: "Какой класс изоляции применяется в тяговых электродвигателях серии ДК?"
+    options: ["Класс A", "Класс B", "Класс F", "Класс H"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 7
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 3
+    text: "Через какой интервал времени проводится плановое ТО электрооборудования?"
+    options: ["Каждые 10 000 км пробега", "Каждые 25 000 км пробега", "Каждые 50 000 км пробега", "Один раз в год независимо от пробега"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 34
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 3
+    text: "Какое сечение кабеля используется для подключения тягового двигателя мощностью 120 кВт при напряжении 750 В?"
+    options: ["16 мм²", "35 мм²", "70 мм²", "120 мм²"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 35
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 3
+    text: "Что является признаком межвиткового замыкания в обмотке статора?"
+    options: ["Повышенный ток при холостом ходе", "Перегрев отдельных участков корпуса и вибрация", "Снижение оборотов при нагрузке", "Увеличение сопротивления изоляции"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 36
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 3
+    text: "Какое минимальное сопротивление изоляции считается допустимым для силовых цепей вагона?"
+    options: ["0,1 МОм", "0,5 МОм", "1 МОм", "2 МОм"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 37
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 3
+    text: "Каким прибором измеряется сопротивление изоляции электрооборудования?"
+    options: ["Амперметром", "Вольтметром", "Мегаомметром", "Осциллографом"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 38
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 3
+    text: "С какой периодичностью проводится проверка срабатывания автоматических выключателей?"
+    options: ["Ежемесячно", "Раз в квартал", "Раз в полгода", "Ежегодно при ТО-3"]
+    correct_option: 3
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 39
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 3
+    text: "Что нужно сделать перед заменой предохранителя в цепи управления?"
+    options: ["Снять нагрузку с цепи", "Отключить аккумуляторную батарею и выключить все автоматы", "Убедиться в наличии запасного предохранителя", "Надеть защитные очки"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 40
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 3
+    text: "Какова номинальная ёмкость аккумуляторной батареи типа 40КН-125?"
+    options: ["80 А·ч", "100 А·ч", "125 А·ч", "150 А·ч"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 41
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 3
+    text: "При каком напряжении аккумуляторной батареи запрещается выезжать из депо?"
+    options: ["Ниже 75 В", "Ниже 60 В", "Ниже 50 В", "Ниже 45 В"]
+    correct_option: 0
+    source: "manual"
+    status: "approved"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SPECIALTY 4 — Слесарь по ремонту подвижного состава (pk=4)   [10 approved]
+# ══════════════════════════════════════════════════════════════════════════════
+
+- model: assessments.question
+  pk: 42
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 4
+    text: "Какой момент затяжки болтов крепления буксового узла колёсной пары?"
+    options: ["150 Н·м", "200 Н·м", "250 Н·м", "300 Н·м"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 43
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 4
+    text: "Допустимый прокат по кругу катания колеса при эксплуатации вагона составляет не более:"
+    options: ["3 мм", "5 мм", "7 мм", "10 мм"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 44
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 4
+    text: "Каким инструментом проверяется зазор между бандажом колеса и ободом центра?"
+    options: ["Штангенциркулем", "Микрометром", "Щупом", "Нутромером"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 45
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 4
+    text: "При каком износе тормозных колодок они подлежат замене?"
+    options: ["Толщина менее 30 мм", "Толщина менее 20 мм", "Толщина менее 15 мм", "Толщина менее 10 мм"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 46
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 4
+    text: "С какой периодичностью производится смазка буксовых роликовых подшипников?"
+    options: ["При каждом ТО-1", "При ТО-2 каждые 25 000 км", "При ТО-3 или по регламенту завода-изготовителя", "Ежегодно независимо от пробега"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 47
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 4
+    text: "Что проверяют при осмотре автосцепного устройства в ходе ТО-1?"
+    options: ["Только наличие смазки", "Износ контура зацепления и исправность предохранителя замка", "Цвет лакокрасочного покрытия", "Маркировку изготовителя"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 48
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 4
+    text: "Каково допустимое отклонение от параллельности осей колёсных пар в тележке?"
+    options: ["Не более 1 мм на 1 м длины", "Не более 2 мм на 1 м длины", "Не более 3 мм на 1 м длины", "Не более 5 мм на 1 м длины"]
+    correct_option: 0
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 49
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 4
+    text: "Какая марка смазки применяется для буксовых подшипников?"
+    options: ["Литол-24", "ЖРО (Буксол)", "ЦИАТИМ-203", "Солидол С"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 50
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 4
+    text: "При каком виде ремонта производится полная разборка тележки?"
+    options: ["ТО-1", "ТО-2", "ТО-3", "Деповской ремонт (ДР)"]
+    correct_option: 3
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 51
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 4
+    text: "Как обозначается разностенность бандажа, при которой колёсная пара бракуется?"
+    options: ["Более 1 мм", "Более 2 мм", "Более 3 мм", "Более 5 мм"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SPECIALTY 5 — Дежурный по депо (pk=5)   [10 approved]
+# ══════════════════════════════════════════════════════════════════════════════
+
+- model: assessments.question
+  pk: 52
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 5
+    text: "Какой документ дежурный по депо обязан проверить у машиниста перед выдачей состава?"
+    options: ["Только удостоверение личности", "Маршрутный лист, свидетельство машиниста и справку о медосмотре", "Служебное удостоверение и пропуск", "Технический паспорт состава"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 53
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 5
+    text: "Какова обязанность дежурного по депо при возникновении пожара?"
+    options: ["Самостоятельно тушить пожар", "Немедленно вызвать пожарную охрану, объявить тревогу и эвакуировать персонал", "Доложить начальнику депо и ждать указаний", "Отключить все электроустановки депо"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 54
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 5
+    text: "С какой периодичностью дежурный по депо делает обход территории?"
+    options: ["Каждые 30 минут", "Каждый час", "Каждые 2 часа", "В начале и конце смены"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 55
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 5
+    text: "Как дежурный по депо должен действовать при сходе вагона с рельс на деповских путях?"
+    options: ["Самостоятельно принять меры по постановке вагона", "Оградить место схода, доложить поездному диспетчеру и начальнику депо", "Вызвать только слесарей", "Продолжать работу, пока не прибудет начальник"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 56
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 5
+    text: "Какой порядок приёма-сдачи смены дежурным по депо?"
+    options: ["Устная передача информации о текущих задачах", "Совместный обход, проверка документации и записи в журнале приёма-сдачи смены", "Телефонный доклад начальнику депо", "Только подпись в журнале"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 57
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 5
+    text: "Что должен проверить дежурный по депо при приёмке состава из ремонта?"
+    options: ["Только наличие подписи мастера в журнале", "Комплектность состава, наличие актов ТО и исправность сигнализации", "Только техническое состояние ходовой части", "Только внешний вид вагонов"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 58
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 5
+    text: "В каком случае дежурный по депо вправе отказать машинисту в выдаче состава?"
+    options: ["При любом сомнении в исправности", "При отсутствии действующего маршрутного листа или медицинской справки", "Только при выявленной технической неисправности", "При несоответствии формы одежды"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 59
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 5
+    text: "Куда записываются все случаи нарушения безопасности на деповских путях?"
+    options: ["В личное дело нарушителя", "В журнал нарушений безопасности движения установленной формы", "В отчёт начальника депо", "В служебную записку диспетчеру"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 60
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 5
+    text: "Что запрещено при экипировке составов на деповских путях?"
+    options: ["Одновременная работа нескольких бригад", "Нахождение посторонних лиц в зоне экипировки и движение людей под вагонами", "Использование переносных ламп", "Применение механизированного инструмента"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 61
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "specialty"
+    specialty: 5
+    text: "Каков порядок снятия напряжения с контактного рельса на деповских путях для производства работ?"
+    options: ["Устное распоряжение дежурного по депо", "Письменная заявка, команда энергодиспетчера, заземление и вывешивание плакатов", "Распоряжение начальника смены", "Автоматическое отключение при въезде состава"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TECH SAFETY — общие (specialty=null)   [10 approved]
+# ══════════════════════════════════════════════════════════════════════════════
+
+- model: assessments.question
+  pk: 8
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "tech_safety"
+    specialty: null
+    text: "Что необходимо сделать перед началом ремонтных работ под вагоном на территории депо?"
+    options: ["Убедиться в отсутствии других работников в зоне", "Выставить ограждения и получить наряд-допуск", "Уведомить дежурного по депо устно", "Включить аварийное освещение"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 9
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "tech_safety"
+    specialty: null
+    text: "Какой документ регламентирует порядок проведения работ с повышенной опасностью?"
+    options: ["Должностная инструкция", "Наряд-допуск", "Приказ начальника депо", "Служебная записка"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 10
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "tech_safety"
+    specialty: null
+    text: "При работах вблизи контактного рельса без снятия напряжения минимальное расстояние до токоведущих частей составляет?"
+    options: ["0,5 м", "0,8 м", "1,0 м", "1,5 м"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 11
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "tech_safety"
+    specialty: null
+    text: "Средства индивидуальной защиты при работе с электроустановками до 1000 В включают:"
+    options: ["Диэлектрические перчатки и резиновый коврик", "Хлопчатобумажные перчатки и защитные очки", "Только защитную каску", "Металлический инструмент с изолированными ручками"]
+    correct_option: 0
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 12
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "tech_safety"
+    specialty: null
+    text: "Кто несёт ответственность за безопасное проведение работ по наряду-допуску?"
+    options: ["Только исполнитель работ", "Только выдавший наряд", "Допускающий и производитель работ совместно", "Начальник цеха"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 62
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "tech_safety"
+    specialty: null
+    text: "Какой группой по электробезопасности должен обладать производитель работ при работе в электроустановках выше 1000 В?"
+    options: ["Группа II", "Группа III", "Группа IV", "Группа V"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 63
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "tech_safety"
+    specialty: null
+    text: "Что запрещается делать при работе на высоте более 1,8 м без ограждений?"
+    options: ["Использовать страховочную привязь", "Работать без средств защиты от падения", "Применять леса и подмости", "Использовать страховочный канат"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 64
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "tech_safety"
+    specialty: null
+    text: "Какие плакаты вывешиваются на месте снятия напряжения для производства ремонтных работ?"
+    options: ["«Осторожно — напряжение»", "«Не включать — работают люди» и «Заземлено»", "«Стоп — опасная зона»", "«Вход запрещён»"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 65
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "tech_safety"
+    specialty: null
+    text: "Как часто проводится проверка знаний по охране труда у работников с повышенной опасностью работ?"
+    options: ["Один раз в 5 лет", "Один раз в 3 года", "Ежегодно", "Один раз в 2 года"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 66
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "tech_safety"
+    specialty: null
+    text: "Что необходимо выполнить после окончания работ по наряду-допуску?"
+    options: ["Устно сообщить дежурному об окончании работ", "Убрать инструменты, снять заземления, снять плакаты и закрыть наряд с подписью", "Только сдать наряд выдавшему", "Доложить диспетчеру по телефону"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# INDUSTRIAL SAFETY — общие (specialty=null)   [10 approved]
+# ══════════════════════════════════════════════════════════════════════════════
+
+- model: assessments.question
+  pk: 13
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "industrial_safety"
+    specialty: null
+    text: "В соответствии с каким нормативным актом проводится обязательный инструктаж по промышленной безопасности?"
+    options: ["ГОСТ 12.0.004-2015", "СНиП 12-03-2001", "ПУЭ издание 7", "МДС 12-27.2006"]
+    correct_option: 0
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 14
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "industrial_safety"
+    specialty: null
+    text: "Какой первичный огнетушитель применяется для тушения электрооборудования под напряжением?"
+    options: ["Пенный (ОП)", "Водяной (ОВ)", "Углекислотный (ОУ)", "Порошковый с пометкой АВСЕ"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 15
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "industrial_safety"
+    specialty: null
+    text: "Периодичность проведения повторного инструктажа на рабочем месте для работников депо составляет:"
+    options: ["Раз в три месяца", "Раз в шесть месяцев", "Раз в год", "Раз в два года"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 16
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "industrial_safety"
+    specialty: null
+    text: "Что запрещено делать при обнаружении утечки газа в производственном помещении?"
+    options: ["Вызывать аварийную газовую службу", "Открывать окна и двери для проветривания", "Включать или выключать электрические приборы", "Эвакуировать людей из помещения"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 17
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "industrial_safety"
+    specialty: null
+    text: "Допустимый уровень шума на рабочем месте в производственных помещениях не должен превышать:"
+    options: ["70 дБА", "80 дБА", "85 дБА", "90 дБА"]
+    correct_option: 2
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 67
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "industrial_safety"
+    specialty: null
+    text: "Кто проводит вводный инструктаж по охране труда для вновь принятых работников?"
+    options: ["Непосредственный руководитель", "Специалист по охране труда или уполномоченное лицо", "Начальник депо лично", "Представитель профсоюза"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 68
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "industrial_safety"
+    specialty: null
+    text: "Какова предельно допустимая концентрация (ПДК) угарного газа (CO) в воздухе рабочей зоны?"
+    options: ["5 мг/м³", "20 мг/м³", "50 мг/м³", "100 мг/м³"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 69
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "industrial_safety"
+    specialty: null
+    text: "Через какое время после прохождения вводного инструктажа работник обязан пройти первичный инструктаж на рабочем месте?"
+    options: ["До начала самостоятельной работы в тот же день", "В течение 3 дней", "В течение 7 дней", "В течение месяца"]
+    correct_option: 0
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 70
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "industrial_safety"
+    specialty: null
+    text: "Какое максимальное время разрешается непрерывно работать с вибрирующим инструментом?"
+    options: ["30 минут подряд", "1 час подряд", "2 часа подряд", "Без ограничений при наличии рукавиц"]
+    correct_option: 0
+    source: "manual"
+    status: "approved"
+
+- model: assessments.question
+  pk: 71
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    module: "industrial_safety"
+    specialty: null
+    text: "Что является основным критерием отнесения условий труда к вредным?"
+    options: ["Субъективная оценка работника", "Превышение гигиенических нормативов по факторам рабочей среды", "Наличие жалоб от сотрудников", "Решение руководителя"]
+    correct_option: 1
+    source: "manual"
+    status: "approved"
+
+# ── DRAFT questions (not yet approved) ────────────────────────────────────
+
+- model: assessments.question
+  pk: 18
+  fields:
+    created_at: "2024-02-01T00:00:00Z"
+    updated_at: "2024-02-01T00:00:00Z"
+    module: "specialty"
+    specialty: 4
+    text: "Какой момент затяжки болтов крепления рамы тележки к надрессорной балке (черновой вопрос)?"
+    options: ["100 Н·м", "180 Н·м", "220 Н·м", "350 Н·м"]
+    correct_option: 2
+    source: "ai"
+    status: "draft"

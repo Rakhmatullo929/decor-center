@@ -1,0 +1,38 @@
+---
+description: RBAC на фронтенде — единый стиль guards, навигации и action-кнопок через checkPermission
+globs: frontend/src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend RBAC and Permissions
+
+Используй единый permission-first подход во всех экранах.
+
+- Источник прав только один: `useCheckPermission` из `src/auth/hooks/use-check-permission`.
+- Не хардкодить доступ по роли (`user.role === 'admin'`) для UI-решений, если есть permission-ключ.
+- Для роутов всегда использовать `PermissionGuard` с `page` + `action` (`read|detail|write`).
+- Для navbar показывать пункты только при `*:read` соответствующей страницы.
+- Для переходов на детали (`Link`, `View`) проверять `*:detail`.
+- Для create/edit/delete/impersonate/submit действий проверять `*:write`.
+- Если права нет — скрывать action-элемент (кнопка, пункт меню, ссылка), а не просто дизейблить без причины.
+- Для bulk-actions (selection/delete/import) применять те же `write` проверки.
+- Не дублировать JSX-условия в каждом месте: предпочтительно общий helper/компонент (`Can`/`PermissionSlot`) и переиспользование.
+- При impersonate сразу синхронизировать новую сессию и затем обновлять `/auth/me`, чтобы permissions применялись без refresh.
+- Backend остается source of truth: фронт скрывает UI, сервер окончательно валидирует доступ.
+- Для role management везде использовать готовые hooks из API-слоя (например, `useTenantRolesQuery`, `useUpdateTenantRolePermissionsMutation`) и не писать прямые `request/axios` вызовы внутри view-компонентов.
+- Для проверки прав в role management и связанных экранах использовать только `useCheckPermission` + `Can`/`PermissionGuard`, без локальных дублирующих helper-функций.
+- При добавлении новой страницы (module/page) обязательно добавить соответствующие permission-ключи в backend catalog (`read` минимум, при необходимости `detail`/`write`).
+- При добавлении нового действия (create/edit/delete/import/pay/approve и т.д.) обязательно связать его с существующим action-типом permission (`write`/`detail`) и проверить серверный доступ в backend view/endpoint.
+- Любой новый permission сразу интегрировать end-to-end: backend `permission_catalog` + DRF permission checks + `/auth/me`/login payload + frontend `PermissionPage`/`PermissionAction`/`checkPermission` + roles management UI (чекбоксы) + навигация/кнопки/роутинг.
+- Не мерджить feature, если страница или действие добавлены без соответствующего permission в backend и без отражения в `admin/roles`.
+
+## Минимальный паттерн
+
+```tsx
+const { canWritePage, canDetailPage } = useCheckPermission();
+
+const canWriteUsers = canWritePage('users');
+const canDetailUsers = canDetailPage('users');
+```
+
+Дальше использовать эти флаги последовательно для breadcrumbs action, row actions, popover menu, links и dialogs.

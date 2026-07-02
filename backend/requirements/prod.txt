@@ -1,0 +1,8 @@
+-r base.txt
+gunicorn~=23.0
+whitenoise~=6.7
+# Face recognition — real backend for prod only (dev/CI use the mock backend).
+# Enable via DECOR_FACE_BACKEND=apps.integrations.insightface_adapter.InsightFaceAdapter
+insightface>=0.7.3
+onnxruntime>=1.18.0
+opencv-python-headless>=4.10.0

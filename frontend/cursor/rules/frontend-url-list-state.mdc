@@ -1,0 +1,30 @@
+---
+description: URL sync for frontend list states (search, pagination, sorting, filters)
+globs: frontend/src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# URL State for List Screens
+
+Для списков (CRUD tables, каталоги, реестры) делай URL источником истины для `page`, `page_size`, `search`, `ordering` и фильтров.
+
+- Используй `useUrlListState` и `useSyncTableWithUrlListState` из `src/hooks/use-url-query-state`.
+- Не дублируй ручной двусторонний sync через несколько `useEffect` (`URL -> table` и `table -> URL`) — это создает loop и UI "прыжки".
+- Изменения пользователя (page change, page size, search, ordering, filters) должны обновлять URL через хук.
+- При `search`, `ordering`, `filters`, `page_size` всегда сбрасывай страницу на 1.
+- При чтении URL используй безопасный parse/serialize (через codecs), без `any` и без ручного парсинга query string.
+- Сохраняй остальные query-параметры (например `lang`) при обновлении URL.
+
+Пример:
+
+```ts
+const list = useUrlListState({ defaultPageSize: 15, defaultOrdering: '-created_at' });
+useSyncTableWithUrlListState({
+  page: list.page,
+  rowsPerPage: list.rowsPerPage,
+  tablePage: table.page,
+  tableRowsPerPage: table.rowsPerPage,
+  setTablePage: table.setPage,
+  setTableRowsPerPage: table.setRowsPerPage,
+});
+```

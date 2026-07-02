@@ -1,0 +1,8 @@
+{
+  "forbidden": {
+    "title": "Kirish taqiqlangan",
+    "description": "Bu sahifani ochish uchun sizda ruxsat yo'q. Administratorga murojaat qiling yoki ruxsat berilgan bo'limga qayting.",
+    "backToHome": "Bosh sahifaga o'tish",
+    "noAccess": "Sizning akkauntingiz uchun bo'limlar sozlanmagan. Administratorga murojaat qiling."
+  }
+}

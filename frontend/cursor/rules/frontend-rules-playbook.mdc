@@ -1,0 +1,132 @@
+---
+description: Как выбрать один frontend rule и написать точный prompt для задачи
+globs: frontend/src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend Rules Playbook
+
+Этот файл помогает быстро выбрать один rule и написать понятный prompt для реализации.
+
+## Доступные frontend rules
+
+- `frontend/cursor/rules/frontend-quality.mdc`
+  - Когда использовать: архитектура, DRY, RHF формы, TypeScript-качество, переводы, структура `sections`.
+- `frontend/cursor/rules/frontend-api-requests.mdc`
+  - Когда использовать: новые API-запросы, React Query hooks, cache update, endpoints, request-layer.
+- `frontend/cursor/rules/frontend-url-list-state.mdc`
+  - Когда использовать: таблицы/списки с `search`, `page`, `page_size`, `ordering`, filters через URL.
+- `frontend/cursor/rules/frontend-rbac-permissions.mdc`
+  - Когда использовать: permissions, guards, navbar visibility, role management, access control UX.
+- `frontend/cursor/rules/frontend-testing.mdc`
+  - Когда использовать: написание тестов компонентов, хуков, таблиц; моки useLocales/API/table, test-utils.
+- `frontend/cursor/rules/frontend-filters-sorting.mdc`
+  - Когда использовать: FilterDrawer, multi-select/range filters, server-side sorting, export Excel, URL-sync для сложных фильтров.
+- `frontend/cursor/rules/frontend-i18n-translation-format.mdc`
+  - Когда использовать: добавление/изменение переводов, именование ключей, синхронизация ru/uz, новые кнопки/тексты в UI.
+
+## Как правильно писать prompt (выбрать ОДИН rule)
+
+1. Укажи конкретный rule через путь файла.
+2. Коротко опиши цель (что сделать).
+3. Дай контекст: страницы/файлы/эндпоинты.
+4. Укажи ограничения (не ломать текущий flow, DRY, локализация и т.д.).
+5. Попроси проверку (`eslint`/`tests`) после изменений.
+
+## Готовые шаблоны prompt
+
+### 1) Для качества и структуры
+
+```text
+Сделай задачу по правилу @frontend/cursor/rules/frontend-quality.mdc.
+Цель: <что нужно реализовать>.
+Контекст: <пути файлов/экранов>.
+Ограничения: DRY, без any/ts-ignore, использовать RHF для форм, все тексты через tx.
+После изменений проверь eslint для измененных файлов.
+```
+
+### 2) Для API и React Query
+
+```text
+Сделай задачу по правилу @frontend/cursor/rules/frontend-api-requests.mdc.
+Нужно: <новый endpoint или мутация>.
+Контекст: <feature>/api/*.
+Требования: request-layer + доменные hooks + корректный update cache без лишнего refetch.
+После изменений проверь eslint и что типы ответа/запроса добавлены.
+```
+
+### 3) Для URL-state списков
+
+```text
+Сделай задачу по правилу @frontend/cursor/rules/frontend-url-list-state.mdc.
+Нужно: синхронизировать list-state с URL для страницы <page>.
+Поля: page, page_size, search, ordering, filters.
+Требования: использовать useUrlListState/useSyncTableWithUrlListState, без ручных loop useEffect.
+Проверь что при search/order/filter page сбрасывается на 1.
+```
+
+### 4) Для RBAC и permissions
+
+```text
+Сделай задачу по правилу @frontend/cursor/rules/frontend-rbac-permissions.mdc.
+Нужно: <какие страницы/кнопки/действия ограничить>.
+Требования: read для navbar/pages, detail для view/links, write для mutate actions.
+Использовать только useCheckPermission + Can/PermissionGuard и готовые role-management hooks.
+Проверь локализацию и UX (скрытие action без лишних disabled).
+```
+
+### 5) Для тестов
+
+```text
+Сделай задачу по правилу @frontend/cursor/rules/frontend-testing.mdc.
+Нужно: написать тесты для <компонент/хук>.
+Файл: <путь к файлу>.
+Покрыть: loading-состояние, empty-состояние, рендер данных, callback-пропсы.
+Моки: useLocales, useSettingsContext, доменный хук <useXxxQuery>.
+После написания запусти yarn test --watchAll=false --testPathPattern="<имя файла>" и убедись что все проходят.
+```
+
+### 6) Для фильтров, сортировки и Export Excel
+
+```text
+Сделай задачу по правилу @frontend/cursor/rules/frontend-filters-sorting.mdc.
+Нужно: добавить фильтры / сортировку / export для страницы <page>.
+Контекст: <feature>/api/, <feature>/view.tsx.
+Требования:
+  - URL как source of truth (schema на уровне модуля, не внутри хука).
+  - FilterDrawer с FilterFieldMultiSelect / FilterFieldRange из src/components/filter-drawer/.
+  - Тулбар: поиск слева, кнопки (Фильтры, Экспорт) справа через <Box sx={{ flexGrow: 1 }} />.
+  - Дебаунс для range-полей (useDebounce, 400ms), URL обновляется сразу.
+  - Backend: filter_queryset(get_queryset()) в export-action чтобы фильтры работали при экспорте.
+  - Переводы: добавь все новые ключи в ru/uz сразу.
+После изменений проверь eslint для изменённых файлов.
+```
+
+### 7) Для переводов и i18n
+
+```text
+Сделай задачу по правилу @frontend/cursor/rules/frontend-i18n-translation-format.mdc.
+Нужно: добавить / обновить переводы для <экрана/компонента>.
+Затронутые файлы: src/locales/langs/ru/<module>.json, src/locales/langs/uz/<module>.json.
+Требования:
+  - Одинаковая структура ключей в ru и uz.
+  - Только camelCase, вложенность ≤ 3 уровней.
+  - Для общих слов (кнопки, лейблы) — ключ в common.json, не в модульном файле.
+  - Плейсхолдеры {{name}} одинаковые во всех языках.
+После изменений убедись что все вызовы tx() используют новые ключи, нет legacy путей.
+```
+
+## Быстрый выбор rule по задаче
+
+- "Почистить/улучшить код, форму, структуру" -> `frontend-quality.mdc`
+- "Добавить API вызовы/мутации/кэш" -> `frontend-api-requests.mdc`
+- "Сделать URL как source of truth для таблицы" -> `frontend-url-list-state.mdc`
+- "Ограничить доступ по permissions/RBAC" -> `frontend-rbac-permissions.mdc`
+- "Написать тесты для компонента/хука/таблицы" -> `frontend-testing.mdc`
+- "Добавить фильтры, сортировку, export Excel для таблицы" -> `frontend-filters-sorting.mdc`
+- "Добавить/обновить переводы, синхронизировать ru/uz" -> `frontend-i18n-translation-format.mdc`
+
+## Важно
+
+- На одну задачу сначала выбирай один основной rule.
+- Если нужно, вторым шагом можно добавить еще один rule, но не смешивай все сразу в одном расплывчатом prompt.

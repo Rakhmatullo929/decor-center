@@ -1,0 +1,330 @@
+---
+description: Reusable filter drawer, server-side sorting, and URL-sync patterns for tables
+globs: frontend/src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Filters, Sorting & URL State — Reusable Architecture
+
+## Overview
+
+All tables with filters + sorting follow the same pattern:
+
+1. **URL as source of truth** — filters, sorting, search, pagination all live in URL params.
+2. **Backend does the filtering/sorting** — frontend never filters in memory.
+3. **Reusable components** — `FilterDrawer`, `FilterFieldMultiSelect`, `FilterFieldRange` from `src/components/filter-drawer/`.
+4. **Page-specific URL hook** — one hook per entity that defines its schema.
+
+---
+
+## Filter Drawer — `src/components/filter-drawer/`
+
+### When to use
+
+Any table that has more than just a search input needs filter fields. Use the drawer pattern instead of inline filter rows.
+
+### Components
+
+```tsx
+import {
+  FilterDrawer,
+  FilterFieldMultiSelect,
+  FilterFieldRange,
+} from 'src/components/filter-drawer';
+```
+
+| Component | Purpose |
+|---|---|
+| `FilterDrawer` | Trigger button + MUI Drawer container |
+| `FilterFieldMultiSelect` | Multi-select Autocomplete with checkboxes |
+| `FilterFieldRange` | Two number inputs (min / max) |
+
+### Usage pattern
+
+```tsx
+<FilterDrawer
+  filtersCount={activeFiltersCount}      // drives the error badge
+  title={tx('common.actions.filters')}
+  resetLabel={tx('common.actions.reset')}
+  onReset={resetFilters}                 // clears all filters + resets page
+>
+  <FilterFieldMultiSelect
+    label={tx('products.filters.category')}
+    options={categories.map((c) => ({ value: c.id, label: c.name }))}
+    value={categoryIds}                  // string[] parsed from URL
+    onChange={(ids) => setFilters({ categories: ids.join(',') })}
+  />
+  <FilterFieldRange
+    label={tx('products.filters.quantityRange')}
+    minLabel={tx('products.filters.minQty')}
+    maxLabel={tx('products.filters.maxQty')}
+    minValue={minQuantity}
+    maxValue={maxQuantity}
+    onMinChange={(v) => setFilters({ minQuantity: v })}
+    onMaxChange={(v) => setFilters({ maxQuantity: v })}
+  />
+</FilterDrawer>
+```
+
+### Rules
+
+- `filtersCount` must count only **active** (non-empty) filters — drives the badge.
+- `onReset` must clear all filter URL params AND reset `page` to 1.
+- Range inputs → debounce before sending to API query (see URL state pattern below).
+- Multi-select → update URL immediately on change.
+
+---
+
+## URL State Hook — per-entity pattern
+
+Each entity with advanced filters gets its own URL state hook in `api/use-<entity>-url-state.ts`.
+
+### Defining the schema
+
+```ts
+// Outside the hook — stable reference, no useMemo needed
+const ENTITY_URL_SCHEMA = {
+  page: intParam(1),
+  page_size: intParam(15),
+  search: stringParam(''),
+  ordering: stringParam('-created_at'),
+  // Comma-separated IDs for multi-select
+  categories: stringParam(''),
+  // Range filters stored as strings
+  min_quantity: stringParam(''),
+  max_quantity: stringParam(''),
+} as const;
+```
+
+Key rule: **define the schema object at module scope**, not inside the hook. This prevents `useUrlQueryState` from re-subscribing on every render.
+
+### Array params — comma-separated strings
+
+Multi-select filters are stored as comma-separated strings in the URL:
+
+```
+?categories=id1,id2,id3
+```
+
+Parse in the hook:
+```ts
+const categoryIds = useMemo(
+  () => (categories ? categories.split(',').filter(Boolean) : []),
+  [categories]
+);
+```
+
+Serialize when sending to backend:
+```ts
+// In the request function:
+...(params.categoryIds?.length ? { categoryIds: params.categoryIds.join(',') } : {}),
+// humps converts camelCase key → snake_case: categoryIds → category_ids
+```
+
+### setFilters — always resets page to 1
+
+```ts
+const setFilters = useCallback(
+  (patch: EntityFilterPatch) => {
+    setValues({
+      categories: patch.categories ?? categories,
+      min_quantity: patch.minQuantity ?? minQuantity,
+      max_quantity: patch.maxQuantity ?? maxQuantity,
+      page: 1,  // always reset
+    });
+  },
+  [setValues, categories, minQuantity, maxQuantity]
+);
+```
+
+### Debounce range inputs in the view
+
+URL updates immediately (shareable, bookmarkable). API call fires only when user stops typing:
+
+```ts
+const debouncedMinQty = useDebounce(minQuantity, 400);
+const debouncedMaxQty = useDebounce(maxQuantity, 400);
+
+useProductsListQuery({
+  minQuantity: debouncedMinQty || undefined,
+  maxQuantity: debouncedMaxQty || undefined,
+});
+```
+
+---
+
+## Server-Side Sorting — TableHeadCustom
+
+### Head cell definition
+
+Each sortable column declares its Django ordering field via `sortKey`:
+
+```ts
+type HeadCell = {
+  id: string;      // column identifier (camelCase)
+  label: string;
+  sortKey?: string; // Django ordering field (snake_case); omit for non-sortable columns
+};
+
+const tableHead: HeadCell[] = [
+  { id: 'name', label: tx('common.table.name'), sortKey: 'name' },
+  { id: 'category', label: tx('common.table.category'), sortKey: 'category__name' },
+  { id: 'totalQuantity', label: tx('common.table.qty'), sortKey: 'total_quantity' },
+  { id: '', label: '' }, // actions column — no sortKey → not sortable
+];
+```
+
+### Parse ordering → (orderBy, order)
+
+```ts
+const { tableOrderBy, tableOrder } = useMemo(() => {
+  const isDesc = ordering.startsWith('-');
+  const field = isDesc ? ordering.slice(1) : ordering;
+  const col = tableHead.find((h) => h.sortKey === field);
+  return {
+    tableOrderBy: col?.id ?? '',
+    tableOrder: isDesc ? 'desc' as const : 'asc' as const,
+  };
+}, [ordering, tableHead]);
+```
+
+### Handle column click
+
+```ts
+const handleSort = useCallback(
+  (columnId: string) => {
+    const col = tableHead.find((h) => h.id === columnId);
+    if (!col?.sortKey) return;
+    const isCurrentAsc = tableOrderBy === columnId && tableOrder === 'asc';
+    setOrdering(isCurrentAsc ? `-${col.sortKey}` : col.sortKey);
+  },
+  [tableHead, tableOrderBy, tableOrder, setOrdering]
+);
+```
+
+### Wire into TableHeadCustom
+
+```tsx
+<TableHeadCustom
+  order={tableOrder}
+  orderBy={tableOrderBy}
+  onSort={handleSort}
+  headLabel={tableHead}
+  ...
+/>
+```
+
+---
+
+## Export Excel
+
+### Frontend
+
+```ts
+// In the view:
+const exportMutation = useExportProductsMutation();
+
+const handleExport = async () => {
+  await exportMutation.mutateAsync({
+    search: debouncedSearch || undefined,
+    ordering,
+    categoryIds: categoryIds.length ? categoryIds : undefined,
+    minQuantity: debouncedMinQty || undefined,
+    maxQuantity: debouncedMaxQty || undefined,
+  });
+};
+
+// Button:
+<Button
+  startIcon={exportMutation.isPending
+    ? <Iconify icon="svg-spinners:ring-resize" />
+    : <Iconify icon="eva:download-fill" />}
+  onClick={handleExport}
+  disabled={exportMutation.isPending}
+>
+  {tx('common.actions.export')}
+</Button>
+```
+
+The export passes **the same filters as the current list view** — what you see is what you export.
+
+### Backend
+
+Add an `export-excel` action to the ViewSet:
+
+```python
+@action(detail=False, methods=["get"], url_path="export-excel")
+def export_excel(self, request):
+    # filter_queryset applies search + ordering from filter backends
+    # get_queryset applies custom filters (category_ids, quantity range)
+    queryset = self.filter_queryset(self.get_queryset())
+    # ... build openpyxl workbook, stream as blob
+```
+
+Add `"export_excel"` to the `"read"` permission group in `get_permissions()`.
+
+---
+
+## Backend Filtering Pattern
+
+### Multi-value filter (comma-separated)
+
+```python
+category_ids_raw = self.request.query_params.get("category_ids")
+if category_ids_raw:
+    ids = [i.strip() for i in category_ids_raw.split(",") if i.strip()]
+    if ids:
+        queryset = queryset.filter(category_id__in=ids)
+```
+
+### Range filter
+
+```python
+min_qty = self.request.query_params.get("min_quantity")
+max_qty = self.request.query_params.get("max_quantity")
+if min_qty is not None:
+    try:
+        queryset = queryset.filter(total_quantity__gte=int(min_qty))
+    except (ValueError, TypeError):
+        pass
+```
+
+### Ordering fields — include annotated fields
+
+```python
+ordering_fields = [
+    "name", "sku", "created_at",
+    "total_quantity",          # annotated
+    "total_purchase_amount",   # annotated
+    "category__name",          # FK traversal
+]
+```
+
+---
+
+## Reusing for a New Entity (e.g. Clients, Sales)
+
+1. **Create `use-<entity>-url-state.ts`** — define the URL schema with `intParam`/`stringParam`, expose `setFilters`, `resetFilters`, `activeFiltersCount`.
+
+2. **Add backend filters** — extend `get_queryset()` in the ViewSet with `filter(field__in=[...])` / `filter(field__gte=n)`.
+
+3. **Add `ordering_fields`** — include every column users will sort.
+
+4. **In the view** — plug `FilterDrawer` + fields + `handleSort` + `useDebounce` for text range inputs.
+
+5. **Export** (optional) — add `export-excel` action + request function + `useMutate` hook; pass current filter params.
+
+---
+
+## Quick Reference
+
+| Task | Where |
+|---|---|
+| URL state for all filters | `api/use-<entity>-url-state.ts` |
+| Reusable drawer trigger + panel | `src/components/filter-drawer/filter-drawer.tsx` |
+| Multi-select filter field | `src/components/filter-drawer/filter-field-multi-select.tsx` |
+| Range filter field | `src/components/filter-drawer/filter-field-range.tsx` |
+| Parse ordering string → (orderBy, order) | `useMemo` in view (see pattern above) |
+| Backend multi-category filter | `get_queryset()` + `filter(category_id__in=[...])` |
+| Backend range filter | `get_queryset()` + `filter(field__gte=n)` |
+| Export respects current filters | `filter_queryset(get_queryset())` in action |

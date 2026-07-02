@@ -1,0 +1,34 @@
+{
+  "title": "Mutaxassisliklar",
+  "searchPlaceholder": "Nomi bo'yicha qidirish...",
+  "empty": "Mutaxassisliklar topilmadi",
+  "table": {
+    "name": "Nomi",
+    "status": "Holat",
+    "created": "Yaratilgan"
+  },
+  "form": {
+    "createTitle": "Yangi mutaxassislik",
+    "editTitle": "Mutaxassislikni tahrirlash",
+    "name": "Nomi",
+    "active": "Faol"
+  },
+  "actions": {
+    "create": "Mutaxassislik qo'shish"
+  },
+  "toasts": {
+    "created": "Mutaxassislik qo'shildi",
+    "updated": "Mutaxassislik yangilandi",
+    "deleted": "Mutaxassislik o'chirildi"
+  },
+  "dialogs": {
+    "delete": {
+      "title": "Mutaxassislikni o'chirish",
+      "content": "Ushbu mutaxassislik o'chirilsinmi? Bu amalni bekor qilib bo'lmaydi.",
+      "confirm": "O'chirish"
+    }
+  },
+  "validation": {
+    "nameRequired": "Nomi majburiy"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "title": "Панель управления",
+  "dateLabel": "Дата",
+  "tests": {
+    "title": "Тесты за день",
+    "total": "Всего тестов",
+    "passed": "Сдали",
+    "failed": "Не сдали",
+    "inProgress": "В процессе"
+  },
+  "medical": {
+    "title": "Медосмотры за день",
+    "total": "Всего осмотров",
+    "approved": "Допущены",
+    "rejected": "Отстранены"
+  },
+  "byModule": {
+    "title": "По модулям (сдали / всего)",
+    "empty": "В этот день тесты не сдавались",
+    "passedOf": "{{passed}} / {{total}}"
+  },
+  "totals": {
+    "title": "Общие показатели",
+    "activeEmployees": "Активные сотрудники",
+    "approvedQuestions": "Утверждённые вопросы",
+    "draftQuestions": "Неутверждённые вопросы",
+    "instructions": "Инструкции"
+  }
+}

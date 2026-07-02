@@ -1,0 +1,56 @@
+# Accounts — one user per role
+# Passwords:
+#   admin_user    → Admin@2024!
+#   specialist_user → Spec@2024!
+#   medic_user    → Medic@2024!
+
+- model: accounts.user
+  pk: 1
+  fields:
+    password: "pbkdf2_sha256$1000000$6bYpMYfkc4NVjljcV2QmzY$l+EsYqaqnPceREhM7bYOjhcmbX1ZEzH1iXwUuqyqcgQ="
+    last_login: null
+    is_superuser: true
+    username: admin_user
+    first_name: "Admin"
+    last_name: "User"
+    email: "admin@depo.local"
+    is_staff: true
+    is_active: true
+    date_joined: "2024-01-01T00:00:00Z"
+    role: "admin"
+    groups: []
+    user_permissions: []
+
+- model: accounts.user
+  pk: 2
+  fields:
+    password: "pbkdf2_sha256$1000000$s1BA0xopNtd1rznnkqAnxr$frBinRKaDbPvWJvFc0w5TlNuI51C1GqKVMUK6JzwVgg="
+    last_login: null
+    is_superuser: false
+    username: specialist_user
+    first_name: "Specialist"
+    last_name: "User"
+    email: "specialist@depo.local"
+    is_staff: false
+    is_active: true
+    date_joined: "2024-01-01T00:00:00Z"
+    role: "specialist"
+    groups: []
+    user_permissions: []
+
+- model: accounts.user
+  pk: 3
+  fields:
+    password: "pbkdf2_sha256$1000000$fHx9nfQOuaAXoY1hKoYNpy$GFy10eA2JQ5ADURaW1bub5DMiI8d2beoUzQefyOhFyY="
+    last_login: null
+    is_superuser: false
+    username: medic_user
+    first_name: "Medic"
+    last_name: "User"
+    email: "medic@depo.local"
+    is_staff: false
+    is_active: true
+    date_joined: "2024-01-01T00:00:00Z"
+    role: "medic"
+    groups: []
+    user_permissions: []

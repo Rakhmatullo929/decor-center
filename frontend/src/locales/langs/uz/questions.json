@@ -1,0 +1,55 @@
+{
+  "title": "Savollar bazasi",
+  "searchPlaceholder": "Savol matni bo'yicha qidirish...",
+  "empty": "Savollar topilmadi",
+  "table": {
+    "text": "Savol matni",
+    "module": "Modul",
+    "specialty": "Mutaxassislik",
+    "source": "Manba",
+    "status": "Holat",
+    "created": "Yaratilgan"
+  },
+  "filters": {
+    "module": "Modul",
+    "specialty": "Mutaxassislik",
+    "status": "Holat",
+    "source": "Manba"
+  },
+  "source": {
+    "ai": "AI",
+    "manual": "Qo'lda"
+  },
+  "form": {
+    "createTitle": "Yangi savol",
+    "editTitle": "Savolni tahrirlash",
+    "module": "Modul",
+    "specialty": "Mutaxassislik",
+    "text": "Savol matni",
+    "option": "{{letter}} varianti",
+    "correctOption": "To'g'ri javob"
+  },
+  "actions": {
+    "create": "Savol qo'shish"
+  },
+  "dialogs": {
+    "delete": {
+      "title": "Savolni o'chirish",
+      "content": "Ushbu savol o'chirilsinmi? Bu amalni bekor qilib bo'lmaydi.",
+      "confirm": "O'chirish"
+    }
+  },
+  "toasts": {
+    "created": "Savol qo'shildi",
+    "updated": "Savol yangilandi",
+    "approved": "Savol tasdiqlandi",
+    "deleted": "Savol o'chirildi"
+  },
+  "validation": {
+    "moduleRequired": "Modulni tanlang",
+    "specialtyRequired": "Mutaxassislikni tanlang",
+    "textRequired": "Savol matni majburiy",
+    "optionRequired": "Variant matni majburiy",
+    "correctOptionRequired": "To'g'ri javobni tanlang"
+  }
+}

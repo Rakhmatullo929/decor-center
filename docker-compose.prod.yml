@@ -1,0 +1,72 @@
+name: depo
+
+services:
+  db:
+    image: postgres:18
+    container_name: depo-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      # postgres:18 keeps PGDATA under /var/lib/postgresql/18/, not .../data
+      - depo_pgdata:/var/lib/postgresql
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: depo-backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    volumes:
+      - depo_media:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - internal
+      - shared
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health/').status==200 else 1)\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        REACT_APP_HOST_API: https://api.lokomotiv-depo.uz
+    container_name: depo-frontend
+    restart: unless-stopped
+    networks:
+      - shared
+    expose:
+      - "80"
+
+volumes:
+  depo_pgdata:
+  depo_media:
+
+networks:
+  internal:
+    driver: bridge
+  shared:
+    external: true
+    name: rental_track_default

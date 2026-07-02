@@ -1,0 +1,55 @@
+---
+description: Frontend API — слой request(), эндпоинты и React Query (useFetch/useMutate, доменные хуки)
+globs: frontend/src/lib/api/**/*,frontend/src/hooks/api/**/*,frontend/src/utils/axios.ts,frontend/src/**/api/**/*.ts
+alwaysApply: false
+---
+
+# HTTP и данные (frontend)
+
+## Стек
+
+- Транспорт: **Axios** — инстанс `apiClient` в `src/lib/api/http-client.ts` (baseURL `HOST_API`, JWT из `sessionStorage`, humps snake_case ↔ camelCase).
+- Вызовы API из приложения: **`request()`** из `src/utils/axios` (или `src/lib/api/request.ts`) — подмешивает `lang` (uz/ru), возвращает `data`, поддерживает `skipAuth` / второй аргумент `isPublic`.
+- Кэш и статусы: **TanStack React Query** через обёртки **`useFetch`**, **`useFetchList`**, **`useFetchOne`**, **`useInfiniteFetch`**, **`useMutate`** из `src/hooks/api`.
+
+## Слои (снизу вверх)
+
+1. **Пути** — `src/lib/api/endpoints.ts` (`API_ENDPOINTS`) и при необходимости локальные `urls` в фиче (как `src/auth/api/urls.ts`).
+2. **Чистые функции запросов** — файлы вида `*-requests.ts` рядом с фичей (`src/.../api/`): только `async`-функции, внутри `request<T>({ method, url, data?, params? }, isPublic?)`. Не импортировать React. Для логина/регистрации передавать **`true`** как второй аргумент `request`.
+3. **Доменные хуки** — например `use-*-api.ts`: внутри `useFetch` / `useMutate` и вызовы функций из `*-requests.ts`. **Не обязательно один хук на каждый эндпоинт**: группировать по смыслу экрана/фичи (список + деталь + мутация «оплатить»). Если запрос одноразовый и кэш не нужен — достаточно одной мутации/вызова без лишних обёрток.
+4. **UI** — компоненты используют доменные хуки; не вызывать `apiClient` и по возможности не `request()` напрямую из JSX без нужды.
+
+## Соглашения
+
+- Типы тел и ответов — в `types` рядом с API фичи.
+- **`queryKey`**: стабильные массивы, включайте идентификаторы сущности (`['products', 'list', filters]`, `['clients', id]`).
+- После успешных мутаций сначала обновляй кэш локально по паттернам проекта (`addToList`, `deleteFromList`, `updateList`, `updateObject`) через `queryClient.setQueryData`/`setQueriesData`.
+- Для CRUD в списках (create/update/delete) не делать лишний `invalidateQueries` и refetch, если состояние можно корректно обновить локально.
+- Для paginated-list при `create` учитывай сортировку бэкенда: если список отсортирован по `-created_at`, вставляй новую запись в начало `results` на 1-й странице и обрезай массив до `pageSize`, чтобы UI совпадал с сервером.
+- Для `update` обязательно обновляй кэш и списка, и детали сущности: `updateList(...)` для `['<entity>', 'list', ...]` + `updateObject(...)` для `['<entity>', 'detail', id]`.
+- Для bulk-delete/ bulk-update используй отдельную мутацию и один локальный апдейт кэша всех list-query ключей через `setQueriesData`, без refetch.
+- Для bulk-операций предпочитай один backend endpoint (например, `POST /<entity>/bulk-delete/`) вместо `Promise.all` по одиночным delete-запросам.
+- Для bulk-create из Excel/файла используй один endpoint с `FormData` (например, `POST /<entity>/bulk-create-excel/`) и после успеха обновляй list-кэш локально без refetch.
+- `invalidateQueries` используй только когда локальный апдейт кэша невозможен или ненадёжен для конкретного кейса.
+- Язык для бэкенда задаётся автоматически через `request()`; не дублировать `lang` без причины (если нужен другой — явный `params`).
+
+## Пример формы
+
+```ts
+// products-requests.ts
+import { request, API_ENDPOINTS } from 'src/utils/axios';
+
+export function fetchProducts() {
+  return request<ProductList>({ method: 'GET', url: API_ENDPOINTS.products.list });
+}
+
+// use-products-api.ts
+import { useFetch } from 'src/hooks/api';
+import { fetchProducts } from './products-requests';
+
+export function useProductsQuery() {
+  return useFetch(['products', 'list'], () => fetchProducts());
+}
+```
+
+При добавлении нового API следуй этим слоям; не вводи второй HTTP-клиент для того же бэкенда.

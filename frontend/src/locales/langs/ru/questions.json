@@ -1,0 +1,55 @@
+{
+  "title": "База вопросов",
+  "searchPlaceholder": "Поиск по тексту вопроса...",
+  "empty": "Вопросы не найдены",
+  "table": {
+    "text": "Текст вопроса",
+    "module": "Модуль",
+    "specialty": "Специальность",
+    "source": "Источник",
+    "status": "Статус",
+    "created": "Создан"
+  },
+  "filters": {
+    "module": "Модуль",
+    "specialty": "Специальность",
+    "status": "Статус",
+    "source": "Источник"
+  },
+  "source": {
+    "ai": "AI",
+    "manual": "Вручную"
+  },
+  "form": {
+    "createTitle": "Новый вопрос",
+    "editTitle": "Редактирование вопроса",
+    "module": "Модуль",
+    "specialty": "Специальность",
+    "text": "Текст вопроса",
+    "option": "Вариант {{letter}}",
+    "correctOption": "Правильный ответ"
+  },
+  "actions": {
+    "create": "Добавить вопрос"
+  },
+  "dialogs": {
+    "delete": {
+      "title": "Удалить вопрос",
+      "content": "Удалить этот вопрос? Это действие нельзя отменить.",
+      "confirm": "Удалить"
+    }
+  },
+  "toasts": {
+    "created": "Вопрос добавлен",
+    "updated": "Вопрос обновлён",
+    "approved": "Вопрос утверждён",
+    "deleted": "Вопрос удалён"
+  },
+  "validation": {
+    "moduleRequired": "Выберите модуль",
+    "specialtyRequired": "Выберите специальность",
+    "textRequired": "Текст вопроса обязателен",
+    "optionRequired": "Текст варианта обязателен",
+    "correctOptionRequired": "Выберите правильный ответ"
+  }
+}

@@ -1,0 +1,231 @@
+---
+description: Написание frontend тестов — компоненты, хуки, таблицы; моки, test-utils, соглашения проекта
+globs: frontend/src/**/*.{test,spec}.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend тестирование
+
+## Стек
+
+- **Runner**: `react-scripts test` (Jest + jsdom)
+- **Рендер**: `@testing-library/react` через обёртку `src/test-utils.tsx`
+- **Матчеры**: `@testing-library/jest-dom` — подключены в `src/setupTests.ts`
+- **События**: `@testing-library/user-event` для взаимодействий (кликов, ввода)
+- **Моки HTTP**: `msw` (для интеграционных тестов с реальными запросами)
+- **Типы**: `@types/jest` — глобалы `describe`, `it`, `expect`, `jest.fn()` и т.д.
+
+## Где хранить тесты
+
+```text
+src/sections/app/<feature>/
+  components/
+    __tests__/
+      my-component.test.tsx     ← тесты компонента
+  api/
+    __tests__/
+      use-my-hook.test.ts       ← тесты хука
+```
+
+Правило: тест живёт рядом с файлом который тестирует — в папке `__tests__` внутри той же директории.
+
+## test-utils — всегда использовать вместо @testing-library/react напрямую
+
+```ts
+// ✅ правильно
+import { render, screen } from 'src/test-utils';
+
+// ❌ неправильно
+import { render } from '@testing-library/react';
+```
+
+`src/test-utils.tsx` оборачивает в `QueryClientProvider` (retry: false) + `ThemeProvider`.
+Если тест требует дополнительных провайдеров — добавляй их в `test-utils.tsx`, не дублируй в каждом тесте.
+
+## Моки зависимостей
+
+### useLocales
+
+```ts
+jest.mock('src/locales', () => ({
+  useLocales: () => ({ tx: (key: string) => key }),
+}));
+```
+
+### useSettingsContext (если нужен для useLocales)
+
+```ts
+jest.mock('src/components/settings', () => ({
+  useSettingsContext: () => ({ onChangeDirectionByLang: jest.fn() }),
+}));
+```
+
+### Доменные API-хуки
+
+```ts
+const mockUseProductsQuery = jest.fn();
+jest.mock('../../api', () => ({
+  useProductsQuery: (...args: unknown[]) => mockUseProductsQuery(...args),
+}));
+
+// В тесте:
+mockUseProductsQuery.mockReturnValue({
+  data: { results: [...], count: 2 },
+  isPending: false,
+  isFetching: false,
+});
+```
+
+### Компоненты таблицы (`src/components/table`)
+
+```ts
+jest.mock('src/components/table', () => ({
+  TableHeadCustom: ({ headLabel }: { headLabel: { label: string }[] }) => (
+    <thead><tr>{headLabel.map((h) => <th key={h.label}>{h.label}</th>)}</tr></thead>
+  ),
+  TableNoData: ({ notFound, title }: { notFound: boolean; title: string }) =>
+    notFound ? <tr><td>{title}</td></tr> : null,
+  TablePaginationCustom: ({ count }: { count: number }) =>
+    <div data-testid="pagination">{count}</div>,
+  TableSkeleton: () => <tr><td>loading...</td></tr>,
+}));
+```
+
+### Компоненты с тяжёлыми зависимостями (Chart, Map и т.д.)
+
+```ts
+jest.mock('src/components/chart', () => ({
+  __esModule: true,
+  default: () => <div data-testid="chart" />,
+  useChart: () => ({}),
+}));
+```
+
+## Паттерны для хуков
+
+```ts
+import { renderHook, act } from '@testing-library/react';
+
+it('возвращает дефолтное значение', () => {
+  const { result } = renderHook(() => useMyHook());
+  expect(result.current.value).toBe('default');
+});
+
+it('обновляет значение через setX', () => {
+  const { result } = renderHook(() => useMyHook());
+  act(() => { result.current.setValue('new'); });
+  expect(result.current.value).toBe('new');
+});
+```
+
+## Паттерны для компонентов
+
+```tsx
+// Рендер и проверка текста
+render(<MyComponent title="Hello" value="42" />);
+expect(screen.getByText('Hello')).toBeInTheDocument();
+
+// Проверка наличия/отсутствия DOM-элемента
+const { container } = render(<MyComponent loading />);
+expect(container.querySelector('.MuiLinearProgress-root')).toBeInTheDocument();
+
+// Проверка вызова callback
+const onChange = jest.fn();
+render(<MyInput onChange={onChange} />);
+fireEvent.change(screen.getByRole('textbox'), { target: { value: 'abc' } });
+expect(onChange).toHaveBeenCalledWith('abc');
+
+// Проверка состояний loading/empty/data
+mockUseQuery.mockReturnValue({ data: undefined, isPending: true, isFetching: false });
+render(<MyTable />);
+expect(screen.getAllByText('loading...').length).toBeGreaterThan(0);
+```
+
+## Что тестировать
+
+### Компоненты (UI)
+- Рендер с разными пропсами (loading, empty, данные)
+- Callback-пропсы вызываются с правильными аргументами
+- Условный рендер (прогресс-бар, заглушка, данные)
+- Граничные случаи: пустой массив, `undefined`, 0
+
+### Хуки
+- Дефолтные значения при отсутствии параметров
+- Значения из URL/query params
+- Вызов `setValues` / сайд-эффекты
+
+### Таблицы с пагинацией
+- Skeleton пока `isPending && !data`
+- `noData` сообщение когда `results = []`
+- Строки данных когда `results` заполнен
+- `pagination` отображает правильный `count`
+
+## Что НЕ тестировать
+
+- Стили и CSS классы (кроме случаев когда класс является индикатором состояния — `MuiLinearProgress-root`)
+- Внутренние детали реализации (стейт, рефы)
+- Переводы (мокаем `tx = (key) => key`, проверяем ключ, не строку)
+- Визуальный вид чартов — только факт рендера контейнера
+
+## Сброс моков
+
+```ts
+beforeEach(() => jest.clearAllMocks());
+// или
+afterEach(() => jest.clearAllMocks());
+```
+
+Всегда сбрасывай моки между тестами. Используй `jest.clearAllMocks()`, не `jest.resetAllMocks()` — `reset` стирает реализацию по умолчанию.
+
+## Запуск
+
+```bash
+# Все тесты
+yarn test
+
+# Конкретный файл / паттерн
+yarn test --watchAll=false --testPathPattern="my-component"
+
+# С coverage
+yarn test:ci
+```
+
+## Пример готового теста компонента
+
+```tsx
+import { render, screen, fireEvent } from 'src/test-utils';
+import MyStatCard from '../my-stat-card';
+
+describe('MyStatCard', () => {
+  it('показывает title и value', () => {
+    render(<MyStatCard title="Выручка" value="500 000" />);
+    expect(screen.getByText('Выручка')).toBeInTheDocument();
+    expect(screen.getByText('500 000')).toBeInTheDocument();
+  });
+
+  it('показывает прогресс при loading', () => {
+    const { container } = render(<MyStatCard title="T" value="" loading />);
+    expect(container.querySelector('.MuiLinearProgress-root')).toBeInTheDocument();
+  });
+});
+```
+
+## Пример готового теста хука
+
+```ts
+import { renderHook, act } from '@testing-library/react';
+import { useMyHook } from '../use-my-hook';
+
+const mockSetValues = jest.fn();
+jest.mock('src/hooks/use-url-query-state', () => ({
+  useUrlQueryState: () => ({ values: { q: '' }, setValues: mockSetValues }),
+  stringParam: (d: string) => d,
+}));
+
+describe('useMyHook', () => {
+  it('возвращает пустую строку по умолчанию', () => {
+    const { result } = renderHook(() => useMyHook());
+    expect(result.current.query).toBe('');
+  });
+});
+```

@@ -1,0 +1,70 @@
+{
+  "title": "Xodimlar",
+  "searchPlaceholder": "F.I.Sh. bo'yicha qidirish...",
+  "empty": "Xodimlar topilmadi",
+  "table": {
+    "fullName": "F.I.Sh.",
+    "specialty": "Mutaxassislik",
+    "status": "Holat",
+    "created": "Qo'shilgan"
+  },
+  "filters": {
+    "specialty": "Mutaxassislik",
+    "status": "Holat"
+  },
+  "form": {
+    "createTitle": "Yangi xodim",
+    "editTitle": "Xodimni tahrirlash",
+    "fullName": "F.I.Sh.",
+    "specialty": "Mutaxassislik",
+    "photoHint": "Yuz aniq ko'rinadigan old tomondan olingan surat (Face ID uchun)",
+    "active": "Faol"
+  },
+  "actions": {
+    "create": "Xodim qo'shish",
+    "managePhotos": "Yuz suratlarini boshqarish",
+    "archive": "Arxivlash",
+    "activate": "Faollashtirish"
+  },
+  "facePhotos": {
+    "title": "{{name}} — yuz suratlari",
+    "hint": "Bir nechta aniq, old tomondan olingan surat qo'shing (turli rakurs/yorug'lik). Aniqlik uchun 3–5 ta tavsiya etiladi.",
+    "current": "Joriy suratlar",
+    "add": "Surat qo'shish",
+    "empty": "Hali surat yo'q",
+    "count": "{{count}} / {{max}}",
+    "uploading": "Yuklanmoqda...",
+    "toasts": {
+      "added": "Surat qo'shildi",
+      "deleted": "Surat o'chirildi",
+      "someFailed": "Ba'zi suratlar rad etildi"
+    },
+    "errors": {
+      "no_face": "Yuz aniqlanmadi",
+      "multiple_faces": "Suratda bir nechta yuz bor — bitta bo'lishi kerak",
+      "face_too_small": "Yuz juda kichik",
+      "low_quality": "Surat sifati past (xira)",
+      "duplicate": "Bu yuz boshqa xodimga tegishli",
+      "limit_reached": "Suratlar soni chegarasiga yetdi",
+      "invalid_image": "Yaroqsiz rasm"
+    }
+  },
+  "dialogs": {
+    "archive": {
+      "title": "Xodimni arxivlash",
+      "content": "{{name}} arxivlansinmi? Arxivdagi xodim test va tibbiy ko'rik ro'yxatlarida ko'rinmaydi.",
+      "confirm": "Arxivlash"
+    }
+  },
+  "toasts": {
+    "created": "Xodim qo'shildi",
+    "updated": "Xodim ma'lumotlari yangilandi",
+    "archived": "Xodim arxivlandi",
+    "activated": "Xodim faollashtirildi"
+  },
+  "validation": {
+    "fullNameRequired": "F.I.Sh. majburiy",
+    "specialtyRequired": "Mutaxassislikni tanlang",
+    "photoRequired": "Foto majburiy"
+  }
+}

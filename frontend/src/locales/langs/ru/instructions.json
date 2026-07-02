@@ -1,0 +1,57 @@
+{
+  "title": "Инструкции",
+  "searchPlaceholder": "Поиск по названию...",
+  "empty": "Инструкции не найдены",
+  "table": {
+    "title": "Название",
+    "specialty": "Специальность",
+    "generationStatus": "Статус генерации",
+    "lastGeneratedAt": "Последняя генерация",
+    "created": "Создана",
+    "file": "Файл"
+  },
+  "filters": {
+    "specialty": "Специальность",
+    "generationStatus": "Статус генерации"
+  },
+  "status": {
+    "notStarted": "Не запускалась",
+    "completed": "Завершена",
+    "failed": "Ошибка"
+  },
+  "form": {
+    "uploadTitle": "Загрузка инструкции",
+    "title": "Название",
+    "specialty": "Специальность",
+    "fileHint": "Файл в формате PDF, DOCX, TXT или MD"
+  },
+  "generate": {
+    "title": "Генерация вопросов",
+    "description": "AI создаст черновые вопросы на основе инструкции \"{{title}}\".",
+    "count": "Количество вопросов",
+    "submit": "Сгенерировать"
+  },
+  "actions": {
+    "upload": "Загрузить инструкцию",
+    "generate": "Сгенерировать вопросы",
+    "openFile": "Открыть файл"
+  },
+  "dialogs": {
+    "delete": {
+      "title": "Удалить инструкцию",
+      "content": "Удалить \"{{title}}\"? Это действие нельзя отменить.",
+      "confirm": "Удалить"
+    }
+  },
+  "toasts": {
+    "uploaded": "Инструкция загружена",
+    "deleted": "Инструкция удалена",
+    "generated": "Создано вопросов: {{count}}"
+  },
+  "validation": {
+    "titleRequired": "Название обязательно",
+    "specialtyRequired": "Выберите специальность",
+    "fileRequired": "Файл обязателен",
+    "countRequired": "Укажите количество вопросов"
+  }
+}

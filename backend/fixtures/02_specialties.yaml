@@ -1,0 +1,41 @@
+# Employee specialties
+
+- model: employees.specialty
+  pk: 1
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    name: "Машинист электропоезда"
+    is_active: true
+
+- model: employees.specialty
+  pk: 2
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    name: "Помощник машиниста"
+    is_active: true
+
+- model: employees.specialty
+  pk: 3
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    name: "Электромеханик"
+    is_active: true
+
+- model: employees.specialty
+  pk: 4
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    name: "Слесарь по ремонту подвижного состава"
+    is_active: true
+
+- model: employees.specialty
+  pk: 5
+  fields:
+    created_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+    name: "Дежурный по депо"
+    is_active: true
