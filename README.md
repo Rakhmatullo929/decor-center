@@ -93,3 +93,4 @@ Role screens (login with the seed accounts):
 
 Checks: `npx tsc --noEmit`, `npm run lint`, `npm run build`.
 Camera note: `getUserMedia` works on `localhost` or HTTPS only (SRS §11.2).
+# decor-center
