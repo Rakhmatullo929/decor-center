@@ -6,8 +6,9 @@ services:
       POSTGRES_USER: decor
       POSTGRES_PASSWORD: decor
     ports:
-      # 5433 on the host: local Postgres already occupies 5432
-      - "5433:5432"
+      # 5433 on the host by default (local Postgres already occupies 5432); override with
+      # DB_HOST_PORT if 5433 is taken too, e.g. DB_HOST_PORT=5434 docker compose up -d db.
+      - "${DB_HOST_PORT:-5433}:5432"
     volumes:
       # postgres:18 keeps PGDATA under /var/lib/postgresql/18/, not .../data
       - pgdata:/var/lib/postgresql
@@ -22,15 +23,14 @@ services:
     command: >
       sh -c "python manage.py migrate &&
              python manage.py seed_initial_data &&
-             python manage.py seed_demo_data &&
              python manage.py runserver 0.0.0.0:8000"
-    # UzbekVoice TTS key (UZBEKVOICE_API_KEY) + DECOR_TTS_VOICE_UZ live here (gitignored).
     env_file:
       - backend/.env
     environment:
       DATABASE_URL: postgres://decor:decor@db:5432/decor
     ports:
-      - "8000:8000"
+      # Override BACKEND_HOST_PORT if 8000 is taken, e.g. BACKEND_HOST_PORT=8010.
+      - "${BACKEND_HOST_PORT:-8000}:8000"
     depends_on:
       db:
         condition: service_healthy
