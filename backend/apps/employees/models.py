@@ -19,11 +19,15 @@ class Specialty(TimeStampedModel):
 
 
 class Employee(TimeStampedModel):
-    """Decort employee (SRS §4.1)."""
+    """Decor-center employee."""
 
     full_name = models.CharField(max_length=255, db_index=True)
     specialty = models.ForeignKey(Specialty, on_delete=models.PROTECT, related_name="employees")
     photo = models.ImageField(upload_to="employees/photos/")
+    # "Работает с" — hire date; drives survey scheduling (Plan 2).
+    hire_date = models.DateField("Работает с", null=True, blank=True)
+    # "Стаж" — manually entered total work experience in years (decoupled from hire_date).
+    work_experience = models.PositiveIntegerField("Стаж", null=True, blank=True)
     # Face embedding generated from the reference photo (SRS §4.3); internal only.
     face_embedding = models.JSONField(null=True, blank=True, editable=False)
     is_active = models.BooleanField(default=True)

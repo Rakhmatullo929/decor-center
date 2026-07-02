@@ -42,7 +42,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     filterset_fields = ["specialty", "is_active"]
     search_fields = ["full_name"]
-    ordering_fields = ["full_name", "created_at"]
+    ordering_fields = ["full_name", "hire_date", "created_at"]
 
     @action(detail=True, methods=["get", "post"], url_path="face-photos")
     def face_photos(self, request, pk=None):

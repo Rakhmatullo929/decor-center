@@ -73,7 +73,7 @@ class Command(BaseCommand):
 
         # Resolve every record up front; fail fast if any specialty is unknown so we
         # never write a partial roster.
-        resolved = []  # list[(full_name, Specialty)]
+        resolved = []  # list[(full_name, Specialty, hire_date, work_experience)]
         unmatched = {}  # raw specialty name -> count
         for index, record in enumerate(records):
             full_name = (record.get("name") or "").strip()
@@ -86,7 +86,9 @@ class Command(BaseCommand):
             if specialty is None:
                 unmatched[raw_specialty] = unmatched.get(raw_specialty, 0) + 1
                 continue
-            resolved.append((full_name, specialty))
+            hire_date = (record.get("hire_date") or None) or None
+            work_experience = record.get("work_experience")
+            resolved.append((full_name, specialty, hire_date, work_experience))
 
         if unmatched:
             listing = "\n".join(
@@ -101,11 +103,17 @@ class Command(BaseCommand):
         created = 0
         skipped = 0
         with transaction.atomic():
-            for full_name, specialty in resolved:
+            for full_name, specialty, hire_date, work_experience in resolved:
                 if full_name in existing:
                     skipped += 1
                     continue
-                Employee.objects.create(full_name=full_name, specialty=specialty, photo="")
+                Employee.objects.create(
+                    full_name=full_name,
+                    specialty=specialty,
+                    photo="",
+                    hire_date=hire_date,
+                    work_experience=work_experience,
+                )
                 existing.add(full_name)  # guard against duplicates within the file
                 created += 1
 

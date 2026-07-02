@@ -12,6 +12,6 @@ class SpecialtyAdmin(admin.ModelAdmin):
 
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ["full_name", "specialty", "is_active", "created_at"]
-    list_filter = ["specialty", "is_active"]
+    list_display = ["full_name", "specialty", "hire_date", "work_experience", "is_active", "created_at"]
+    list_filter = ["specialty", "is_active", "hire_date"]
     search_fields = ["full_name"]

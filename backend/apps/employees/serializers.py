@@ -25,6 +25,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
             "specialty",
             "specialty_name",
             "photo",
+            "hire_date",
+            "work_experience",
             "is_active",
             "created_at",
         ]
