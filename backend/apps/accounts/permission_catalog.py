@@ -16,24 +16,16 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         "employees:write",
         "specialties:read",
         "specialties:write",
-        "instructions:read",
-        "instructions:write",
+        "tests:read",
+        "tests:write",
         "questions:read",
         "questions:write",
         "results:read",
         "results:detail",
-        "medical:read",
-        "medical:detail",
     ],
     Roles.SPECIALIST: [
         "employees:read",
-        "testing:write",
-    ],
-    Roles.MEDIC: [
-        "employees:read",
-        "medical:read",
-        "medical:detail",
-        "medical:write",
+        "survey:submit",
     ],
 }
 

@@ -3,11 +3,10 @@ from django.db import models
 
 
 class Roles(models.TextChoices):
-    """System roles (SRS §3.1)."""
+    """System roles: admin console + specialist (kiosk device account, shown as "Сотрудник")."""
 
     ADMIN = "admin", "Administrator"
-    SPECIALIST = "specialist", "Specialist"
-    MEDIC = "medic", "Medical staff"
+    SPECIALIST = "specialist", "Сотрудник"
 
 
 class User(AbstractUser):

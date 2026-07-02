@@ -18,24 +18,12 @@ class IsAdmin(HasAnyRole):
     allowed_roles = frozenset({Roles.ADMIN})
 
 
-class IsMedic(HasAnyRole):
-    allowed_roles = frozenset({Roles.MEDIC})
-
-
 class IsSpecialist(HasAnyRole):
     allowed_roles = frozenset({Roles.SPECIALIST})
 
 
-class IsAdminOrMedic(HasAnyRole):
-    allowed_roles = frozenset({Roles.ADMIN, Roles.MEDIC})
-
-
 class IsAdminOrSpecialist(HasAnyRole):
     allowed_roles = frozenset({Roles.ADMIN, Roles.SPECIALIST})
-
-
-class IsAdminOrMedicOrSpecialist(HasAnyRole):
-    allowed_roles = frozenset({Roles.ADMIN, Roles.MEDIC, Roles.SPECIALIST})
 
 
 class IsAdminOrReadOnly(BasePermission):
