@@ -2,7 +2,6 @@ import factory
 from factory.django import DjangoModelFactory
 
 from apps.accounts.models import Roles, User
-from apps.assessments.models import Module, Question
 from apps.employees.models import Employee, Specialty
 
 
@@ -47,16 +46,3 @@ class EmployeeFactory(DjangoModelFactory):
     # Reference embedding normally generated on photo upload via the API.
     face_embedding = factory.LazyFunction(_canonical_face_embedding)
     is_active = True
-
-
-class QuestionFactory(DjangoModelFactory):
-    class Meta:
-        model = Question
-
-    module = Module.SPECIALTY
-    specialty = factory.SubFactory(SpecialtyFactory)
-    text = factory.Sequence(lambda n: f"Question text {n}?")
-    options = ["Option A", "Option B", "Option C", "Option D"]
-    correct_option = 0
-    source = Question.Source.MANUAL
-    status = Question.Status.APPROVED
