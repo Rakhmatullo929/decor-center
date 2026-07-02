@@ -46,3 +46,47 @@ class EmployeeFactory(DjangoModelFactory):
     # Reference embedding normally generated on photo upload via the API.
     face_embedding = factory.LazyFunction(_canonical_face_embedding)
     is_active = True
+
+
+# --- surveys ---
+from apps.surveys.models import Question, QuestionBlock, SurveySession, Test  # noqa: E402
+
+
+class TestFactory(DjangoModelFactory):
+    __test__ = False  # not a pytest test class despite the name
+
+    class Meta:
+        model = Test
+
+    title = factory.Sequence(lambda n: f"Survey {n}")
+    is_active = True
+
+
+class QuestionBlockFactory(DjangoModelFactory):
+    class Meta:
+        model = QuestionBlock
+
+    test = factory.SubFactory(TestFactory)
+    order = 0
+    title = factory.Sequence(lambda n: f"Block {n}")
+
+
+class QuestionFactory(DjangoModelFactory):
+    class Meta:
+        model = Question
+
+    block = factory.SubFactory(QuestionBlockFactory)
+    type = Question.Type.SINGLE
+    text = factory.Sequence(lambda n: f"Question {n}?")
+    options = factory.LazyFunction(
+        lambda: [{"id": "a", "text": "Yes"}, {"id": "b", "text": "No"}]
+    )
+    order = 0
+
+
+class SurveySessionFactory(DjangoModelFactory):
+    class Meta:
+        model = SurveySession
+
+    test = factory.SubFactory(TestFactory)
+    employee = factory.SubFactory(EmployeeFactory)
