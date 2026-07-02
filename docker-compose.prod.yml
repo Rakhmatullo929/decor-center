@@ -1,9 +1,9 @@
-name: depo
+name: decor
 
 services:
   db:
     image: postgres:18
-    container_name: depo-db
+    container_name: decor-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       # postgres:18 keeps PGDATA under /var/lib/postgresql/18/, not .../data
-      - depo_pgdata:/var/lib/postgresql
+      - decor_pgdata:/var/lib/postgresql
     networks:
       - internal
     healthcheck:
@@ -24,14 +24,14 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
-    container_name: depo-backend
+    container_name: decor-backend
     restart: unless-stopped
     env_file: .env
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.prod
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     volumes:
-      - depo_media:/app/media
+      - decor_media:/app/media
     depends_on:
       db:
         condition: service_healthy
@@ -52,8 +52,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.prod
       args:
-        REACT_APP_HOST_API: https://api.lokomotiv-depo.uz
-    container_name: depo-frontend
+        REACT_APP_HOST_API: https://api.lokomotiv-decor.uz
+    container_name: decor-frontend
     restart: unless-stopped
     networks:
       - shared
@@ -61,8 +61,8 @@ services:
       - "80"
 
 volumes:
-  depo_pgdata:
-  depo_media:
+  decor_pgdata:
+  decor_media:
 
 networks:
   internal:

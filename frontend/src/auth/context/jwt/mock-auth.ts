@@ -1,4 +1,4 @@
-import type { DepoUser } from 'src/auth/api/types';
+import type { DecorUser } from 'src/auth/api/types';
 
 // ----------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ const MOCK_ADMIN_PERMISSIONS = [
   'medical_edit:write',
 ];
 
-export function buildMockAuthUser(username: string): DepoUser {
+export function buildMockAuthUser(username: string): DecorUser {
   return {
     id: 1,
     username: username.trim() || 'admin',

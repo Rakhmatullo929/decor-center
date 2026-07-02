@@ -19,7 +19,7 @@ class Specialty(TimeStampedModel):
 
 
 class Employee(TimeStampedModel):
-    """Depot employee (SRS §4.1)."""
+    """Decort employee (SRS §4.1)."""
 
     full_name = models.CharField(max_length=255, db_index=True)
     specialty = models.ForeignKey(Specialty, on_delete=models.PROTECT, related_name="employees")

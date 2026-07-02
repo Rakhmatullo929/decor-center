@@ -1,4 +1,4 @@
-import type { DepoUser, LoginRequest, TokenPairResponse } from './api/types';
+import type { DecorUser, LoginRequest, TokenPairResponse } from './api/types';
 
 // ----------------------------------------------------------------------
 
@@ -13,7 +13,7 @@ export type ActionMapType<M extends { [index: string]: any }> = {
       };
 };
 
-export type AuthUserType = DepoUser | Record<string, unknown> | null;
+export type AuthUserType = DecorUser | Record<string, unknown> | null;
 
 export type AuthStateType = {
   status?: string;

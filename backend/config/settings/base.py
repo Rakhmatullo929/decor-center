@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent  # backend/
 env = environ.Env()
 _env_file = BASE_DIR / ".env"
 # The test suite must be deterministic and independent of any local/CI .env: skip it so
-# every DEPO knob resolves to its code default (the mock backends are pinned in test.py).
+# every DECOR knob resolves to its code default (the mock backends are pinned in test.py).
 if _env_file.exists() and os.environ.get("DJANGO_SETTINGS_MODULE") != "config.settings.test":
     environ.Env.read_env(_env_file)
 
@@ -74,7 +74,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {
-    "default": env.db("DATABASE_URL", default="postgres://localhost:5432/depo"),
+    "default": env.db("DATABASE_URL", default="postgres://localhost:5432/decor"),
 }
 
 AUTH_USER_MODEL = "accounts.User"
@@ -124,40 +124,40 @@ SIMPLE_JWT = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Locomotive Depot Assessment & Medical System API",
-    "DESCRIPTION": "Employee knowledge assessment and medical examination system — Bukhara Locomotive Depot.",
+    "TITLE": "Locomotive Decort Assessment & Medical System API",
+    "DESCRIPTION": "Employee knowledge assessment and medical examination system — Bukhara Locomotive Decort.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
 # Domain configuration (SRS §15 agreed defaults, overridable via env)
-DEPO = {
-    "QUESTIONS_PER_TEST": env.int("DEPO_QUESTIONS_PER_TEST", default=10),
-    "PASS_THRESHOLD": env.int("DEPO_PASS_THRESHOLD", default=8),
-    "FACE_SIMILARITY_THRESHOLD": env.float("DEPO_FACE_SIMILARITY_THRESHOLD", default=0.6),
-    "TESTGEN_LANGUAGE": env("DEPO_TESTGEN_LANGUAGE", default="uz"),
+DECOR = {
+    "QUESTIONS_PER_TEST": env.int("DECOR_QUESTIONS_PER_TEST", default=10),
+    "PASS_THRESHOLD": env.int("DECOR_PASS_THRESHOLD", default=8),
+    "FACE_SIMILARITY_THRESHOLD": env.float("DECOR_FACE_SIMILARITY_THRESHOLD", default=0.6),
+    "TESTGEN_LANGUAGE": env("DECOR_TESTGEN_LANGUAGE", default="uz"),
     "FACE_RECOGNITION_BACKEND": env(
-        "DEPO_FACE_BACKEND", default="apps.integrations.mocks.MockFaceRecognitionService"
+        "DECOR_FACE_BACKEND", default="apps.integrations.mocks.MockFaceRecognitionService"
     ),
     # InsightFace adapter tuning (only used when FACE_RECOGNITION_BACKEND is InsightFaceAdapter)
-    "FACE_INSIGHTFACE_MODEL": env("DEPO_FACE_INSIGHTFACE_MODEL", default="buffalo_sc"),
-    "FACE_DET_SIZE": env.int("DEPO_FACE_DET_SIZE", default=640),
+    "FACE_INSIGHTFACE_MODEL": env("DECOR_FACE_INSIGHTFACE_MODEL", default="buffalo_sc"),
+    "FACE_DET_SIZE": env.int("DECOR_FACE_DET_SIZE", default=640),
     "TEST_GENERATOR_BACKEND": env(
-        "DEPO_TESTGEN_BACKEND", default="apps.integrations.mocks.MockTestGeneratorService"
+        "DECOR_TESTGEN_BACKEND", default="apps.integrations.mocks.MockTestGeneratorService"
     ),
-    "TTS_VOICE_UZ": env("DEPO_TTS_VOICE_UZ", default="lola"),
+    "TTS_VOICE_UZ": env("DECOR_TTS_VOICE_UZ", default="lola"),
     "UZBEKVOICE_API_KEY": env("UZBEKVOICE_API_KEY", default=""),
-    "TTS_ASYNC": env.bool("DEPO_TTS_ASYNC", default=True),
+    "TTS_ASYNC": env.bool("DECOR_TTS_ASYNC", default=True),
     # Multi-photo face enrollment
-    "FACE_MAX_PHOTOS_PER_EMPLOYEE": env.int("DEPO_FACE_MAX_PHOTOS", default=5),
-    "FACE_MIN_FACE_PIXELS": env.int("DEPO_FACE_MIN_FACE_PIXELS", default=80),
-    "FACE_BLUR_MIN_VARIANCE": env.float("DEPO_FACE_BLUR_MIN_VARIANCE", default=0.0),  # 0 = off
+    "FACE_MAX_PHOTOS_PER_EMPLOYEE": env.int("DECOR_FACE_MAX_PHOTOS", default=5),
+    "FACE_MIN_FACE_PIXELS": env.int("DECOR_FACE_MIN_FACE_PIXELS", default=80),
+    "FACE_BLUR_MIN_VARIANCE": env.float("DECOR_FACE_BLUR_MIN_VARIANCE", default=0.0),  # 0 = off
     "ANTI_SPOOFING_BACKEND": env(
-        "DEPO_ANTI_SPOOFING_BACKEND", default="apps.integrations.mocks.MockAntiSpoofingService"
+        "DECOR_ANTI_SPOOFING_BACKEND", default="apps.integrations.mocks.MockAntiSpoofingService"
     ),
-    "ANTI_SPOOFING_ENABLED": env.bool("DEPO_ANTI_SPOOFING_ENABLED", default=False),
-    "ANTI_SPOOFING_THRESHOLD": env.float("DEPO_ANTI_SPOOFING_THRESHOLD", default=0.5),
-    "FACE_WARMUP_ON_STARTUP": env.bool("DEPO_FACE_WARMUP_ON_STARTUP", default=False),
+    "ANTI_SPOOFING_ENABLED": env.bool("DECOR_ANTI_SPOOFING_ENABLED", default=False),
+    "ANTI_SPOOFING_THRESHOLD": env.float("DECOR_ANTI_SPOOFING_THRESHOLD", default=0.5),
+    "FACE_WARMUP_ON_STARTUP": env.bool("DECOR_FACE_WARMUP_ON_STARTUP", default=False),
     # Submit-time face re-verification: off (disabled) | log (capture+log only) | block (reject).
-    "REVERIFY_ON_SUBMIT": env("DEPO_REVERIFY_ON_SUBMIT", default="log"),
+    "REVERIFY_ON_SUBMIT": env("DECOR_REVERIFY_ON_SUBMIT", default="log"),
 }

@@ -9,7 +9,7 @@ RUN yarn install --frozen-lockfile --network-timeout 600000
 COPY . .
 
 # REACT_APP_* are baked at build time by CRA. Point the SPA at the production API.
-ARG REACT_APP_HOST_API=https://api.lokomotiv-depo.uz
+ARG REACT_APP_HOST_API=https://api.lokomotiv-decor.uz
 ENV REACT_APP_HOST_API=${REACT_APP_HOST_API}
 # CRA treats warnings as errors when CI=true; keep them as warnings for the prod build.
 ENV CI=false

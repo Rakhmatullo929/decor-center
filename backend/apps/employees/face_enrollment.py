@@ -1,4 +1,4 @@
-"""Face enrollment helpers for the Depo backend.
+"""Face enrollment helpers for the Decor backend.
 
 `compute_centroid` and `backfill_legacy_samples` are deliberately numpy-free
 (pure Python) so they work with the mock backend and inside data migrations.
@@ -206,7 +206,7 @@ def add_face_photo(
     display photo, which must never be rejected just because the per-employee photo
     cap is already reached (the quality and anti-duplicate gates still apply).
     """
-    cfg = settings.DEPO
+    cfg = settings.DECOR
 
     # 1. anti-spoofing (optional)
     if cfg["ANTI_SPOOFING_ENABLED"]:
@@ -250,7 +250,7 @@ def add_face_photo(
             )
 
     # 6. anti-duplicate vs OTHER employees: reuses identify_best_match, which applies the
-    #    backend's own metric and the live-match threshold (DEPO_FACE_SIMILARITY_THRESHOLD).
+    #    backend's own metric and the live-match threshold (DECOR_FACE_SIMILARITY_THRESHOLD).
     others = (
         Employee.objects.filter(is_active=True, face_embedding__isnull=False)
         .exclude(pk=employee.pk)

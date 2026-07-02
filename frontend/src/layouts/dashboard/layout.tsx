@@ -6,7 +6,7 @@ import { useResponsive } from 'src/hooks/use-responsive';
 // components
 import { useSettingsContext } from 'src/components/settings';
 import { useAuthContext } from 'src/auth/hooks/use-auth-context';
-import type { DepoUser } from 'src/auth/api/types';
+import type { DecorUser } from 'src/auth/api/types';
 //
 import Main from './main';
 import Header from './header';
@@ -28,7 +28,7 @@ export default function DashboardLayout({ children }: Props) {
 
   const nav = useBoolean();
 
-  const isSpecialist = (user as DepoUser)?.role === 'specialist';
+  const isSpecialist = (user as DecorUser)?.role === 'specialist';
 
   const isHorizontal = settings.themeLayout === 'horizontal';
 

@@ -7,31 +7,31 @@ from .factories import EmployeeFactory
 
 
 def test_face_enrollment_settings_present():
-    depo = settings.DEPO
-    assert depo["FACE_MAX_PHOTOS_PER_EMPLOYEE"] == 5
-    assert depo["FACE_MIN_FACE_PIXELS"] == 80
-    assert depo["FACE_BLUR_MIN_VARIANCE"] == 0.0
+    decor = settings.DECOR
+    assert decor["FACE_MAX_PHOTOS_PER_EMPLOYEE"] == 5
+    assert decor["FACE_MIN_FACE_PIXELS"] == 80
+    assert decor["FACE_BLUR_MIN_VARIANCE"] == 0.0
     # Isolation guard: the test settings must NOT read backend/.env, so every knob is the
     # code default (e.g. 0.6) even when a local .env overrides it to 0.5.
-    assert depo["FACE_SIMILARITY_THRESHOLD"] == 0.6
-    assert depo["ANTI_SPOOFING_ENABLED"] is False
-    assert depo["ANTI_SPOOFING_THRESHOLD"] == 0.5
-    assert depo["ANTI_SPOOFING_BACKEND"].endswith("MockAntiSpoofingService")
-    assert depo["FACE_WARMUP_ON_STARTUP"] is False
+    assert decor["FACE_SIMILARITY_THRESHOLD"] == 0.6
+    assert decor["ANTI_SPOOFING_ENABLED"] is False
+    assert decor["ANTI_SPOOFING_THRESHOLD"] == 0.5
+    assert decor["ANTI_SPOOFING_BACKEND"].endswith("MockAntiSpoofingService")
+    assert decor["FACE_WARMUP_ON_STARTUP"] is False
 
 
 def test_insightface_model_settings_are_wired():
-    """The InsightFace knobs the adapter reads must actually be present in DEPO (#7)."""
-    depo = settings.DEPO
-    assert depo["FACE_INSIGHTFACE_MODEL"] == "buffalo_sc"
-    assert depo["FACE_DET_SIZE"] == 640
+    """The InsightFace knobs the adapter reads must actually be present in DECOR (#7)."""
+    decor = settings.DECOR
+    assert decor["FACE_INSIGHTFACE_MODEL"] == "buffalo_sc"
+    assert decor["FACE_DET_SIZE"] == 640
 
 
 def test_reverify_on_submit_default_is_off_in_tests():
     """test.py must pin re-verify OFF so existing submit tests stay deterministic (#1)."""
     from django.conf import settings as dj_settings
 
-    assert dj_settings.DEPO["REVERIFY_ON_SUBMIT"] == "off"
+    assert dj_settings.DECOR["REVERIFY_ON_SUBMIT"] == "off"
 
 
 def test_compute_centroid_single_vector():

@@ -4,7 +4,7 @@ Behaviour is driven by markers embedded in the image bytes so that
 both success and failure paths are reproducible:
   - b"NOFACE"    -> extract_embedding raises NoFaceDetectedError; compare fails
   - b"FAILMATCH" -> compare returns (False, low score)
-Real providers replace these via the DEPO_*_BACKEND settings.
+Real providers replace these via the DECOR_*_BACKEND settings.
 """
 import hashlib
 

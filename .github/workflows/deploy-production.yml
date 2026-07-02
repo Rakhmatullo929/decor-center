@@ -23,7 +23,7 @@ jobs:
           command_timeout: 30m
           script: |
             set -e
-            cd ~/depo
+            cd ~/decor
             git fetch origin
             git checkout production
             git reset --hard origin/production

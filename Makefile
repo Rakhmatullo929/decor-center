@@ -1,4 +1,4 @@
-# Locomotive Depot — developer task runner.
+# Locomotive Decort — developer task runner.
 # Wraps the commands documented in README.md. Run `make` (or `make help`) for the list.
 
 # --- Paths & tools ---------------------------------------------------------

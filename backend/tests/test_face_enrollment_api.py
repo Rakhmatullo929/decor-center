@@ -149,7 +149,7 @@ def test_update_with_unusable_photo_leaves_no_new_display_file(admin_client, set
 
 def test_update_display_photo_not_blocked_by_sample_limit(admin_client, settings):
     """Editing the display photo must work even when the per-employee sample cap is reached (#4)."""
-    settings.DEPO = {**settings.DEPO, "FACE_MAX_PHOTOS_PER_EMPLOYEE": 1}
+    settings.DECOR = {**settings.DECOR, "FACE_MAX_PHOTOS_PER_EMPLOYEE": 1}
     emp = EmployeeFactory(face_embedding=None)
     admin_client.post(_url(emp), {"photo": _upload()}, format="multipart")  # fills the cap
     resp = admin_client.patch(

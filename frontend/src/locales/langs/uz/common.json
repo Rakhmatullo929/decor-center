@@ -1,5 +1,5 @@
 {
-  "appName": "Lokomotiv depo",
+  "appName": "Lokomotiv decor",
   "navigation": {
     "dashboard": "Boshqaruv paneli",
     "management": "Boshqaruv",
@@ -76,7 +76,7 @@
   },
   "auth": {
     "title": "Tizimga kirish",
-    "subtitle": "Lokomotiv depo: bilim nazorati va tibbiy ko'rik tizimi",
+    "subtitle": "Lokomotiv decor: bilim nazorati va tibbiy ko'rik tizimi",
     "username": "Login",
     "password": "Parol",
     "rememberMe": "Meni eslab qol",

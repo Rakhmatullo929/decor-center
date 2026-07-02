@@ -1,7 +1,7 @@
 """Seed initial data: 6 specialties (SRS §4.2) and the three role accounts (SRS §3.1).
 
 Idempotent: existing records are left untouched.
-Passwords come from DEPO_*_PASSWORD env vars (see .env.example).
+Passwords come from DECOR_*_PASSWORD env vars (see .env.example).
 """
 import os
 
@@ -49,7 +49,7 @@ SPECIALTIES = [
     "metrologiya muhandisi",
     "laboratoriya mudiri",
     "yoqilg'i-moylash materiallari muhandisi",
-    "depo navbatchisi",
+    "decor navbatchisi",
     "1-toifali iqtisodchisi",
     "ishlab chiqarish laboronti",
     "eltish hujjatlariga ishlov berish operatori",
@@ -82,9 +82,9 @@ SPECIALTIES = [
 
 ACCOUNTS = [
     # (username, role, is_staff, is_superuser, password_env, default_password)
-    ("admin", Roles.ADMIN, True, True, "DEPO_ADMIN_PASSWORD", "admin12345!"),
-    ("medic", Roles.MEDIC, False, False, "DEPO_MEDIC_PASSWORD", "medic12345!"),
-    ("specialist", Roles.SPECIALIST, False, False, "DEPO_SPECIALIST_PASSWORD", "specialist12345!"),
+    ("admin", Roles.ADMIN, True, True, "DECOR_ADMIN_PASSWORD", "admin12345!"),
+    ("medic", Roles.MEDIC, False, False, "DECOR_MEDIC_PASSWORD", "medic12345!"),
+    ("specialist", Roles.SPECIALIST, False, False, "DECOR_SPECIALIST_PASSWORD", "specialist12345!"),
 ]
 
 

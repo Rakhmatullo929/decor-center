@@ -3,13 +3,13 @@
 Matches the declared dependency stack (`insightface`, `onnxruntime`,
 `opencv-python-headless` in requirements/base.txt). Embeddings are **512-dim,
 L2-normalized**; similarity is **cosine** (dot product of normalized vectors),
-so `settings.DEPO["FACE_SIMILARITY_THRESHOLD"]` is interpreted here as the
+so `settings.DECOR["FACE_SIMILARITY_THRESHOLD"]` is interpreted here as the
 **MIN cosine similarity** for a match (default 0.6; lower = looser).
 
 Enable in .env:
-    DEPO_FACE_BACKEND=apps.integrations.insightface_adapter.InsightFaceAdapter
-    DEPO_FACE_SIMILARITY_THRESHOLD=0.5   # cosine; 0.4 loose / 0.6 strict
-    DEPO_FACE_INSIGHTFACE_MODEL=buffalo_sc   # optional (default buffalo_sc)
+    DECOR_FACE_BACKEND=apps.integrations.insightface_adapter.InsightFaceAdapter
+    DECOR_FACE_SIMILARITY_THRESHOLD=0.5   # cosine; 0.4 loose / 0.6 strict
+    DECOR_FACE_INSIGHTFACE_MODEL=buffalo_sc   # optional (default buffalo_sc)
 
 The model pack (~14 MB for buffalo_sc) is downloaded to ~/.insightface on first
 use; the Docker image bakes it in at build time. Requires the cv2 system libs
@@ -45,8 +45,8 @@ class InsightFaceAdapter(FaceRecognitionService):
                 if cls._app is None:
                     from insightface.app import FaceAnalysis
 
-                    model = settings.DEPO.get("FACE_INSIGHTFACE_MODEL", "buffalo_sc")
-                    det = int(settings.DEPO.get("FACE_DET_SIZE", 640))
+                    model = settings.DECOR.get("FACE_INSIGHTFACE_MODEL", "buffalo_sc")
+                    det = int(settings.DECOR.get("FACE_DET_SIZE", 640))
                     app = FaceAnalysis(name=model, providers=["CPUExecutionProvider"])
                     app.prepare(ctx_id=-1, det_size=(det, det))
                     cls._app = app
@@ -130,7 +130,7 @@ class InsightFaceAdapter(FaceRecognitionService):
         ref = self._unit(np.asarray(reference_embedding, dtype=np.float32))
         live = self._unit(np.asarray(live_embedding, dtype=np.float32))
         similarity = float(np.dot(ref, live))
-        threshold: float = settings.DEPO["FACE_SIMILARITY_THRESHOLD"]
+        threshold: float = settings.DECOR["FACE_SIMILARITY_THRESHOLD"]
         matched = similarity >= threshold
         logger.debug("compare: cosine=%.4f threshold=%.2f matched=%s", similarity, threshold, matched)
         return matched, round(similarity, 4)
@@ -176,7 +176,7 @@ class InsightFaceAdapter(FaceRecognitionService):
 
         best_idx = int(np.argmax(sims))
         best_sim = float(sims[best_idx])
-        threshold: float = settings.DEPO["FACE_SIMILARITY_THRESHOLD"]
+        threshold: float = settings.DECOR["FACE_SIMILARITY_THRESHOLD"]
         logger.debug(
             "identify: best cosine=%.4f (threshold=%.2f) for candidate id=%s",
             best_sim, threshold, ids[best_idx],

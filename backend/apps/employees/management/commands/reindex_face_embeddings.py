@@ -1,6 +1,6 @@
 """Regenerate face embeddings for all employees using the active backend.
 
-Run this whenever you switch DEPO_FACE_BACKEND (e.g. from mock to InsightFace),
+Run this whenever you switch DECOR_FACE_BACKEND (e.g. from mock to InsightFace),
 because the embedding dimensions and format change between backends.
 
 Usage:

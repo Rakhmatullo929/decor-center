@@ -14,7 +14,7 @@ COPY requirements/ requirements/
 RUN pip install --no-cache-dir -r requirements/prod.txt
 
 # Bake the InsightFace model pack (~14 MB) into /root/.insightface so workers warm up
-# without internet at runtime. Used when DEPO_FACE_BACKEND points to InsightFaceAdapter.
+# without internet at runtime. Used when DECOR_FACE_BACKEND points to InsightFaceAdapter.
 RUN python -c "from insightface.app import FaceAnalysis; FaceAnalysis(name='buffalo_sc', providers=['CPUExecutionProvider']).prepare(ctx_id=-1, det_size=(640, 640))"
 
 COPY . .

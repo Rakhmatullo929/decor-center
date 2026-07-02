@@ -1,7 +1,7 @@
 import { request } from 'src/utils/axios';
 
 import { AUTH_URLS } from './urls';
-import type { DepoUser, LoginRequest, TokenPairResponse } from './types';
+import type { DecorUser, LoginRequest, TokenPairResponse } from './types';
 
 export async function fetchLogin(data: LoginRequest): Promise<TokenPairResponse> {
   return request<TokenPairResponse>(
@@ -22,8 +22,8 @@ export async function fetchLogout(refresh: string): Promise<void> {
   });
 }
 
-export async function fetchCurrentUser(): Promise<DepoUser> {
-  return request<DepoUser>({
+export async function fetchCurrentUser(): Promise<DecorUser> {
+  return request<DecorUser>({
     method: 'GET',
     url: AUTH_URLS.me,
   });

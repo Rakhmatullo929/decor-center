@@ -5,7 +5,7 @@ from .models import User
 
 
 @admin.register(User)
-class DepoUserAdmin(UserAdmin):
+class DecorUserAdmin(UserAdmin):
     list_display = ["username", "role", "is_active", "last_login"]
     list_filter = ["role", "is_active"]
     fieldsets = UserAdmin.fieldsets + (("Role", {"fields": ("role",)}),)

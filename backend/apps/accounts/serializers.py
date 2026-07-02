@@ -5,7 +5,7 @@ from .models import User
 from .permission_catalog import permissions_for_role
 
 
-class DepoTokenObtainPairSerializer(TokenObtainPairSerializer):
+class DecorTokenObtainPairSerializer(TokenObtainPairSerializer):
     """JWT login: embeds the role claim and returns user info alongside tokens."""
 
     @classmethod

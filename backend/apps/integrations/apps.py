@@ -12,7 +12,7 @@ def maybe_warmup() -> bool:
     """
     from django.conf import settings
 
-    if not settings.DEPO.get("FACE_WARMUP_ON_STARTUP"):
+    if not settings.DECOR.get("FACE_WARMUP_ON_STARTUP"):
         return False
     if any(cmd in sys.argv for cmd in _SKIP_COMMANDS):
         return False

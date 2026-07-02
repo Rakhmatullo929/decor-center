@@ -15,16 +15,16 @@ jobs:
       postgres:
         image: postgres:18
         env:
-          POSTGRES_DB: depo
-          POSTGRES_USER: depo
-          POSTGRES_PASSWORD: depo
+          POSTGRES_DB: decor
+          POSTGRES_USER: decor
+          POSTGRES_PASSWORD: decor
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U depo -d depo"
+          --health-cmd "pg_isready -U decor -d decor"
           --health-interval 5s --health-timeout 3s --health-retries 12
     env:
-      DATABASE_URL: postgres://depo:depo@localhost:5432/depo
+      DATABASE_URL: postgres://decor:decor@localhost:5432/decor
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -57,4 +57,4 @@ jobs:
         run: yarn build
         env:
           CI: false
-          REACT_APP_HOST_API: https://api.lokomotiv-depo.uz
+          REACT_APP_HOST_API: https://api.lokomotiv-decor.uz

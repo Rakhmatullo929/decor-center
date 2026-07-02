@@ -2,7 +2,7 @@
 export type UserRole = 'admin' | 'specialist' | 'medic';
 
 /** Matches DRF `MeSerializer` response after `humps.camelizeKeys`. */
-export type DepoUser = {
+export type DecorUser = {
   id: number;
   username: string;
   role: UserRole;
@@ -12,11 +12,11 @@ export type DepoUser = {
   permissions: string[];
 };
 
-/** Login response from `DepoTokenObtainPairSerializer`. */
+/** Login response from `DecorTokenObtainPairSerializer`. */
 export type TokenPairResponse = {
   access: string;
   refresh: string;
-  user: DepoUser;
+  user: DecorUser;
 };
 
 export type LoginRequest = {

@@ -2,9 +2,9 @@ services:
   db:
     image: postgres:18
     environment:
-      POSTGRES_DB: depo
-      POSTGRES_USER: depo
-      POSTGRES_PASSWORD: depo
+      POSTGRES_DB: decor
+      POSTGRES_USER: decor
+      POSTGRES_PASSWORD: decor
     ports:
       # 5433 on the host: local Postgres already occupies 5432
       - "5433:5432"
@@ -12,7 +12,7 @@ services:
       # postgres:18 keeps PGDATA under /var/lib/postgresql/18/, not .../data
       - pgdata:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U depo -d depo"]
+      test: ["CMD-SHELL", "pg_isready -U decor -d decor"]
       interval: 5s
       timeout: 3s
       retries: 12
@@ -24,11 +24,11 @@ services:
              python manage.py seed_initial_data &&
              python manage.py seed_demo_data &&
              python manage.py runserver 0.0.0.0:8000"
-    # UzbekVoice TTS key (UZBEKVOICE_API_KEY) + DEPO_TTS_VOICE_UZ live here (gitignored).
+    # UzbekVoice TTS key (UZBEKVOICE_API_KEY) + DECOR_TTS_VOICE_UZ live here (gitignored).
     env_file:
       - backend/.env
     environment:
-      DATABASE_URL: postgres://depo:depo@db:5432/depo
+      DATABASE_URL: postgres://decor:decor@db:5432/decor
     ports:
       - "8000:8000"
     depends_on:

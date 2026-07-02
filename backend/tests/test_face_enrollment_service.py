@@ -47,7 +47,7 @@ def test_add_face_photo_face_too_small(admin_user):
 
 
 def test_add_face_photo_limit_reached(admin_user, settings):
-    settings.DEPO = {**settings.DEPO, "FACE_MAX_PHOTOS_PER_EMPLOYEE": 1}
+    settings.DECOR = {**settings.DECOR, "FACE_MAX_PHOTOS_PER_EMPLOYEE": 1}
     emp = EmployeeFactory(face_embedding=None)
     add_face_photo(emp, _bytes(), "a.png", user=admin_user)
     with pytest.raises(ValidationError) as exc:
@@ -112,7 +112,7 @@ def test_add_face_photo_reuses_embedding_for_dedup_no_re_detect(admin_user, monk
 
 
 def test_add_face_photo_spoof_detected(admin_user, settings):
-    settings.DEPO = {**settings.DEPO, "ANTI_SPOOFING_ENABLED": True}
+    settings.DECOR = {**settings.DECOR, "ANTI_SPOOFING_ENABLED": True}
     emp = EmployeeFactory(face_embedding=None)
     with pytest.raises(ValidationError) as exc:
         add_face_photo(emp, _bytes(b"SPOOF"), "p.png", user=admin_user)
@@ -121,7 +121,7 @@ def test_add_face_photo_spoof_detected(admin_user, settings):
 
 def test_add_face_photo_blur_rejected_when_enabled(admin_user, settings):
     # png_bytes() is a flat 8x8 image → FIND_EDGES variance is 0 → below any positive threshold
-    settings.DEPO = {**settings.DEPO, "FACE_BLUR_MIN_VARIANCE": 1.0}
+    settings.DECOR = {**settings.DECOR, "FACE_BLUR_MIN_VARIANCE": 1.0}
     emp = EmployeeFactory(face_embedding=None)
     with pytest.raises(ValidationError) as exc:
         add_face_photo(emp, _bytes(), "p.png", user=admin_user)
@@ -156,7 +156,7 @@ def test_recompute_centroid_ignores_stale_dimension(admin_user):
 
 
 def test_recompute_centroid_is_mean_of_samples(admin_user, settings):
-    settings.DEPO = {**settings.DEPO, "FACE_MAX_PHOTOS_PER_EMPLOYEE": 5}
+    settings.DECOR = {**settings.DECOR, "FACE_MAX_PHOTOS_PER_EMPLOYEE": 5}
     emp = EmployeeFactory(face_embedding=None)
     add_face_photo(emp, _bytes(), "a.png", user=admin_user)
     add_face_photo(emp, _bytes(b"FAILMATCH"), "b.png", user=admin_user)
@@ -200,7 +200,7 @@ def test_limit_counts_only_active_dimension_samples(admin_user, settings):
     """
     from apps.employees.models import EmployeeFacePhoto
 
-    settings.DEPO = {**settings.DEPO, "FACE_MAX_PHOTOS_PER_EMPLOYEE": 2}
+    settings.DECOR = {**settings.DECOR, "FACE_MAX_PHOTOS_PER_EMPLOYEE": 2}
     emp = EmployeeFactory(face_embedding=None)
     EmployeeFacePhoto.objects.create(
         employee=emp, photo="a.png", embedding=[0.1] * 512, model_version="arcface-buffalo_sc-512"

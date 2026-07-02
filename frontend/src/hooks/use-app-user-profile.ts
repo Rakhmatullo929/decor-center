@@ -1,10 +1,10 @@
-import type { DepoUser, UserRole } from 'src/auth/api/types';
+import type { DecorUser, UserRole } from 'src/auth/api/types';
 import type { AuthUserType } from 'src/auth/types';
 import { useAuthContext } from 'src/auth/hooks/use-auth-context';
 
 /**
  * Minimals dashboard expects displayName, role, etc.
- * This maps the JWT `DepoUser` into that profile shape.
+ * This maps the JWT `DecorUser` into that profile shape.
  */
 export type AppUserProfile = {
   id: number;
@@ -15,13 +15,13 @@ export type AppUserProfile = {
   photoURL?: string;
 };
 
-function isDepoUser(u: unknown): u is DepoUser {
+function isDecorUser(u: unknown): u is DecorUser {
   return (
     u !== null &&
     typeof u === 'object' &&
-    typeof (u as DepoUser).id === 'number' &&
-    typeof (u as DepoUser).username === 'string' &&
-    typeof (u as DepoUser).role === 'string'
+    typeof (u as DecorUser).id === 'number' &&
+    typeof (u as DecorUser).username === 'string' &&
+    typeof (u as DecorUser).role === 'string'
   );
 }
 
@@ -38,7 +38,7 @@ function emptyProfile(partial: Partial<AppUserProfile> = {}): AppUserProfile {
 }
 
 function mapAuthUserToProfile(u: NonNullable<AuthUserType>): AppUserProfile {
-  if (isDepoUser(u)) {
+  if (isDecorUser(u)) {
     const fullName = [u.firstName, u.lastName].filter(Boolean).join(' ');
     return emptyProfile({
       id: u.id,
