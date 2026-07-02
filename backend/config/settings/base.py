@@ -37,9 +37,6 @@ INSTALLED_APPS = [
     "apps.core",
     "apps.accounts",
     "apps.employees",
-    "apps.instructions",
-    "apps.assessments",
-    "apps.medical",
     "apps.integrations",
 ]
 
@@ -124,30 +121,21 @@ SIMPLE_JWT = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Locomotive Decort Assessment & Medical System API",
-    "DESCRIPTION": "Employee knowledge assessment and medical examination system — Bukhara Locomotive Decort.",
+    "TITLE": "Decor Center — Employee Opinion Survey API",
+    "DESCRIPTION": "Employee opinion-survey platform for decor-center (no scoring, no pass/fail).",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
-# Domain configuration (SRS §15 agreed defaults, overridable via env)
+# Face-recognition configuration (env-overridable). No scoring / TTS / AI-testgen knobs.
 DECOR = {
-    "QUESTIONS_PER_TEST": env.int("DECOR_QUESTIONS_PER_TEST", default=10),
-    "PASS_THRESHOLD": env.int("DECOR_PASS_THRESHOLD", default=8),
     "FACE_SIMILARITY_THRESHOLD": env.float("DECOR_FACE_SIMILARITY_THRESHOLD", default=0.6),
-    "TESTGEN_LANGUAGE": env("DECOR_TESTGEN_LANGUAGE", default="uz"),
     "FACE_RECOGNITION_BACKEND": env(
         "DECOR_FACE_BACKEND", default="apps.integrations.mocks.MockFaceRecognitionService"
     ),
     # InsightFace adapter tuning (only used when FACE_RECOGNITION_BACKEND is InsightFaceAdapter)
     "FACE_INSIGHTFACE_MODEL": env("DECOR_FACE_INSIGHTFACE_MODEL", default="buffalo_sc"),
     "FACE_DET_SIZE": env.int("DECOR_FACE_DET_SIZE", default=640),
-    "TEST_GENERATOR_BACKEND": env(
-        "DECOR_TESTGEN_BACKEND", default="apps.integrations.mocks.MockTestGeneratorService"
-    ),
-    "TTS_VOICE_UZ": env("DECOR_TTS_VOICE_UZ", default="lola"),
-    "UZBEKVOICE_API_KEY": env("UZBEKVOICE_API_KEY", default=""),
-    "TTS_ASYNC": env.bool("DECOR_TTS_ASYNC", default=True),
     # Multi-photo face enrollment
     "FACE_MAX_PHOTOS_PER_EMPLOYEE": env.int("DECOR_FACE_MAX_PHOTOS", default=5),
     "FACE_MIN_FACE_PIXELS": env.int("DECOR_FACE_MIN_FACE_PIXELS", default=80),
@@ -158,6 +146,6 @@ DECOR = {
     "ANTI_SPOOFING_ENABLED": env.bool("DECOR_ANTI_SPOOFING_ENABLED", default=False),
     "ANTI_SPOOFING_THRESHOLD": env.float("DECOR_ANTI_SPOOFING_THRESHOLD", default=0.5),
     "FACE_WARMUP_ON_STARTUP": env.bool("DECOR_FACE_WARMUP_ON_STARTUP", default=False),
-    # Submit-time face re-verification: off (disabled) | log (capture+log only) | block (reject).
-    "REVERIFY_ON_SUBMIT": env("DECOR_REVERIFY_ON_SUBMIT", default="log"),
+    # Submit-time face re-verification for surveys defaults OFF (opinion surveys, no integrity gate).
+    "REVERIFY_ON_SUBMIT": env("DECOR_REVERIFY_ON_SUBMIT", default="off"),
 }

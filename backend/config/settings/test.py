@@ -13,10 +13,6 @@ DECOR = {
     **DECOR,
     "FACE_RECOGNITION_BACKEND": "apps.integrations.mocks.MockFaceRecognitionService",
     "ANTI_SPOOFING_BACKEND": "apps.integrations.mocks.MockAntiSpoofingService",
-    "TEST_GENERATOR_BACKEND": "apps.integrations.mocks.MockTestGeneratorService",
-    # Pin submit-time re-verify OFF so existing submit tests stay deterministic; feature
-    # tests opt in per-test via the `settings` fixture.
+    # Pin submit-time re-verify OFF so submit tests stay deterministic.
     "REVERIFY_ON_SUBMIT": "off",
-    # Run TTS synthesis inline (no thread) so the signal is deterministic in tests.
-    "TTS_ASYNC": False,
 }
