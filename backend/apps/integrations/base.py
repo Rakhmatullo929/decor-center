@@ -1,8 +1,8 @@
-"""Service interfaces (ports) for external integrations — SRS §12.
+"""Service interfaces (ports) for external face-recognition integrations.
 
-Domain code depends only on these abstractions. Concrete adapters
-(mocks now; InsightFace / Claude API / TTS providers at phase 4+)
-are resolved through `apps.integrations.registry`.
+Domain code depends only on these abstractions. Concrete face adapters
+(the mock backend in dev/CI; InsightFace in prod) are resolved through
+`apps.integrations.registry`.
 """
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -10,13 +10,6 @@ from dataclasses import dataclass
 
 class NoFaceDetectedError(Exception):
     """Raised when no face can be found in the supplied image (SRS §4.3)."""
-
-
-@dataclass(frozen=True)
-class GeneratedQuestion:
-    text: str
-    options: list[str]  # exactly 4
-    correct_option: int  # 0..3
 
 
 @dataclass(frozen=True)
@@ -117,11 +110,3 @@ class AntiSpoofingService(ABC):
     @abstractmethod
     def check_liveness(self, image_bytes: bytes) -> tuple[bool, float]:
         """Return (is_live, score). Higher score = more likely a genuine live capture."""
-
-
-class TestGeneratorService(ABC):
-    """AI question generation from instruction text (SRS §12.1)."""
-
-    @abstractmethod
-    def generate(self, source_text: str, count: int, language: str) -> list[GeneratedQuestion]:
-        """Generate `count` draft questions from `source_text`."""

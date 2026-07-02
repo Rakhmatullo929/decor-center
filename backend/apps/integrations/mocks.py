@@ -12,9 +12,7 @@ from .base import (
     AntiSpoofingService,
     DetectedFace,
     FaceRecognitionService,
-    GeneratedQuestion,
     NoFaceDetectedError,
-    TestGeneratorService,
 )
 
 
@@ -60,16 +58,3 @@ class MockAntiSpoofingService(AntiSpoofingService):
         if not image_bytes or b"SPOOF" in image_bytes:
             return False, 0.0
         return True, 1.0
-
-
-class MockTestGeneratorService(TestGeneratorService):
-    def generate(self, source_text: str, count: int, language: str) -> list[GeneratedQuestion]:
-        snippet = " ".join(source_text.split())[:80] or "the uploaded instruction"
-        return [
-            GeneratedQuestion(
-                text=f"[MOCK/{language}] Question {i + 1} based on: {snippet}",
-                options=[f"Option {letter}" for letter in "ABCD"],
-                correct_option=i % 4,
-            )
-            for i in range(count)
-        ]
