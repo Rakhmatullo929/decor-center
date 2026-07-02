@@ -1,10 +1,9 @@
 import pytest
 from django.db import IntegrityError
 
-from apps.surveys.models import Answer, Question, QuestionBlock, SurveySession, Test
+from apps.surveys.models import Answer, Question, SurveySession, Test
 
 from .factories import (
-    EmployeeFactory,
     QuestionBlockFactory,
     QuestionFactory,
     SurveySessionFactory,

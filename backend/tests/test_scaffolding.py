@@ -8,7 +8,11 @@ pytestmark = pytest.mark.django_db
 
 
 def test_factories_have_no_assessments():
-    assert not hasattr(factories, "QuestionFactory")
+    # The deleted assessments QuestionFactory is gone; the only QuestionFactory now
+    # builds a SURVEY question (Plan 2).
+    from apps.surveys.models import Question
+
+    assert factories.QuestionFactory._meta.model is Question
     assert hasattr(factories, "EmployeeFactory")
 
 

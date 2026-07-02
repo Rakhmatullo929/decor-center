@@ -14,7 +14,7 @@ pytestmark = pytest.mark.django_db
 def _complete(test, employee, when):
     """Create a completed session for `test`/`employee` at datetime `when`."""
     if timezone.is_naive(when):
-        when = timezone.make_aware(when, datetime.timezone.utc)
+        when = timezone.make_aware(when, datetime.UTC)
     session = SurveySession.objects.create(test=test, employee=employee)
     SurveySession.objects.filter(pk=session.pk).update(completed_at=when)
     return session

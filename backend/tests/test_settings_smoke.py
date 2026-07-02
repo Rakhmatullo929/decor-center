@@ -3,7 +3,13 @@ from django.conf import settings
 
 def test_installed_apps_are_reduced():
     local = [a for a in settings.INSTALLED_APPS if a.startswith("apps.")]
-    assert local == ["apps.core", "apps.accounts", "apps.employees", "apps.integrations"]
+    assert local == [
+        "apps.core",
+        "apps.accounts",
+        "apps.employees",
+        "apps.integrations",
+        "apps.surveys",
+    ]
     assert "apps.medical" not in settings.INSTALLED_APPS
     assert "apps.instructions" not in settings.INSTALLED_APPS
     assert "apps.assessments" not in settings.INSTALLED_APPS
