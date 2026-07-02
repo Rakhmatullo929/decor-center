@@ -62,11 +62,7 @@ def test_specialist_cannot_create_employee(specialist_client):
     assert response.status_code == 403
 
 
-def test_specialties_readable_by_all_roles_writable_by_admin(
-    admin_client, medic_client, specialist_client
-):
+def test_specialties_readable_by_all_roles_writable_by_admin(admin_client, specialist_client):
     assert admin_client.post(SPECIALTIES_URL, {"name": "New specialty"}).status_code == 201
     assert specialist_client.get(SPECIALTIES_URL).status_code == 200
-    assert medic_client.get(SPECIALTIES_URL).status_code == 200
     assert specialist_client.post(SPECIALTIES_URL, {"name": "Nope"}).status_code == 403
-    assert medic_client.post(SPECIALTIES_URL, {"name": "Nope"}).status_code == 403

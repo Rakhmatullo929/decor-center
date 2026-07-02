@@ -1,5 +1,3 @@
-import pytest
-
 from apps.accounts import permissions as perms
 from apps.accounts.models import Roles
 from apps.accounts.permission_catalog import permissions_for_role
