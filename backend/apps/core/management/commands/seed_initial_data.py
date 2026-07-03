@@ -1,4 +1,4 @@
-"""Seed initial data: specialties and the two role accounts (admin + specialist/kiosk).
+"""Seed initial data: specialties and the two role accounts (admin + employee/kiosk).
 
 Idempotent: existing records are left untouched.
 Passwords come from DECOR_*_PASSWORD env vars (see .env.example).
@@ -31,7 +31,7 @@ SPECIALTIES = [
 ACCOUNTS = [
     # (username, role, is_staff, is_superuser, password_env, default_password)
     ("admin", Roles.ADMIN, True, True, "DECOR_ADMIN_PASSWORD", "admin12345!"),
-    ("specialist", Roles.SPECIALIST, False, False, "DECOR_SPECIALIST_PASSWORD", "specialist12345!"),
+    ("employee", Roles.EMPLOYEE, False, False, "DECOR_EMPLOYEE_PASSWORD", "employee12345!"),
 ]
 
 

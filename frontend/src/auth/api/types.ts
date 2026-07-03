@@ -1,5 +1,5 @@
 /** Matches `accounts.Roles` on the backend. */
-export type UserRole = 'admin' | 'specialist' | 'medic';
+export type UserRole = 'admin' | 'employee';
 
 /** Matches DRF `MeSerializer` response after `humps.camelizeKeys`. */
 export type DecorUser = {

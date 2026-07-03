@@ -11,18 +11,18 @@ ME_URL = "/api/v1/auth/me/"
 
 
 def test_login_returns_tokens_role_and_permissions(api_client):
-    UserFactory(username="spec1", role="specialist")
+    UserFactory(username="spec1", role="employee")
     response = api_client.post(LOGIN_URL, {"username": "spec1", "password": "password123"})
     assert response.status_code == 200
     assert "access" in response.data
     assert "refresh" in response.data
-    assert response.data["user"]["role"] == "specialist"
+    assert response.data["user"]["role"] == "employee"
     assert "survey:submit" in response.data["user"]["permissions"]
     assert "tests:write" not in response.data["user"]["permissions"]
 
 
 def test_login_wrong_password_rejected(api_client):
-    UserFactory(username="spec1", role="specialist")
+    UserFactory(username="spec1", role="employee")
     response = api_client.post(LOGIN_URL, {"username": "spec1", "password": "wrong"})
     assert response.status_code == 401
 

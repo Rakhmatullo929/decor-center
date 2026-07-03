@@ -81,7 +81,6 @@
   },
   "roles": {
     "admin": "Administrator",
-    "specialist": "Mutaxassis",
-    "medic": "Tibbiyot xodimi"
+    "employee": "Xodim"
   }
 }

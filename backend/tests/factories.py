@@ -10,7 +10,7 @@ class UserFactory(DjangoModelFactory):
         model = User
 
     username = factory.Sequence(lambda n: f"user{n}")
-    role = Roles.SPECIALIST
+    role = Roles.EMPLOYEE
     password = factory.django.Password("password123")
 
 

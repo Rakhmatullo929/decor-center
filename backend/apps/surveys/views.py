@@ -9,7 +9,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 
-from apps.accounts.permissions import IsAdmin, IsAdminOrReadOnly, IsAdminOrSpecialist
+from apps.accounts.permissions import IsAdmin, IsAdminOrEmployee, IsAdminOrReadOnly
 from apps.core.excel import xlsx_response
 from apps.employees.models import Employee
 from apps.employees.serializers import EmployeeSerializer
@@ -85,7 +85,7 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_permissions(self):
         if self.action in ("identify", "due", "start", "submit"):
-            return [IsAdminOrSpecialist()]
+            return [IsAdminOrEmployee()]
         return [IsAdmin()]
 
     def get_queryset(self):

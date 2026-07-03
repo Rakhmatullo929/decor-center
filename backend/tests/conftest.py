@@ -33,8 +33,8 @@ def admin_user(db):
 
 
 @pytest.fixture
-def specialist_user(db):
-    return UserFactory(username="specialist-test", role=Roles.SPECIALIST)
+def employee_user(db):
+    return UserFactory(username="employee-test", role=Roles.EMPLOYEE)
 
 
 @pytest.fixture
@@ -45,9 +45,9 @@ def admin_client(admin_user):
 
 
 @pytest.fixture
-def specialist_client(specialist_user):
+def employee_client(employee_user):
     client = APIClient()
-    client.force_authenticate(specialist_user)
+    client.force_authenticate(employee_user)
     return client
 
 

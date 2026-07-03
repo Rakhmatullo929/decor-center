@@ -255,10 +255,10 @@ export default function EmployeeStep({ onSelect }: Props) {
       >
         {/* Title group */}
         <Stack spacing={1.5}>
-          {/* Specialist badge */}
+          {/* Employee badge */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Chip
-              label="SPECIALIST ACCESS"
+              label="EMPLOYEE ACCESS"
               size="small"
               sx={{
                 height: 20,

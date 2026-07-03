@@ -7,15 +7,15 @@ from apps.employees.models import Specialty
 pytestmark = pytest.mark.django_db
 
 
-def test_seed_creates_admin_and_specialist_only():
+def test_seed_creates_admin_and_employee_only():
     call_command("seed_initial_data")
     usernames = set(User.objects.values_list("username", flat=True))
-    assert usernames == {"admin", "specialist"}
+    assert usernames == {"admin", "employee"}
     assert not User.objects.filter(username="medic").exists()
     admin = User.objects.get(username="admin")
     assert admin.is_superuser and admin.is_staff and admin.role == "admin"
-    specialist = User.objects.get(username="specialist")
-    assert specialist.role == "specialist"
+    employee = User.objects.get(username="employee")
+    assert employee.role == "employee"
     assert Specialty.objects.count() > 0
 
 
