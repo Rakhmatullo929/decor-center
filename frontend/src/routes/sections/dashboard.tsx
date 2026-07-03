@@ -5,19 +5,12 @@ import DashboardLayout from 'src/layouts/dashboard';
 import { LoadingScreen } from 'src/components/loading-screen';
 
 const HomePage = lazy(() => import('src/pages/home'));
-const DashboardPage = lazy(() => import('src/pages/app/dashboard'));
 const EmployeesPage = lazy(() => import('src/pages/app/employees'));
 const SpecialtiesPage = lazy(() => import('src/pages/app/specialties'));
-const QuestionsPage = lazy(() => import('src/pages/app/questions'));
-const InstructionsPage = lazy(() => import('src/pages/app/instructions'));
-const ResultsPage = lazy(() => import('src/pages/app/results'));
-const ResultDetailPage = lazy(() => import('src/pages/app/result-detail'));
-const MedicalPage = lazy(() => import('src/pages/app/medical'));
-const MedicalCreatePage = lazy(() => import('src/pages/app/medical-create'));
-const MedicalDetailPage = lazy(() => import('src/pages/app/medical-detail'));
-const MedicalEditPage = lazy(() => import('src/pages/app/medical-edit'));
-const TestingPage = lazy(() => import('src/pages/app/testing'));
-const TestingQuestionsPage = lazy(() => import('src/pages/app/testing-questions'));
+const SurveyTestsPage = lazy(() => import('src/pages/app/survey-tests'));
+const SurveyBlocksPage = lazy(() => import('src/pages/app/survey-blocks'));
+const SurveyQuestionsPage = lazy(() => import('src/pages/app/survey-questions'));
+const SurveyResultsPage = lazy(() => import('src/pages/app/survey-results'));
 
 export const dashboardRoutes = [
   {
@@ -32,14 +25,6 @@ export const dashboardRoutes = [
     ),
     children: [
       { path: 'home', element: <HomePage /> },
-      {
-        path: 'dashboard',
-        element: (
-          <PermissionGuard page="dashboard" action="read">
-            <DashboardPage />
-          </PermissionGuard>
-        ),
-      },
       {
         path: 'employees',
         element: (
@@ -57,82 +42,34 @@ export const dashboardRoutes = [
         ),
       },
       {
-        path: 'questions',
+        path: 'surveys/tests',
+        element: (
+          <PermissionGuard page="tests" action="read">
+            <SurveyTestsPage />
+          </PermissionGuard>
+        ),
+      },
+      {
+        path: 'surveys/tests/:testId/blocks',
+        element: (
+          <PermissionGuard page="tests" action="read">
+            <SurveyBlocksPage />
+          </PermissionGuard>
+        ),
+      },
+      {
+        path: 'surveys/blocks/:blockId/questions',
         element: (
           <PermissionGuard page="questions" action="read">
-            <QuestionsPage />
+            <SurveyQuestionsPage />
           </PermissionGuard>
         ),
       },
       {
-        path: 'instructions',
-        element: (
-          <PermissionGuard page="instructions" action="read">
-            <InstructionsPage />
-          </PermissionGuard>
-        ),
-      },
-      {
-        path: 'results',
+        path: 'surveys/results',
         element: (
           <PermissionGuard page="results" action="read">
-            <ResultsPage />
-          </PermissionGuard>
-        ),
-      },
-      {
-        path: 'results/:id',
-        element: (
-          <PermissionGuard page="results" action="detail">
-            <ResultDetailPage />
-          </PermissionGuard>
-        ),
-      },
-      {
-        path: 'medical',
-        element: (
-          <PermissionGuard page="medical" action="read">
-            <MedicalPage />
-          </PermissionGuard>
-        ),
-      },
-      {
-        path: 'medical/new/:employeeId',
-        element: (
-          <PermissionGuard page="medical" action="write">
-            <MedicalCreatePage />
-          </PermissionGuard>
-        ),
-      },
-      {
-        path: 'medical/:id',
-        element: (
-          <PermissionGuard page="medical" action="detail">
-            <MedicalDetailPage />
-          </PermissionGuard>
-        ),
-      },
-      {
-        path: 'medical/:id/edit',
-        element: (
-          <PermissionGuard page="medical" action="write">
-            <MedicalEditPage />
-          </PermissionGuard>
-        ),
-      },
-      {
-        path: 'testing',
-        element: (
-          <PermissionGuard page="testing" action="write">
-            <TestingPage />
-          </PermissionGuard>
-        ),
-      },
-      {
-        path: 'testing/tests/:specialistId/:module',
-        element: (
-          <PermissionGuard page="testing" action="write">
-            <TestingQuestionsPage />
+            <SurveyResultsPage />
           </PermissionGuard>
         ),
       },

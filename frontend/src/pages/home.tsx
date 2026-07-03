@@ -14,21 +14,18 @@ export default function HomePage() {
   const { tx } = useLocales();
   const { canReadPage, canWritePage } = useCheckPermission();
 
-  // Admin lands on the dashboard; medic enters examinations; specialist takes tests.
-  if (canReadPage('dashboard')) {
-    return <Navigate to={paths.app.dashboard} replace />;
+  // Admin lands on the survey tests screen; managers on their primary directory.
+  if (canReadPage('tests')) {
+    return <Navigate to={paths.app.surveys.tests} replace />;
+  }
+  if (canReadPage('results')) {
+    return <Navigate to={paths.app.surveys.results} replace />;
   }
   if (canWritePage('employees')) {
     return <Navigate to={paths.app.employees} replace />;
   }
-  if (canWritePage('medical')) {
-    return <Navigate to={paths.app.medical.root} replace />;
-  }
-  if (canWritePage('testing')) {
-    return <Navigate to={paths.app.testing.root} replace />;
-  }
-  if (canReadPage('medical')) {
-    return <Navigate to={paths.app.medical.root} replace />;
+  if (canReadPage('specialties')) {
+    return <Navigate to={paths.app.specialties} replace />;
   }
 
   return (

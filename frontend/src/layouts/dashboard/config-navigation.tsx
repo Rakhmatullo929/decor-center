@@ -28,16 +28,7 @@ export function useNavData() {
     const groups: NavGroup[] = [];
 
     const managementItems: NavItem[] = [];
-    if (canReadPage('dashboard')) {
-      managementItems.push({
-        title: tx('common.navigation.dashboard'),
-        path: paths.app.dashboard,
-        icon: icon('solar:chart-2-bold-duotone'),
-      });
-    }
     if (canReadPage('employees') && canWritePage('employees')) {
-      // Read-only employees access (specialist/medic) is used inside their own
-      // flows; the directory menu item is shown to managers only.
       managementItems.push({
         title: tx('common.navigation.employees'),
         path: paths.app.employees,
@@ -55,50 +46,23 @@ export function useNavData() {
       groups.push({ subheader: tx('common.navigation.management'), items: managementItems });
     }
 
-    const assessmentItems: NavItem[] = [];
-    if (canWritePage('testing')) {
-      assessmentItems.push({
-        title: tx('common.navigation.testing'),
-        path: paths.app.testing.root,
-        icon: icon('solar:clipboard-check-bold-duotone'),
-      });
-    }
-    if (canReadPage('questions')) {
-      assessmentItems.push({
-        title: tx('common.navigation.questions'),
-        path: paths.app.questions,
-        icon: icon('solar:question-circle-bold-duotone'),
-      });
-    }
-    if (canReadPage('instructions')) {
-      assessmentItems.push({
-        title: tx('common.navigation.instructions'),
-        path: paths.app.instructions,
-        icon: icon('solar:document-text-bold-duotone'),
+    const surveyItems: NavItem[] = [];
+    if (canReadPage('tests')) {
+      surveyItems.push({
+        title: tx('common.navigation.surveys'),
+        path: paths.app.surveys.tests,
+        icon: icon('solar:clipboard-list-bold-duotone'),
       });
     }
     if (canReadPage('results')) {
-      assessmentItems.push({
+      surveyItems.push({
         title: tx('common.navigation.results'),
-        path: paths.app.results.root,
+        path: paths.app.surveys.results,
         icon: icon('solar:chart-square-bold-duotone'),
       });
     }
-    if (assessmentItems.length) {
-      groups.push({ subheader: tx('common.navigation.assessments'), items: assessmentItems });
-    }
-
-    if (canReadPage('medical')) {
-      groups.push({
-        subheader: tx('common.navigation.medicalGroup'),
-        items: [
-          {
-            title: tx('common.navigation.medical'),
-            path: paths.app.medical.root,
-            icon: icon('solar:heart-pulse-bold-duotone'),
-          },
-        ],
-      });
+    if (surveyItems.length) {
+      groups.push({ subheader: tx('common.navigation.surveysGroup'), items: surveyItems });
     }
 
     return groups;

@@ -1,0 +1,19 @@
+import { dashboardRoutes } from '../dashboard';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function paths(children: any[]): string[] {
+  return children.map((c) => c.path).filter(Boolean);
+}
+
+describe('dashboardRoutes', () => {
+  it('registers the survey admin routes and drops depo routes', () => {
+    const children = dashboardRoutes[0].children;
+    const p = paths(children);
+    expect(p).toContain('surveys/tests');
+    expect(p).toContain('surveys/tests/:testId/blocks');
+    expect(p).toContain('surveys/blocks/:blockId/questions');
+    expect(p).toContain('surveys/results');
+    expect(p).not.toContain('medical');
+    expect(p).not.toContain('testing');
+  });
+});
