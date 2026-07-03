@@ -89,6 +89,8 @@ const employee: Employee = {
   specialtyName: 'Welder',
   photo: 'https://example.com/photo.jpg',
   isActive: true,
+  hireDate: null,
+  workExperience: null,
   createdAt: '2026-01-15T10:00:00Z',
 };
 

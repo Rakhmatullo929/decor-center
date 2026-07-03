@@ -5,6 +5,8 @@
   "table": {
     "fullName": "F.I.Sh.",
     "specialty": "Mutaxassislik",
+    "hireDate": "Ishga kirgan",
+    "workExperience": "Tajriba",
     "status": "Holat",
     "created": "Qo'shilgan"
   },
@@ -17,6 +19,8 @@
     "editTitle": "Xodimni tahrirlash",
     "fullName": "F.I.Sh.",
     "specialty": "Mutaxassislik",
+    "hireDate": "Ishga kirgan sana",
+    "workExperience": "Ish tajribasi (yil)",
     "photoHint": "Yuz aniq ko'rinadigan old tomondan olingan surat (Face ID uchun)",
     "active": "Faol"
   },
@@ -65,6 +69,7 @@
   "validation": {
     "fullNameRequired": "F.I.Sh. majburiy",
     "specialtyRequired": "Mutaxassislikni tanlang",
-    "photoRequired": "Foto majburiy"
+    "photoRequired": "Foto majburiy",
+    "workExperienceMin": "Tajriba manfiy bo'lishi mumkin emas"
   }
 }

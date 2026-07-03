@@ -49,6 +49,10 @@ export default function EmployeeTableRow({
 
         <TableCell>{row.specialtyName}</TableCell>
 
+        <TableCell>{row.hireDate ? fDate(row.hireDate) : '—'}</TableCell>
+
+        <TableCell>{row.workExperience ?? '—'}</TableCell>
+
         <TableCell>
           <Label color={row.isActive ? 'success' : 'default'}>
             {tx(row.isActive ? 'common.status.active' : 'common.status.inactive')}

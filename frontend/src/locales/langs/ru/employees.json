@@ -5,6 +5,8 @@
   "table": {
     "fullName": "Ф.И.О.",
     "specialty": "Специальность",
+    "hireDate": "Работает с",
+    "workExperience": "Стаж",
     "status": "Статус",
     "created": "Добавлен"
   },
@@ -17,6 +19,8 @@
     "editTitle": "Редактирование сотрудника",
     "fullName": "Ф.И.О.",
     "specialty": "Специальность",
+    "hireDate": "Работает с",
+    "workExperience": "Стаж (лет)",
     "photoHint": "Чёткое фронтальное фото (используется для Face ID)",
     "active": "Активен"
   },
@@ -65,6 +69,7 @@
   "validation": {
     "fullNameRequired": "Ф.И.О. обязательно",
     "specialtyRequired": "Выберите специальность",
-    "photoRequired": "Фото обязательно"
+    "photoRequired": "Фото обязательно",
+    "workExperienceMin": "Стаж не может быть отрицательным"
   }
 }
