@@ -21,7 +21,7 @@ import { useSettingsContext } from 'src/components/settings';
 import { paths } from 'src/routes/paths';
 import { useQuestionsQuery, useDeleteQuestionMutation } from '../api/use-surveys-api';
 import type { Question } from '../api/types';
-import { default as QuestionUpsertDialog } from './components/question-upsert-dialog';
+import QuestionUpsertDialog from './components/question-upsert-dialog';
 
 export default function QuestionsView() {
   const { tx } = useLocales();

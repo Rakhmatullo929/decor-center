@@ -20,7 +20,7 @@ import { useSettingsContext } from 'src/components/settings';
 import { paths } from 'src/routes/paths';
 import { useQuestionBlocksQuery, useDeleteQuestionBlockMutation } from '../api/use-surveys-api';
 import type { QuestionBlock } from '../api/types';
-import { default as BlockUpsertDialog } from './components/block-upsert-dialog';
+import BlockUpsertDialog from './components/block-upsert-dialog';
 
 export default function BlocksView() {
   const { tx } = useLocales();

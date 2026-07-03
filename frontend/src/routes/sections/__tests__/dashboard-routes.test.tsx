@@ -7,7 +7,7 @@ function paths(children: any[]): string[] {
 
 describe('dashboardRoutes', () => {
   it('registers the survey admin routes and drops depo routes', () => {
-    const children = dashboardRoutes[0].children;
+    const { children } = dashboardRoutes[0];
     const p = paths(children);
     expect(p).toContain('surveys/tests');
     expect(p).toContain('surveys/tests/:testId/blocks');

@@ -19,7 +19,7 @@ import {
   useSurveyResultsQuery,
   useTestOptionsQuery,
 } from '../api/use-surveys-api';
-import { default as QuestionResultCard } from './components/question-result-card';
+import QuestionResultCard from './components/question-result-card';
 
 export default function SurveyResultsView() {
   const { tx } = useLocales();
