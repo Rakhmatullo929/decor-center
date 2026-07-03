@@ -6,6 +6,10 @@ export type Employee = {
   specialtyName: string;
   photo: string | null;
   isActive: boolean;
+  /** ISO date (YYYY-MM-DD) or null — drives kiosk survey scheduling (Plan 2). */
+  hireDate: string | null;
+  /** Manually entered years of experience; independent of hireDate. */
+  workExperience: number | null;
   createdAt: string;
 };
 
@@ -24,6 +28,8 @@ export type EmployeeUpsertPayload = {
   /** New photo file; omit to keep the existing one on edit. */
   photo?: File;
   isActive?: boolean;
+  hireDate?: string | null;
+  workExperience?: number | null;
 };
 
 /** Matches `EmployeeFacePhotoSerializer` (camelCase). `embedding` is never exposed. */
