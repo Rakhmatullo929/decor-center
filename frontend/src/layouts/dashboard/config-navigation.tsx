@@ -22,7 +22,7 @@ type NavGroup = {
 
 export function useNavData() {
   const { tx } = useLocales();
-  const { canReadPage, canWritePage } = useCheckPermission();
+  const { canReadPage, canWritePage, checkPermission } = useCheckPermission();
 
   return useMemo(() => {
     const groups: NavGroup[] = [];
@@ -65,6 +65,19 @@ export function useNavData() {
       groups.push({ subheader: tx('common.navigation.surveysGroup'), items: surveyItems });
     }
 
+    if (checkPermission('survey', 'submit')) {
+      groups.push({
+        subheader: tx('common.navigation.kioskGroup'),
+        items: [
+          {
+            title: tx('common.navigation.kiosk'),
+            path: paths.app.kiosk.root,
+            icon: icon('solar:posts-carousel-vertical-bold-duotone'),
+          },
+        ],
+      });
+    }
+
     return groups;
-  }, [canReadPage, canWritePage, tx]);
+  }, [canReadPage, canWritePage, checkPermission, tx]);
 }
