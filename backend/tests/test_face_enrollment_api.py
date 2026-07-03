@@ -42,10 +42,10 @@ def test_list_face_photos_hides_embedding(admin_client):
     assert set(resp.data[0]) == {"id", "photo", "model_version", "created_at"}
 
 
-def test_specialist_can_list_but_not_add(specialist_client):
+def test_employee_can_list_but_not_add(employee_client):
     emp = EmployeeFactory(face_embedding=None)
-    assert specialist_client.get(_url(emp)).status_code == 200
-    assert specialist_client.post(_url(emp), {"photo": _upload()}, format="multipart").status_code == 403
+    assert employee_client.get(_url(emp)).status_code == 200
+    assert employee_client.post(_url(emp), {"photo": _upload()}, format="multipart").status_code == 403
 
 
 def test_add_no_face_returns_400_code(admin_client):

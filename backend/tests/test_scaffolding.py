@@ -21,5 +21,5 @@ def test_employee_factory_embedding_matches_face_image():
     assert emp.face_embedding is not None and len(emp.face_embedding) == 16
 
 
-def test_specialist_fixture_role(specialist_user):
-    assert specialist_user.role == Roles.SPECIALIST
+def test_employee_fixture_role(employee_user):
+    assert employee_user.role == Roles.EMPLOYEE

@@ -1,6 +1,6 @@
 """Frontend permission catalog: role -> "<page>:<action>" keys.
 
-The SRS (§3) defines three fixed roles, so permissions are derived from the
+The SRS (§3) defines two fixed roles (admin + employee), so permissions are derived from the
 role server-side and shipped in the login and /auth/me payloads. The frontend
 consumes them via `useCheckPermission` (permission-first UI); DRF permission
 classes remain the enforcement source of truth.
@@ -23,7 +23,7 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         "results:read",
         "results:detail",
     ],
-    Roles.SPECIALIST: [
+    Roles.EMPLOYEE: [
         "employees:read",
         "survey:submit",
     ],

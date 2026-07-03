@@ -82,8 +82,7 @@ DECOR_FACE_SIMILARITY_THRESHOLD=0.5
 
 # Seeded system account passwords (seed_initial_data reads these)
 DECOR_ADMIN_PASSWORD=<strong password>
-DECOR_MEDIC_PASSWORD=<strong password>
-DECOR_SPECIALIST_PASSWORD=<strong password>
+DECOR_EMPLOYEE_PASSWORD=<strong password>
 
 # TTS
 UZBEKVOICE_API_KEY=<key from UzbekVoice>

@@ -28,7 +28,7 @@ export default function DashboardLayout({ children }: Props) {
 
   const nav = useBoolean();
 
-  const isSpecialist = (user as DecorUser)?.role === 'specialist';
+  const isEmployee = (user as DecorUser)?.role === 'employee';
 
   const isHorizontal = settings.themeLayout === 'horizontal';
 
@@ -40,7 +40,7 @@ export default function DashboardLayout({ children }: Props) {
 
   const renderNavVertical = <NavVertical openNav={nav.value} onCloseNav={nav.onFalse} />;
 
-  if (isSpecialist) {
+  if (isEmployee) {
     return (
       <>
         <Header onOpenNav={nav.onTrue} />

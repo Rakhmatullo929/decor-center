@@ -1,4 +1,4 @@
-"""Seed employee specialties (SRS §4.2) from fixtures/specialties_uz.txt.
+"""Seed employee specialties from fixtures/specialties.txt.
 
 Idempotent: names are matched by Specialty.name (unique), so re-running only
 creates the rows that are missing. One specialty per non-blank line; lines are
@@ -12,7 +12,7 @@ from django.db import transaction
 
 from apps.employees.models import Specialty
 
-DEFAULT_FILE = Path(settings.BASE_DIR) / "fixtures" / "specialties_uz.txt"
+DEFAULT_FILE = Path(settings.BASE_DIR) / "fixtures" / "specialties.txt"
 
 
 class Command(BaseCommand):

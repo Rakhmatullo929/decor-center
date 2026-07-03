@@ -43,18 +43,18 @@ def test_photo_without_face_is_rejected(admin_client, photo_without_face):
     assert Employee.objects.count() == 0
 
 
-def test_specialist_can_search_employees_by_name(specialist_client):
+def test_employee_can_search_employees_by_name(employee_client):
     EmployeeFactory(full_name="Karimov Aziz")
     EmployeeFactory(full_name="Toshev Bobur")
-    response = specialist_client.get(EMPLOYEES_URL, {"search": "Karimov"})
+    response = employee_client.get(EMPLOYEES_URL, {"search": "Karimov"})
     assert response.status_code == 200
     assert response.data["count"] == 1
     assert response.data["results"][0]["full_name"] == "Karimov Aziz"
 
 
-def test_specialist_cannot_create_employee(specialist_client):
+def test_employee_cannot_create_employee(employee_client):
     specialty = SpecialtyFactory()
-    response = specialist_client.post(
+    response = employee_client.post(
         EMPLOYEES_URL,
         {"full_name": "Hacker", "specialty": specialty.id, "photo": _photo()},
         format="multipart",
@@ -62,7 +62,7 @@ def test_specialist_cannot_create_employee(specialist_client):
     assert response.status_code == 403
 
 
-def test_specialties_readable_by_all_roles_writable_by_admin(admin_client, specialist_client):
+def test_specialties_readable_by_all_roles_writable_by_admin(admin_client, employee_client):
     assert admin_client.post(SPECIALTIES_URL, {"name": "New specialty"}).status_code == 201
-    assert specialist_client.get(SPECIALTIES_URL).status_code == 200
-    assert specialist_client.post(SPECIALTIES_URL, {"name": "Nope"}).status_code == 403
+    assert employee_client.get(SPECIALTIES_URL).status_code == 200
+    assert employee_client.post(SPECIALTIES_URL, {"name": "Nope"}).status_code == 403

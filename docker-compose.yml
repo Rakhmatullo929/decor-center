@@ -38,10 +38,12 @@ services:
   frontend:
     build: ./frontend
     environment:
-      # The browser runs on the host, so it reaches the backend via localhost
-      REACT_APP_HOST_API: http://localhost:8000
+      # The browser runs on the host, so it reaches the backend via localhost.
+      # Point this at the backend's published host port (BACKEND_HOST_PORT).
+      REACT_APP_HOST_API: ${REACT_APP_HOST_API:-http://localhost:8000}
     ports:
-      - "3000:3000"
+      # Override FRONTEND_HOST_PORT if 3000 is taken, e.g. FRONTEND_HOST_PORT=3010.
+      - "${FRONTEND_HOST_PORT:-3000}:3000"
     # CRA dev server exits without an attached stdin/tty
     stdin_open: true
     tty: true

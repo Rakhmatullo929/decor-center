@@ -55,8 +55,7 @@ function mapAuthUserToProfile(u: NonNullable<AuthUserType>): AppUserProfile {
   const permissions = Array.isArray(rec.permissions)
     ? rec.permissions.filter((item): item is string => typeof item === 'string')
     : [];
-  const role =
-    rec.role === 'admin' || rec.role === 'specialist' || rec.role === 'medic' ? rec.role : '';
+  const role = rec.role === 'admin' || rec.role === 'employee' ? rec.role : '';
 
   return emptyProfile({
     id: typeof rec.id === 'number' ? rec.id : 0,

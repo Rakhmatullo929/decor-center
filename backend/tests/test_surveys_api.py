@@ -31,39 +31,39 @@ def survey_with_questions(db):
 
 # --- RBAC on CRUD -----------------------------------------------------------
 
-def test_tests_list_readable_by_specialist(specialist_client):
-    assert specialist_client.get(TESTS).status_code == 200
+def test_tests_list_readable_by_employee(employee_client):
+    assert employee_client.get(TESTS).status_code == 200
 
 
-def test_tests_write_admin_only(specialist_client, admin_client):
+def test_tests_write_admin_only(employee_client, admin_client):
     payload = {"title": "New"}
-    assert specialist_client.post(TESTS, payload, format="json").status_code == 403
+    assert employee_client.post(TESTS, payload, format="json").status_code == 403
     assert admin_client.post(TESTS, payload, format="json").status_code == 201
 
 
-def test_question_write_requires_admin(specialist_client, admin_client):
+def test_question_write_requires_admin(employee_client, admin_client):
     block = QuestionBlockFactory()
     payload = {"block": block.id, "type": "textarea", "text": "Q", "options": []}
-    assert specialist_client.post("/api/v1/questions/", payload, format="json").status_code == 403
+    assert employee_client.post("/api/v1/questions/", payload, format="json").status_code == 403
     assert admin_client.post("/api/v1/questions/", payload, format="json").status_code == 201
 
 
 # --- identify ---------------------------------------------------------------
 
-def test_identify_returns_employee(specialist_client, face_image):
+def test_identify_returns_employee(employee_client, face_image):
     emp = EmployeeFactory()
     face_image.seek(0)
-    resp = specialist_client.post(
+    resp = employee_client.post(
         f"{SESSIONS}identify/", {"face_image": face_image}, format="multipart"
     )
     assert resp.status_code == 200, resp.data
     assert resp.data["employee"]["id"] == emp.id
 
 
-def test_identify_unknown_face_404(specialist_client, face_image_fail):
+def test_identify_unknown_face_404(employee_client, face_image_fail):
     EmployeeFactory()
     face_image_fail.seek(0)
-    resp = specialist_client.post(
+    resp = employee_client.post(
         f"{SESSIONS}identify/", {"face_image": face_image_fail}, format="multipart"
     )
     assert resp.status_code == 404
@@ -71,21 +71,21 @@ def test_identify_unknown_face_404(specialist_client, face_image_fail):
 
 # --- due --------------------------------------------------------------------
 
-def test_due_lists_scheduled_surveys(specialist_client):
+def test_due_lists_scheduled_surveys(employee_client):
     emp = EmployeeFactory(hire_date=datetime.date(2026, 6, 1))
     survey = TestFactory(is_after_application=True, after_days=1)
-    resp = specialist_client.get(f"{SESSIONS}due/?employee={emp.id}")
+    resp = employee_client.get(f"{SESSIONS}due/?employee={emp.id}")
     assert resp.status_code == 200
     assert survey.id in [t["id"] for t in resp.data]
 
 
 # --- start ------------------------------------------------------------------
 
-def test_start_returns_blocks_and_questions(specialist_client, survey_with_questions, face_image):
+def test_start_returns_blocks_and_questions(employee_client, survey_with_questions, face_image):
     survey, q_single, q_text = survey_with_questions
     emp = EmployeeFactory()
     face_image.seek(0)
-    resp = specialist_client.post(
+    resp = employee_client.post(
         f"{SESSIONS}start/",
         {"employee": emp.id, "test": survey.id, "face_image": face_image},
         format="multipart",
@@ -97,11 +97,11 @@ def test_start_returns_blocks_and_questions(specialist_client, survey_with_quest
     assert resp.data["session"]["face_verified"] is True
 
 
-def test_start_face_failure_403(specialist_client, survey_with_questions, face_image_fail):
+def test_start_face_failure_403(employee_client, survey_with_questions, face_image_fail):
     survey, _, _ = survey_with_questions
     emp = EmployeeFactory()
     face_image_fail.seek(0)
-    resp = specialist_client.post(
+    resp = employee_client.post(
         f"{SESSIONS}start/",
         {"employee": emp.id, "test": survey.id, "face_image": face_image_fail},
         format="multipart",
@@ -121,12 +121,12 @@ def _start(client, survey, emp, face_image):
     )
 
 
-def test_submit_persists_answers(specialist_client, survey_with_questions, face_image):
+def test_submit_persists_answers(employee_client, survey_with_questions, face_image):
     survey, q_single, q_text = survey_with_questions
     emp = EmployeeFactory()
-    start = _start(specialist_client, survey, emp, face_image)
+    start = _start(employee_client, survey, emp, face_image)
     session_id = start.data["session"]["id"]
-    resp = specialist_client.post(
+    resp = employee_client.post(
         f"{SESSIONS}{session_id}/submit/",
         {"answers": [
             {"question": q_single.id, "selectedOptionIds": ["a"]},
@@ -142,7 +142,7 @@ def test_submit_persists_answers(specialist_client, survey_with_questions, face_
 
 # --- admin-fill -------------------------------------------------------------
 
-def test_admin_fill_requires_admin(specialist_client, admin_client, survey_with_questions):
+def test_admin_fill_requires_admin(employee_client, admin_client, survey_with_questions):
     survey, q_single, _ = survey_with_questions
     survey.is_admin_conducted = True
     survey.save()
@@ -152,7 +152,7 @@ def test_admin_fill_requires_admin(specialist_client, admin_client, survey_with_
         "test": survey.id,
         "answers": [{"question": q_single.id, "selectedOptionIds": ["b"]}],
     }
-    assert specialist_client.post(f"{SESSIONS}admin-fill/", payload, format="json").status_code == 403
+    assert employee_client.post(f"{SESSIONS}admin-fill/", payload, format="json").status_code == 403
     resp = admin_client.post(f"{SESSIONS}admin-fill/", payload, format="json")
     assert resp.status_code == 201, resp.data
     assert resp.data["face_verified"] is False
@@ -160,9 +160,9 @@ def test_admin_fill_requires_admin(specialist_client, admin_client, survey_with_
 
 # --- results / export -------------------------------------------------------
 
-def test_results_and_export_admin_only(specialist_client, admin_client, survey_with_questions):
+def test_results_and_export_admin_only(employee_client, admin_client, survey_with_questions):
     survey, _, _ = survey_with_questions
-    assert specialist_client.get(f"{SESSIONS}results/?test={survey.id}").status_code == 403
+    assert employee_client.get(f"{SESSIONS}results/?test={survey.id}").status_code == 403
     assert admin_client.get(f"{SESSIONS}results/?test={survey.id}").status_code == 200
     export = admin_client.get(f"{SESSIONS}export/?test={survey.id}")
     assert export.status_code == 200

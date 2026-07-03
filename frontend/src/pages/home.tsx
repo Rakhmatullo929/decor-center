@@ -12,8 +12,12 @@ import { paths } from 'src/routes/paths';
 export default function HomePage() {
   const { logout } = useAuthContext();
   const { tx } = useLocales();
-  const { canReadPage, canWritePage } = useCheckPermission();
+  const { canReadPage, canWritePage, checkPermission } = useCheckPermission();
 
+  // Kiosk accounts (employee role) land on the Face-ID survey flow.
+  if (checkPermission('survey', 'submit')) {
+    return <Navigate to={paths.app.kiosk.root} replace />;
+  }
   // Admin lands on the survey tests screen; managers on their primary directory.
   if (canReadPage('tests')) {
     return <Navigate to={paths.app.surveys.tests} replace />;

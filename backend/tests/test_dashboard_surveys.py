@@ -10,8 +10,8 @@ pytestmark = pytest.mark.django_db
 URL = "/api/v1/dashboard/stats/"
 
 
-def test_dashboard_requires_admin(specialist_client):
-    assert specialist_client.get(URL).status_code == 403
+def test_dashboard_requires_admin(employee_client):
+    assert employee_client.get(URL).status_code == 403
 
 
 def test_dashboard_survey_counters(admin_client):
