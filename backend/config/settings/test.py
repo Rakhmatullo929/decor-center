@@ -15,4 +15,9 @@ DECOR = {
     "ANTI_SPOOFING_BACKEND": "apps.integrations.mocks.MockAntiSpoofingService",
     # Pin submit-time re-verify OFF so submit tests stay deterministic.
     "REVERIFY_ON_SUBMIT": "off",
+    # Pin the knobs the suite asserts on to their code defaults, so tests are hermetic even
+    # when DECOR_* env vars are injected (e.g. docker-compose env_file) — the "backend/.env
+    # is not read under test settings" guard does not cover process environment variables.
+    "FACE_SIMILARITY_THRESHOLD": 0.6,
+    "FACE_WARMUP_ON_STARTUP": False,
 }
