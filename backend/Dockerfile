@@ -3,12 +3,20 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
+# System libraries required by OpenCV (pulled in transitively by insightface).
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libxcb1 libgl1 libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# Dev/CI use the mock face backend (no InsightFace / OpenCV). The real ArcFace stack
-# and its system libraries live in Dockerfile.prod.
 COPY requirements/ requirements/
 RUN pip install --no-cache-dir -r requirements/dev.txt
+
+# Bake the InsightFace model pack (~14 MB) into /root/.insightface so the first request is
+# fast and the container needs no internet at runtime. Only used when DECOR_FACE_BACKEND
+# points to InsightFaceAdapter; harmless under the mock backend.
+RUN python -c "from insightface.app import FaceAnalysis; FaceAnalysis(name='buffalo_sc', providers=['CPUExecutionProvider']).prepare(ctx_id=-1, det_size=(640, 640))"
 
 COPY . .
 

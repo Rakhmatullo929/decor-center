@@ -8,3 +8,9 @@ drf-spectacular~=0.28
 psycopg[binary]~=3.2
 Pillow~=11.0
 openpyxl~=3.1
+# Face recognition (ArcFace via InsightFace/ONNX Runtime). Used by InsightFaceAdapter;
+# switch DECOR_FACE_BACKEND in .env to enable. Installed everywhere (dev + prod) so real
+# recognition can run locally, mirroring the depo reference stack.
+insightface>=0.7.3
+onnxruntime>=1.18.0
+opencv-python-headless>=4.10.0

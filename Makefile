@@ -28,7 +28,7 @@ help: ## Show this help
 ##@ Setup
 
 .PHONY: setup
-setup: env install db-up migrate seed ## One-shot: env files, deps, Postgres, migrate, seed accounts
+setup: env install db-up migrate seed seed-demo ## One-shot: env files, deps, Postgres, migrate, seed accounts + demo data
 	@echo "✓ Setup complete. Run 'make dev' to start backend + frontend."
 
 .PHONY: install
@@ -83,6 +83,11 @@ makemigrations: ## Generate Django migrations from model changes
 .PHONY: seed
 seed: ## Seed specialties + admin/specialist accounts
 	$(MANAGE) seed_initial_data
+
+.PHONY: seed-demo
+seed-demo: ## Seed demo employees + survey templates (idempotent; run after seed)
+	$(MANAGE) seed_surveys
+	$(MANAGE) seed_demo_data
 
 .PHONY: superuser
 superuser: ## Create a Django superuser interactively
