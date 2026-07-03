@@ -17,22 +17,17 @@ export const paths = {
     dashboard: '/dashboard',
     employees: '/employees',
     specialties: '/specialties',
-    questions: '/questions',
-    instructions: '/instructions',
-    results: {
-      root: '/results',
-      detail: (id: number | string) => `/results/${id}`,
+    surveys: {
+      tests: '/surveys/tests',
+      blocks: (testId: number | string) => `/surveys/tests/${testId}/blocks`,
+      questions: (blockId: number | string) => `/surveys/blocks/${blockId}/questions`,
+      results: '/surveys/results',
     },
-    medical: {
-      root: '/medical',
-      create: (employeeId: number | string) => `/medical/new/${employeeId}`,
-      detail: (id: number | string) => `/medical/${id}`,
-      edit: (id: number | string) => `/medical/${id}/edit`,
-    },
-    testing: {
-      root: '/testing',
-      questions: (specialistId: number | string, module: string) =>
-        `/testing/tests/${specialistId}/${module}`,
+    kiosk: {
+      root: '/kiosk',
+      due: (employeeId: number | string) => `/kiosk/${employeeId}/due`,
+      answer: '/kiosk/answer',
+      thankYou: '/kiosk/thank-you',
     },
   },
 };

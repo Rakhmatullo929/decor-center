@@ -6,14 +6,12 @@ export type PermissionPage =
   | 'dashboard'
   | 'employees'
   | 'specialties'
-  | 'instructions'
+  | 'tests'
   | 'questions'
-  | 'testing'
   | 'results'
-  | 'medical'
-  | 'medical_edit';
+  | 'survey';
 
-export type PermissionAction = 'read' | 'detail' | 'write';
+export type PermissionAction = 'read' | 'detail' | 'write' | 'submit';
 
 export type PermissionKey = `${PermissionPage}:${PermissionAction}`;
 

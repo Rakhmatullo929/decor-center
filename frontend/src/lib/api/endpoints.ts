@@ -22,28 +22,24 @@ export const API_ENDPOINTS = {
     facePhoto: (id: number | string, photoId: number | string) =>
       `${API_V1}/employees/${id}/face-photos/${photoId}/`,
   },
-  instructions: {
-    list: `${API_V1}/instructions/`,
-    detail: (id: number | string) => `${API_V1}/instructions/${id}/`,
-    generate: (id: number | string) => `${API_V1}/instructions/${id}/generate/`,
-  },
-  questions: {
-    list: `${API_V1}/questions/`,
-    detail: (id: number | string) => `${API_V1}/questions/${id}/`,
-    approve: (id: number | string) => `${API_V1}/questions/${id}/approve/`,
-  },
-  testSessions: {
-    list: `${API_V1}/test-sessions/`,
-    detail: (id: number | string) => `${API_V1}/test-sessions/${id}/`,
-    identify: `${API_V1}/test-sessions/identify/`,
-    start: `${API_V1}/test-sessions/start/`,
-    submit: (id: number | string) => `${API_V1}/test-sessions/${id}/submit/`,
-    export: `${API_V1}/test-sessions/export/`,
-  },
-  medicalChecks: {
-    list: `${API_V1}/medical-checks/`,
-    detail: (id: number | string) => `${API_V1}/medical-checks/${id}/`,
-    export: `${API_V1}/medical-checks/export/`,
+  surveys: {
+    // Admin CRUD
+    tests: `${API_V1}/tests/`,
+    test: (id: number | string) => `${API_V1}/tests/${id}/`,
+    questionBlocks: `${API_V1}/question-blocks/`,
+    questionBlock: (id: number | string) => `${API_V1}/question-blocks/${id}/`,
+    questions: `${API_V1}/questions/`,
+    question: (id: number | string) => `${API_V1}/questions/${id}/`,
+    // Kiosk + results
+    sessions: `${API_V1}/survey-sessions/`,
+    session: (id: number | string) => `${API_V1}/survey-sessions/${id}/`,
+    identify: `${API_V1}/survey-sessions/identify/`,
+    due: `${API_V1}/survey-sessions/due/`,
+    start: `${API_V1}/survey-sessions/start/`,
+    submit: (id: number | string) => `${API_V1}/survey-sessions/${id}/submit/`,
+    adminFill: `${API_V1}/survey-sessions/admin-fill/`,
+    results: `${API_V1}/survey-sessions/results/`,
+    export: `${API_V1}/survey-sessions/export/`,
   },
   dashboard: {
     stats: `${API_V1}/dashboard/stats/`,
