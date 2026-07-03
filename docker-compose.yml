@@ -33,6 +33,10 @@ services:
     ports:
       # Override BACKEND_HOST_PORT if 8000 is taken, e.g. BACKEND_HOST_PORT=8010.
       - "${BACKEND_HOST_PORT:-8000}:8000"
+    volumes:
+      # Persist uploaded media (employee photos / face samples) across container
+      # rebuilds and restarts — otherwise enrolled faces are wiped on every `up`.
+      - media:/app/media
     depends_on:
       db:
         condition: service_healthy
@@ -54,3 +58,4 @@ services:
 
 volumes:
   pgdata:
+  media:
