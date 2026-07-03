@@ -1,0 +1,76 @@
+{
+  "tests": {
+    "title": "Опросы",
+    "empty": "Опросы не найдены",
+    "searchPlaceholder": "Поиск по названию...",
+    "actions": { "create": "Создать опрос", "manageBlocks": "Блоки вопросов" },
+    "table": { "title": "Название", "schedule": "Расписание", "status": "Статус" },
+    "schedule": {
+      "adminConducted": "Беседа 1в1 (заполняет админ)",
+      "afterDays": "Через {{days}} дн. после найма",
+      "periodic": "Месяцы: {{months}}; дни {{from}}–{{to}}"
+    },
+    "form": {
+      "createTitle": "Новый опрос",
+      "editTitle": "Редактировать опрос",
+      "title": "Название",
+      "active": "Активен",
+      "adminConducted": "Беседа 1в1 (без Face ID)",
+      "scheduling": "Расписание",
+      "afterApplication": "Одноразовый после найма",
+      "afterDays": "Через N дней",
+      "months": "Месяцы",
+      "monthsAny": "Каждый месяц",
+      "daysFrom": "Дни с",
+      "daysTo": "Дни по"
+    },
+    "validation": {
+      "titleRequired": "Укажите название",
+      "afterDaysRequired": "Укажите число дней",
+      "afterDaysMin": "Не может быть отрицательным",
+      "dayRange": "«По» не может быть меньше «с»"
+    },
+    "toasts": { "created": "Опрос создан", "updated": "Опрос обновлён", "deleted": "Опрос удалён" },
+    "dialogs": { "delete": { "title": "Удалить опрос?", "content": "Действие необратимо." } }
+  },
+  "blocks": {
+    "title": "Блоки вопросов",
+    "empty": "Блоки не добавлены",
+    "untitled": "Без названия",
+    "orderLabel": "Порядок: {{order}}",
+    "actions": { "create": "Добавить блок" },
+    "form": { "createTitle": "Новый блок", "editTitle": "Редактировать блок", "order": "Порядок", "title": "Название" },
+    "toasts": { "created": "Блок создан", "updated": "Блок обновлён", "deleted": "Блок удалён" },
+    "dialogs": { "delete": { "title": "Удалить блок?", "content": "Вопросы блока также будут удалены." } }
+  },
+  "questions": {
+    "title": "Вопросы",
+    "empty": "Вопросы не добавлены",
+    "types": { "single": "Один вариант", "multiple": "Несколько вариантов", "textarea": "Свободный текст" },
+    "actions": { "create": "Добавить вопрос", "addOption": "Добавить вариант" },
+    "form": {
+      "createTitle": "Новый вопрос",
+      "editTitle": "Редактировать вопрос",
+      "type": "Тип",
+      "order": "Порядок",
+      "text": "Текст вопроса",
+      "options": "Варианты ответа",
+      "optionLabel": "Вариант {{n}}"
+    },
+    "validation": {
+      "textRequired": "Введите текст вопроса",
+      "optionText": "Введите текст варианта",
+      "minOptions": "Нужно минимум 2 варианта"
+    },
+    "toasts": { "created": "Вопрос создан", "updated": "Вопрос обновлён", "deleted": "Вопрос удалён" },
+    "dialogs": { "delete": { "title": "Удалить вопрос?", "content": "Действие необратимо." } }
+  },
+  "results": {
+    "title": "Результаты опросов",
+    "selectTest": "Выберите опрос",
+    "pickTestPrompt": "Выберите опрос для просмотра результатов",
+    "sessionCount": "Всего прохождений: {{count}}",
+    "noAnswers": "Нет ответов",
+    "toasts": { "exported": "Экспорт готов" }
+  }
+}

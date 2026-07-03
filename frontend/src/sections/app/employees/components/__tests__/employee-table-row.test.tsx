@@ -25,6 +25,8 @@ const activeEmployee: Employee = {
   specialtyName: 'Electrician',
   photo: null,
   isActive: true,
+  hireDate: null,
+  workExperience: null,
   createdAt: '2026-01-15T10:00:00Z',
 };
 
@@ -115,5 +117,19 @@ describe('EmployeeTableRow', () => {
 
     expect(screen.queryByText('employees.actions.archive')).not.toBeInTheDocument();
     expect(onToggleActive).toHaveBeenCalledWith(archivedEmployee);
+  });
+
+  it('renders hire date and work experience', () => {
+    renderRow({
+      row: {
+        ...activeEmployee,
+        hireDate: '2024-01-15',
+        workExperience: 3,
+      },
+      canWrite: false,
+    });
+
+    expect(screen.getByText('3')).toBeInTheDocument();
+    expect(screen.getByText(/2024/)).toBeInTheDocument();
   });
 });

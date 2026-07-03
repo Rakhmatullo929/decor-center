@@ -1,0 +1,35 @@
+{
+  "kiosk": {
+    "title": "Опрос мнений",
+    "steps": { "employee": "Выберите сотрудника", "faceId": "Проверка Face ID" },
+    "employee": { "searchPlaceholder": "Поиск по Ф.И.О...", "empty": "Сотрудник не найден" },
+    "faceId": {
+      "identifyTitle": "Распознавание лица",
+      "instruction": "Смотрите прямо в камеру и нажмите «Сканировать»",
+      "scan": "Сканировать",
+      "identifying": "Распознаём...",
+      "continue": "Продолжить",
+      "notYou": "Не вы?",
+      "identified": "ИДЕНТИФИЦИРОВАН",
+      "identifiedStatus": "ИДЕНТИФИЦИРОВАН",
+      "identifyingStatus": "РАСПОЗНАЁМ...",
+      "readyStatus": "ГОТОВ К СКАНИРОВАНИЮ",
+      "cameraDenied": "Доступ к камере запрещён. Разрешите доступ в настройках браузера.",
+      "cameraUnavailable": "Камера не найдена или не запустилась. Проверьте устройство."
+    },
+    "due": {
+      "title": "Доступные опросы",
+      "subtitle": "Сотрудник: {{name}}",
+      "empty": "Нет доступных опросов"
+    },
+    "questions": {
+      "progress": "Вопрос {{current}} / {{total}}",
+      "textPlaceholder": "Введите ваш ответ..."
+    },
+    "thankYou": {
+      "title": "Спасибо!",
+      "subtitle": "{{name}}, ваши ответы сохранены",
+      "finish": "Готово"
+    }
+  }
+}

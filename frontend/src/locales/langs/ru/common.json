@@ -1,17 +1,14 @@
 {
   "appName": "Локомотивное депо",
   "navigation": {
-    "dashboard": "Панель управления",
     "management": "Управление",
     "employees": "Сотрудники",
     "specialties": "Специальности",
-    "assessments": "Контроль знаний",
-    "testing": "Прохождение теста",
-    "questions": "База вопросов",
-    "instructions": "Инструкции",
+    "surveys": "Опросы",
+    "surveysGroup": "Опросы",
     "results": "Результаты",
-    "medicalGroup": "Медицина",
-    "medical": "Медосмотр"
+    "kiosk": "Киоск опроса",
+    "kioskGroup": "Киоск"
   },
   "actions": {
     "add": "Добавить",

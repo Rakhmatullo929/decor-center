@@ -74,6 +74,8 @@ const activeEmployee: Employee = {
   specialtyName: 'Electrician',
   photo: null,
   isActive: true,
+  hireDate: null,
+  workExperience: null,
   createdAt: '2026-01-15T10:00:00Z',
 };
 
@@ -84,6 +86,8 @@ const archivedEmployee: Employee = {
   specialtyName: 'Welder',
   photo: null,
   isActive: false,
+  hireDate: null,
+  workExperience: null,
   createdAt: '2026-02-20T10:00:00Z',
 };
 

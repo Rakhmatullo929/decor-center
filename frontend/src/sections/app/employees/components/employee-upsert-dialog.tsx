@@ -81,6 +81,8 @@ export default function EmployeeUpsertDialog({ open, onClose, employee, onSaved 
       specialty: employee?.specialty ?? '',
       photo: employee?.photo ?? null,
       isActive: employee?.isActive ?? true,
+      hireDate: employee?.hireDate ?? '',
+      workExperience: employee?.workExperience ?? '',
     }),
     [employee]
   );
@@ -181,6 +183,8 @@ export default function EmployeeUpsertDialog({ open, onClose, employee, onSaved 
               fullName: values.fullName,
               specialty: Number(values.specialty),
               isActive: values.isActive,
+              hireDate: values.hireDate || null,
+              workExperience: values.workExperience === '' ? null : Number(values.workExperience),
               ...(photoFile ? { photo: photoFile } : {}),
             },
           })
@@ -188,6 +192,8 @@ export default function EmployeeUpsertDialog({ open, onClose, employee, onSaved 
             fullName: values.fullName,
             specialty: Number(values.specialty),
             isActive: values.isActive,
+            hireDate: values.hireDate || null,
+            workExperience: values.workExperience === '' ? null : Number(values.workExperience),
             photo: photoFile as File,
           });
 
@@ -229,6 +235,20 @@ export default function EmployeeUpsertDialog({ open, onClose, employee, onSaved 
                 </MenuItem>
               ))}
             </RHFSelect>
+
+            <RHFTextField
+              name="hireDate"
+              type="date"
+              label={tx('employees.form.hireDate')}
+              InputLabelProps={{ shrink: true }}
+            />
+
+            <RHFTextField
+              name="workExperience"
+              type="number"
+              label={tx('employees.form.workExperience')}
+              InputProps={{ inputProps: { min: 0 } }}
+            />
 
             {isEdit && <RHFSwitch name="isActive" label={tx('employees.form.active')} />}
 

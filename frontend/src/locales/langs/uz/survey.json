@@ -1,0 +1,35 @@
+{
+  "kiosk": {
+    "title": "Fikr so‘rovi",
+    "steps": { "employee": "Xodimni tanlang", "faceId": "Face ID tekshiruvi" },
+    "employee": { "searchPlaceholder": "F.I.Sh. bo‘yicha qidirish...", "empty": "Xodim topilmadi" },
+    "faceId": {
+      "identifyTitle": "Yuzni aniqlash",
+      "instruction": "Kameraga qarang va «Skanerlash»ni bosing",
+      "scan": "Skanerlash",
+      "identifying": "Aniqlanmoqda...",
+      "continue": "Davom etish",
+      "notYou": "Siz emasmisiz?",
+      "identified": "ANIQLANDI",
+      "identifiedStatus": "ANIQLANDI",
+      "identifyingStatus": "ANIQLANMOQDA...",
+      "readyStatus": "SKANERLASHGA TAYYOR",
+      "cameraDenied": "Kameraga ruxsat berilmadi. Brauzer sozlamalarida ruxsat bering.",
+      "cameraUnavailable": "Kamera topilmadi yoki ishga tushmadi."
+    },
+    "due": {
+      "title": "Mavjud so‘rovlar",
+      "subtitle": "Xodim: {{name}}",
+      "empty": "Mavjud so‘rovlar yo‘q"
+    },
+    "questions": {
+      "progress": "Savol {{current}} / {{total}}",
+      "textPlaceholder": "Javobingizni kiriting..."
+    },
+    "thankYou": {
+      "title": "Rahmat!",
+      "subtitle": "{{name}}, javoblaringiz saqlandi",
+      "finish": "Tayyor"
+    }
+  }
+}

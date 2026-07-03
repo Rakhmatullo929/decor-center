@@ -1,0 +1,76 @@
+{
+  "tests": {
+    "title": "So‘rovlar",
+    "empty": "So‘rovlar topilmadi",
+    "searchPlaceholder": "Nomi bo‘yicha qidirish...",
+    "actions": { "create": "So‘rov yaratish", "manageBlocks": "Savol bloklari" },
+    "table": { "title": "Nomi", "schedule": "Jadval", "status": "Holat" },
+    "schedule": {
+      "adminConducted": "1x1 suhbat (admin to‘ldiradi)",
+      "afterDays": "Ishga qabuldan {{days}} kun keyin",
+      "periodic": "Oylar: {{months}}; kunlar {{from}}–{{to}}"
+    },
+    "form": {
+      "createTitle": "Yangi so‘rov",
+      "editTitle": "So‘rovni tahrirlash",
+      "title": "Nomi",
+      "active": "Faol",
+      "adminConducted": "1x1 suhbat (Face ID’siz)",
+      "scheduling": "Jadval",
+      "afterApplication": "Ishga qabuldan keyin bir marta",
+      "afterDays": "N kundan keyin",
+      "months": "Oylar",
+      "monthsAny": "Har oy",
+      "daysFrom": "Kundan",
+      "daysTo": "Kungacha"
+    },
+    "validation": {
+      "titleRequired": "Nomini kiriting",
+      "afterDaysRequired": "Kunlar sonini kiriting",
+      "afterDaysMin": "Manfiy bo‘lishi mumkin emas",
+      "dayRange": "«Gacha» «dan» dan kichik bo‘lmasin"
+    },
+    "toasts": { "created": "So‘rov yaratildi", "updated": "So‘rov yangilandi", "deleted": "So‘rov o‘chirildi" },
+    "dialogs": { "delete": { "title": "So‘rov o‘chirilsinmi?", "content": "Amalni qaytarib bo‘lmaydi." } }
+  },
+  "blocks": {
+    "title": "Savol bloklari",
+    "empty": "Bloklar qo‘shilmagan",
+    "untitled": "Nomsiz",
+    "orderLabel": "Tartib: {{order}}",
+    "actions": { "create": "Blok qo‘shish" },
+    "form": { "createTitle": "Yangi blok", "editTitle": "Blokni tahrirlash", "order": "Tartib", "title": "Nomi" },
+    "toasts": { "created": "Blok yaratildi", "updated": "Blok yangilandi", "deleted": "Blok o‘chirildi" },
+    "dialogs": { "delete": { "title": "Blok o‘chirilsinmi?", "content": "Blok savollari ham o‘chiriladi." } }
+  },
+  "questions": {
+    "title": "Savollar",
+    "empty": "Savollar qo‘shilmagan",
+    "types": { "single": "Bitta variant", "multiple": "Bir nechta variant", "textarea": "Erkin matn" },
+    "actions": { "create": "Savol qo‘shish", "addOption": "Variant qo‘shish" },
+    "form": {
+      "createTitle": "Yangi savol",
+      "editTitle": "Savolni tahrirlash",
+      "type": "Turi",
+      "order": "Tartib",
+      "text": "Savol matni",
+      "options": "Javob variantlari",
+      "optionLabel": "Variant {{n}}"
+    },
+    "validation": {
+      "textRequired": "Savol matnini kiriting",
+      "optionText": "Variant matnini kiriting",
+      "minOptions": "Kamida 2 ta variant kerak"
+    },
+    "toasts": { "created": "Savol yaratildi", "updated": "Savol yangilandi", "deleted": "Savol o‘chirildi" },
+    "dialogs": { "delete": { "title": "Savol o‘chirilsinmi?", "content": "Amalni qaytarib bo‘lmaydi." } }
+  },
+  "results": {
+    "title": "So‘rov natijalari",
+    "selectTest": "So‘rovni tanlang",
+    "pickTestPrompt": "Natijalarni ko‘rish uchun so‘rovni tanlang",
+    "sessionCount": "Jami o‘tishlar: {{count}}",
+    "noAnswers": "Javoblar yo‘q",
+    "toasts": { "exported": "Eksport tayyor" }
+  }
+}
