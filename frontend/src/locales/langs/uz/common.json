@@ -1,17 +1,14 @@
 {
   "appName": "Lokomotiv decor",
   "navigation": {
-    "dashboard": "Boshqaruv paneli",
     "management": "Boshqaruv",
     "employees": "Xodimlar",
     "specialties": "Mutaxassisliklar",
-    "assessments": "Bilim nazorati",
-    "testing": "Test topshirish",
-    "questions": "Savollar bazasi",
-    "instructions": "Yo'riqnomalar",
+    "surveys": "So‘rovlar",
+    "surveysGroup": "So‘rovlar",
     "results": "Natijalar",
-    "medicalGroup": "Tibbiyot",
-    "medical": "Tibbiy ko'rik"
+    "kiosk": "So‘rov kioski",
+    "kioskGroup": "Kiosk"
   },
   "actions": {
     "add": "Qo'shish",

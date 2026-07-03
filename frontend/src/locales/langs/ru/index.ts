@@ -3,6 +3,8 @@ import employees from './employees.json';
 import specialties from './specialties.json';
 import profile from './profile.json';
 import errors from './errors.json';
+import survey from './survey.json';
+import surveys from './surveys.json';
 
 const translation = {
   common,
@@ -10,6 +12,8 @@ const translation = {
   specialties,
   profile,
   errors,
+  survey,
+  surveys,
 };
 
 export default translation;
