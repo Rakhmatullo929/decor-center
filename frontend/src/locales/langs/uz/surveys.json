@@ -81,7 +81,8 @@
       "moveToBlock": "Blokka ko‘chirish…"
     },
     "dialogs": {
-      "deleteBlock": { "title": "Blokni o‘chirish", "content": "Blok savollari ham o‘chiriladi." }
+      "deleteBlock": { "title": "Blokni o‘chirish", "content": "Blok savollari ham o‘chiriladi." },
+      "deleteQuestion": { "title": "Savolni o‘chirish", "content": "Amalni qaytarib bo‘lmaydi." }
     }
   },
   "results": {

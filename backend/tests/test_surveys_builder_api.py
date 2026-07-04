@@ -36,6 +36,21 @@ def test_block_reorder_rejects_mismatched_ids(admin_client):
     assert resp.status_code == 400
 
 
+def test_block_reorder_rejects_duplicate_ids(admin_client):
+    survey = TestFactory()
+    b1 = QuestionBlockFactory(test=survey, order=0)
+    b2 = QuestionBlockFactory(test=survey, order=1)
+    # Same length as the real block count, but b2 is missing and b1 is duplicated —
+    # a bare set() comparison would collapse the duplicate and miss this.
+    resp = admin_client.post(
+        f"{BLOCKS}reorder/", {"test": survey.id, "order": [b1.id, b1.id]}, format="json"
+    )
+    assert resp.status_code == 400
+    b1.refresh_from_db()
+    b2.refresh_from_db()
+    assert (b1.order, b2.order) == (0, 1)
+
+
 # --- question reorder within a block -----------------------------------------
 
 def test_question_reorder_within_block(admin_client):
@@ -49,6 +64,19 @@ def test_question_reorder_within_block(admin_client):
     q1.refresh_from_db()
     q2.refresh_from_db()
     assert (q2.order, q1.order) == (0, 1)
+
+
+def test_question_reorder_rejects_duplicate_ids(admin_client):
+    block = QuestionBlockFactory()
+    q1 = QuestionFactory(block=block, order=0)
+    q2 = QuestionFactory(block=block, order=1)
+    resp = admin_client.post(
+        f"{QUESTIONS}reorder/", {"block": block.id, "order": [q1.id, q1.id]}, format="json"
+    )
+    assert resp.status_code == 400
+    q1.refresh_from_db()
+    q2.refresh_from_db()
+    assert (q1.order, q2.order) == (0, 1)
 
 
 # --- question move across blocks ---------------------------------------------
@@ -79,6 +107,28 @@ def test_question_move_across_blocks(admin_client):
     assert moving.order == 0
     assert existing_b.order == 1
     assert staying_a.block_id == block_a.id
+    # The source block must not keep a gap where the moved question used to sit.
+    assert staying_a.order == 0
+
+
+def test_question_move_rejects_duplicate_ids(admin_client):
+    survey = TestFactory()
+    block_a = QuestionBlockFactory(test=survey, order=0)
+    block_b = QuestionBlockFactory(test=survey, order=1)
+    moving = QuestionFactory(block=block_a, order=0)
+    existing_b = QuestionFactory(block=block_b, order=0)
+
+    resp = admin_client.post(
+        f"{QUESTIONS}move/",
+        {"question": moving.id, "target_block": block_b.id, "order": [moving.id, moving.id]},
+        format="json",
+    )
+    assert resp.status_code == 400
+    moving.refresh_from_db()
+    existing_b.refresh_from_db()
+    # The rejected request must not have reassigned the question's block either.
+    assert moving.block_id == block_a.id
+    assert existing_b.order == 0
 
 
 def test_question_move_cross_survey_rejected(admin_client):

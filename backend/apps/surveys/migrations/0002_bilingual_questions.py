@@ -9,6 +9,28 @@ from django.db import migrations, models
 import apps.surveys.i18n
 
 
+class RemoveFieldRestoreNullable(migrations.RemoveField):
+    """Like RemoveField, but reversing re-adds the column as nullable.
+
+    The original `title`/`text` columns are NOT NULL with no default, so the
+    stock RemoveField.database_backwards (which re-adds the field exactly as
+    it was) fails on Postgres for a non-empty table: you cannot add a NOT
+    NULL column without a default when rows already exist. Adding it back
+    nullable lets `backfill_backward` (run right after, via RunPython) fill
+    in real values before the migration finishes rolling back to 0001.
+    """
+
+    def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        from_model = from_state.apps.get_model(app_label, self.model_name)
+        if self.allow_migrate_model(schema_editor.connection.alias, from_model):
+            to_model = to_state.apps.get_model(app_label, self.model_name)
+            field = to_model._meta.get_field(self.name).clone()
+            field.null = True
+            field.default = None
+            field.set_attributes_from_name(self.name)
+            schema_editor.add_field(from_model, field)
+
+
 def _to_i18n(old_value):
     return {"uz": "", "ru": old_value or ""}
 
@@ -113,8 +135,8 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.RunPython(backfill_forward, backfill_backward),
-        migrations.RemoveField(model_name="questionblock", name="title"),
-        migrations.RemoveField(model_name="question", name="text"),
+        RemoveFieldRestoreNullable(model_name="questionblock", name="title"),
+        RemoveFieldRestoreNullable(model_name="question", name="text"),
         migrations.RenameField(model_name="questionblock", old_name="title_i18n", new_name="title"),
         migrations.RenameField(model_name="question", old_name="text_i18n", new_name="text"),
         migrations.AlterField(

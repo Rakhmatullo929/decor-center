@@ -10,7 +10,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 
-from apps.accounts.permissions import IsAdmin, IsAdminOrEmployee, IsAdminOrReadOnly
+from apps.accounts.permissions import IsAdmin, IsAdminOrEmployee
 from apps.core.excel import xlsx_response
 from apps.employees.models import Employee
 from apps.employees.serializers import EmployeeSerializer
@@ -37,6 +37,7 @@ from .services import (
     SurveyFlowError,
     admin_fill,
     apply_order,
+    order_matches_objects,
     start_survey_session,
     submit_survey_session,
 )
@@ -54,15 +55,20 @@ def _decode_face_image(value: str) -> bytes:
 
 
 class TestViewSet(viewsets.ModelViewSet):
+    # Full bilingual question content (text, settings, is_required, is_mind_dive) is
+    # nested here via TestSerializer -> QuestionBlockSerializer -> QuestionSerializer.
+    # Only the admin builder reads this; employees get survey content exclusively
+    # through SurveySessionViewSet.start's QuestionBlockPublicSerializer, so this
+    # must not be readable pre-emptively by an employee via IsAdminOrReadOnly.
     queryset = Test.objects.prefetch_related("blocks__questions")
     serializer_class = TestSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdmin]
 
 
 class QuestionBlockViewSet(viewsets.ModelViewSet):
     queryset = QuestionBlock.objects.prefetch_related("questions")
     serializer_class = QuestionBlockSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdmin]
     filterset_fields = ["test"]
 
     @extend_schema(
@@ -87,7 +93,7 @@ class QuestionBlockViewSet(viewsets.ModelViewSet):
             raise ValidationError({"detail": "'test' and a non-empty 'order' array are required."})
 
         blocks = {b.id: b for b in QuestionBlock.objects.filter(test_id=test_id)}
-        if set(order) != set(blocks):
+        if not order_matches_objects(blocks, order):
             raise ValidationError(
                 {"order": "Must list exactly the block ids belonging to this test."}
             )
@@ -102,7 +108,7 @@ class QuestionBlockViewSet(viewsets.ModelViewSet):
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdmin]
     filterset_fields = ["block"]
 
     @extend_schema(
@@ -127,7 +133,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             raise ValidationError({"detail": "'block' and a non-empty 'order' array are required."})
 
         questions = {q.id: q for q in Question.objects.filter(block_id=block_id)}
-        if set(order) != set(questions):
+        if not order_matches_objects(questions, order):
             raise ValidationError(
                 {"order": "Must list exactly the question ids belonging to this block."}
             )
@@ -175,19 +181,29 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 {"target_block": "Cannot move a question to a block of a different survey."}
             )
 
+        source_block_id = question.block_id
+
         with transaction.atomic():
-            if question.block_id != target_block_id:
+            if source_block_id != target_block_id:
                 question.block = target_block
                 question.save(update_fields=["block", "updated_at"])
 
             target_questions = {
                 q.id: q for q in Question.objects.filter(block_id=target_block_id)
             }
-            if set(order) != set(target_questions):
+            if not order_matches_objects(target_questions, order):
                 raise ValidationError(
                     {"order": "Must list exactly the question ids of the target block after the move."}
                 )
             apply_order(target_questions, order)
+
+            if source_block_id != target_block_id:
+                # The moved question just left this block — close the gap it left
+                # behind instead of leaving a hole in the remaining `order` values.
+                remaining = list(
+                    Question.objects.filter(block_id=source_block_id).order_by("order", "id")
+                )
+                apply_order({q.id: q for q in remaining}, [q.id for q in remaining])
 
         updated = Question.objects.filter(block_id=target_block_id)
         return Response(QuestionSerializer(updated, many=True).data)

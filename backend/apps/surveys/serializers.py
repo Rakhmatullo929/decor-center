@@ -51,6 +51,9 @@ class QuestionSerializer(serializers.ModelSerializer):
             {"id": opt.get("id"), "text": normalize_i18n(opt.get("text"))}
             for opt in data.get("options") or []
         ]
+        settings_val = data.get("settings")
+        if isinstance(settings_val, dict) and "placeholder" in settings_val:
+            settings_val["placeholder"] = normalize_i18n(settings_val.get("placeholder"))
         return data
 
     def validate(self, attrs):
@@ -78,6 +81,9 @@ class QuestionSerializer(serializers.ModelSerializer):
             settings_val.setdefault("max", default_max)
             settings_val["left_label"] = normalize_i18n(settings_val.get("left_label"))
             settings_val["right_label"] = normalize_i18n(settings_val.get("right_label"))
+        elif q_type in (Question.Type.SHORT_TEXT, Question.Type.TEXTAREA, Question.Type.FORM_FIELD):
+            if "placeholder" in settings_val:
+                settings_val["placeholder"] = normalize_i18n(settings_val.get("placeholder"))
         attrs["settings"] = settings_val
         return attrs
 

@@ -119,9 +119,13 @@ export default function SurveyBuilderView() {
   };
 
   const handleBlockTitleChange = (blockId: number, title: LocalizedText) => {
+    const snapshot = blocksRef.current;
     setBlocks((prev) => prev.map((b) => (b.id === blockId ? { ...b, title } : b)));
     scheduleSave(`block-${blockId}`, () => {
-      updateBlockMutation.mutate({ id: blockId, payload: { title } });
+      updateBlockMutation.mutate(
+        { id: blockId, payload: { title } },
+        { onError: () => setBlocks(snapshot) }
+      );
     });
   };
 
@@ -192,6 +196,7 @@ export default function SurveyBuilderView() {
   };
 
   const handleQuestionChange = (blockId: number, questionId: number, patch: Partial<Question>) => {
+    const snapshot = blocksRef.current;
     setBlocks((prev) =>
       prev.map((b) =>
         b.id !== blockId
@@ -200,27 +205,34 @@ export default function SurveyBuilderView() {
       )
     );
     scheduleSave(`question-${questionId}`, () => {
-      const block = blocksRef.current.find((b) => b.id === blockId);
+      // Look up the question by id across all blocks (not the `blockId` captured at
+      // schedule time) — it may have been dragged into a different block before this
+      // debounced save fires, and saving against the stale block would silently no-op.
+      const block = blocksRef.current.find((b) => (b.questions ?? []).some((q) => q.id === questionId));
       const question = block?.questions?.find((q) => q.id === questionId);
-      if (!question) return;
-      updateQuestionMutation.mutate({
-        id: questionId,
-        payload: {
-          block: blockId,
-          type: question.type,
-          order: question.order,
-          text: question.text,
-          options: question.options,
-          settings: question.settings,
-          isRequired: question.isRequired,
-          isMindDive: question.isMindDive,
+      if (!block || !question) return;
+      updateQuestionMutation.mutate(
+        {
+          id: questionId,
+          payload: {
+            block: block.id,
+            type: question.type,
+            order: question.order,
+            text: question.text,
+            options: question.options,
+            settings: question.settings,
+            isRequired: question.isRequired,
+            isMindDive: question.isMindDive,
+          },
         },
-      });
+        { onError: () => setBlocks(snapshot) }
+      );
     });
   };
 
   const handleMoveQuestionToBlock = (sourceBlockId: number, questionId: number, targetBlockId: number) => {
     if (sourceBlockId === targetBlockId) return;
+    const snapshot = blocksRef.current;
     setBlocks((prev) => {
       const next = prev.map((b) => ({ ...b, questions: [...(b.questions ?? [])] }));
       const source = next.find((b) => b.id === sourceBlockId);
@@ -231,11 +243,18 @@ export default function SurveyBuilderView() {
       const [moving] = source.questions.splice(idx, 1);
       moving.block = targetBlockId;
       target.questions.push(moving);
-      moveQuestionMutation.mutate({
-        question: questionId,
-        targetBlock: targetBlockId,
-        order: target.questions.map((q) => q.id),
-      });
+
+      source.questions = source.questions.map((q, index) => ({ ...q, order: index }));
+      target.questions = target.questions.map((q, index) => ({ ...q, order: index }));
+
+      moveQuestionMutation.mutate(
+        {
+          question: questionId,
+          targetBlock: targetBlockId,
+          order: target.questions.map((q) => q.id),
+        },
+        { onError: () => setBlocks(snapshot) }
+      );
       return next;
     });
     setExpandedQuestionId(questionId);
@@ -278,8 +297,11 @@ export default function SurveyBuilderView() {
         const oldIndex = prev.findIndex((b) => `block-${b.id}` === active.id);
         const newIndex = prev.findIndex((b) => b.id === targetBlockId);
         if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return prev;
-        const reordered = arrayMove(prev, oldIndex, newIndex);
-        reorderBlocksMutation.mutate({ test: testId, order: reordered.map((b) => b.id) });
+        const reordered = arrayMove(prev, oldIndex, newIndex).map((b, index) => ({ ...b, order: index }));
+        reorderBlocksMutation.mutate(
+          { test: testId, order: reordered.map((b) => b.id) },
+          { onError: () => setBlocks(prev) }
+        );
         return reordered;
       });
       return;
@@ -304,22 +326,39 @@ export default function SurveyBuilderView() {
         if (movingIndex === -1) return prev;
         if (sourceBlock === targetBlock && overData?.type !== 'question') return prev;
 
-        const [moving] = sourceBlock.questions.splice(movingIndex, 1);
-        moving.block = targetBlock.id;
-
+        // Resolve the drop target's index against the pre-drag array — looking it up
+        // after the splice below would shift indices for anything past `movingIndex`.
         let insertIndex = targetBlock.questions.length;
         if (overData?.type === 'question') {
           const overQuestionId = Number(String(over.id).replace('question-', ''));
           const idx = targetBlock.questions.findIndex((q) => q.id === overQuestionId);
           if (idx !== -1) insertIndex = idx;
         }
+
+        const [moving] = sourceBlock.questions.splice(movingIndex, 1);
+        moving.block = targetBlock.id;
+
+        if (sourceBlock === targetBlock && movingIndex < insertIndex) {
+          insertIndex -= 1;
+        }
         targetBlock.questions.splice(insertIndex, 0, moving);
+
+        sourceBlock.questions = sourceBlock.questions.map((q, index) => ({ ...q, order: index }));
+        if (targetBlock !== sourceBlock) {
+          targetBlock.questions = targetBlock.questions.map((q, index) => ({ ...q, order: index }));
+        }
 
         const targetOrder = targetBlock.questions.map((q) => q.id);
         if (sourceBlockId === targetBlock.id) {
-          reorderQuestionsMutation.mutate({ block: targetBlock.id, order: targetOrder });
+          reorderQuestionsMutation.mutate(
+            { block: targetBlock.id, order: targetOrder },
+            { onError: () => setBlocks(prev) }
+          );
         } else {
-          moveQuestionMutation.mutate({ question: activeQuestionId, targetBlock: targetBlock.id, order: targetOrder });
+          moveQuestionMutation.mutate(
+            { question: activeQuestionId, targetBlock: targetBlock.id, order: targetOrder },
+            { onError: () => setBlocks(prev) }
+          );
         }
         return next;
       });

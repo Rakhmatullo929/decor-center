@@ -81,7 +81,8 @@
       "moveToBlock": "Перенести в блок…"
     },
     "dialogs": {
-      "deleteBlock": { "title": "Удалить блок", "content": "Вопросы блока также будут удалены." }
+      "deleteBlock": { "title": "Удалить блок", "content": "Вопросы блока также будут удалены." },
+      "deleteQuestion": { "title": "Удалить вопрос", "content": "Действие необратимо." }
     }
   },
   "results": {

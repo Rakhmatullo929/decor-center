@@ -16,6 +16,16 @@ from .models import Answer, FaceVerificationLog, Question, SurveySession, Test
 logger = logging.getLogger(__name__)
 
 
+def order_matches_objects(objects_by_id: dict, order: list) -> bool:
+    """True iff `order` lists exactly the ids in `objects_by_id`, each exactly once.
+
+    A plain `set(order) != set(objects_by_id)` check lets a duplicated id slip
+    through (sets collapse the duplicate), silently dropping one of the real ids
+    from the applied order — so callers must also compare lengths.
+    """
+    return len(order) == len(objects_by_id) and set(order) == set(objects_by_id)
+
+
 def apply_order(objects_by_id: dict, order: list) -> list:
     """Assign 0-based positions from `order` and persist only the rows whose
     position actually changed, via a single bulk_update — not one UPDATE per row.

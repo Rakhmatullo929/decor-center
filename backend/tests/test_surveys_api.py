@@ -31,8 +31,11 @@ def survey_with_questions(db):
 
 # --- RBAC on CRUD -----------------------------------------------------------
 
-def test_tests_list_readable_by_employee(employee_client):
-    assert employee_client.get(TESTS).status_code == 200
+def test_tests_list_not_readable_by_employee(employee_client):
+    # The admin builder's Test/QuestionBlock/Question serializers include full
+    # bilingual question content ahead of time — employees must not read it here;
+    # they get survey content only via SurveySessionViewSet.start's public serializer.
+    assert employee_client.get(TESTS).status_code == 403
 
 
 def test_tests_write_admin_only(employee_client, admin_client):
