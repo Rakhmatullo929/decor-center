@@ -367,10 +367,11 @@ export default function SurveyBuilderView() {
         >
           <SortableContext items={blocks.map((b) => `block-${b.id}`)} strategy={verticalListSortingStrategy}>
             <Stack spacing={2}>
-              {blocks.map((block) => (
+              {blocks.map((block, blockIndex) => (
                 <SortableBlockCard
                   key={block.id}
                   block={block}
+                  blockIndex={blockIndex}
                   blockOptionsForMove={blocks
                     .filter((b) => b.id !== block.id)
                     .map((b) => ({ id: b.id, label: blockLabel(b, tx) }))}

@@ -16,6 +16,27 @@ from .models import Answer, FaceVerificationLog, Question, SurveySession, Test
 logger = logging.getLogger(__name__)
 
 
+def apply_order(objects_by_id: dict, order: list) -> list:
+    """Assign 0-based positions from `order` and persist only the rows whose
+    position actually changed, via a single bulk_update — not one UPDATE per row.
+
+    `bulk_update` skips auto_now/auto_now_add, so `updated_at` is stamped by hand.
+    Shared by the block/question reorder and move endpoints (QuestionBlockViewSet,
+    QuestionViewSet in views.py).
+    """
+    changed = []
+    now = timezone.now()
+    for index, obj_id in enumerate(order):
+        obj = objects_by_id[obj_id]
+        if obj.order != index:
+            obj.order = index
+            obj.updated_at = now
+            changed.append(obj)
+    if changed:
+        type(changed[0])._default_manager.bulk_update(changed, ["order", "updated_at"])
+    return changed
+
+
 class FaceVerificationError(Exception):
     """Face-ID failed — the survey must not start."""
 

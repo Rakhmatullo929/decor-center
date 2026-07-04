@@ -36,6 +36,7 @@ from .services import (
     FaceVerificationError,
     SurveyFlowError,
     admin_fill,
+    apply_order,
     start_survey_session,
     submit_survey_session,
 )
@@ -92,11 +93,7 @@ class QuestionBlockViewSet(viewsets.ModelViewSet):
             )
 
         with transaction.atomic():
-            for index, block_id in enumerate(order):
-                block = blocks[block_id]
-                if block.order != index:
-                    block.order = index
-                    block.save(update_fields=["order", "updated_at"])
+            apply_order(blocks, order)
 
         updated = QuestionBlock.objects.filter(test_id=test_id).prefetch_related("questions")
         return Response(QuestionBlockSerializer(updated, many=True).data)
@@ -136,11 +133,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             )
 
         with transaction.atomic():
-            for index, question_id in enumerate(order):
-                question = questions[question_id]
-                if question.order != index:
-                    question.order = index
-                    question.save(update_fields=["order", "updated_at"])
+            apply_order(questions, order)
 
         updated = Question.objects.filter(block_id=block_id)
         return Response(QuestionSerializer(updated, many=True).data)
@@ -194,11 +187,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 raise ValidationError(
                     {"order": "Must list exactly the question ids of the target block after the move."}
                 )
-            for index, q_id in enumerate(order):
-                q = target_questions[q_id]
-                if q.order != index:
-                    q.order = index
-                    q.save(update_fields=["order", "updated_at"])
+            apply_order(target_questions, order)
 
         updated = Question.objects.filter(block_id=target_block_id)
         return Response(QuestionSerializer(updated, many=True).data)

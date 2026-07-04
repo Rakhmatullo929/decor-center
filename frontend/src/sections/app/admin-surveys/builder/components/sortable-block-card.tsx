@@ -1,6 +1,7 @@
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Divider from '@mui/material/Divider';
@@ -15,10 +16,12 @@ import Iconify from 'src/components/iconify';
 import type { LocalizedText, Question, QuestionBlock, QuestionType } from '../../api/types';
 import AddQuestionMenu from './add-question-menu';
 import BilingualTextField from './bilingual-text-field';
+import DragHandle from './drag-handle';
 import SortableQuestionRow from './sortable-question-row';
 
 type Props = {
   block: QuestionBlock;
+  blockIndex: number;
   blockOptionsForMove: { id: number; label: string }[];
   expandedQuestionId: number | null;
   onToggleExpandQuestion: (questionId: number) => void;
@@ -33,6 +36,7 @@ type Props = {
 
 export default function SortableBlockCard({
   block,
+  blockIndex,
   blockOptionsForMove,
   expandedQuestionId,
   onToggleExpandQuestion,
@@ -59,13 +63,13 @@ export default function SortableBlockCard({
   return (
     <Card
       ref={setNodeRef}
-      variant="outlined"
-      sx={{ p: 2, opacity: isDragging ? 0.6 : 1, transform: CSS.Transform.toString(transform), transition }}
+      sx={{ p: 3, opacity: isDragging ? 0.6 : 1, transform: CSS.Transform.toString(transform), transition }}
     >
-      <Stack direction="row" spacing={1} alignItems="flex-start">
-        <Box {...attributes} {...listeners} sx={{ cursor: 'grab', pt: 1, touchAction: 'none' }}>
-          <Iconify icon="mingcute:dots-fill" width={22} />
-        </Box>
+      <Stack direction="row" spacing={1.5} alignItems="flex-start">
+        <DragHandle width={22} attributes={attributes} listeners={listeners} />
+        <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.lighter', color: 'primary.darker' }}>
+          <Typography variant="subtitle2">{blockIndex + 1}</Typography>
+        </Avatar>
         <Box sx={{ flexGrow: 1 }}>
           <BilingualTextField
             label={tx('surveys.builder.form.blockTitle')}
@@ -80,7 +84,7 @@ export default function SortableBlockCard({
         </Tooltip>
       </Stack>
 
-      <Divider sx={{ my: 2 }} />
+      <Divider sx={{ my: 2.5 }} />
 
       <Box ref={setDropRef} sx={{ minHeight: 56 }}>
         <SortableContext items={questions.map((q) => `question-${q.id}`)} strategy={verticalListSortingStrategy}>

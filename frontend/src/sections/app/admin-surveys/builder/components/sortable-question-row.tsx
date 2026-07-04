@@ -1,7 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
@@ -10,9 +9,11 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import useLocales from 'src/locales/use-locales';
 import Iconify from 'src/components/iconify';
+import Label from 'src/components/label';
 
 import type { Question } from '../../api/types';
 import { QUESTION_TYPE_META } from '../utils/question-type-meta';
+import DragHandle from './drag-handle';
 import QuestionEditorPanel from './question-editor-panel';
 
 type Props = {
@@ -51,21 +52,33 @@ export default function SortableQuestionRow({
     <Paper
       ref={setNodeRef}
       variant="outlined"
-      sx={{ p: 1.5, opacity: isDragging ? 0.5 : 1, transform: CSS.Transform.toString(transform), transition }}
+      sx={{
+        p: 2,
+        opacity: isDragging ? 0.5 : 1,
+        transform: CSS.Transform.toString(transform),
+        transition,
+        ...(expanded && { bgcolor: 'background.neutral' }),
+      }}
     >
-      <Stack direction="row" spacing={1} alignItems="flex-start">
-        <Box {...attributes} {...listeners} sx={{ cursor: 'grab', pt: 0.5, touchAction: 'none' }}>
-          <Iconify icon="mingcute:dots-fill" width={20} />
-        </Box>
-        <Iconify icon={meta.icon} width={20} style={{ marginTop: 4, flexShrink: 0 }} />
+      <Stack direction="row" spacing={1.5} alignItems="flex-start">
+        <DragHandle attributes={attributes} listeners={listeners} />
+        <Iconify icon={meta.icon} width={20} style={{ marginTop: 2, flexShrink: 0 }} />
         <Box sx={{ flexGrow: 1, minWidth: 0, cursor: 'pointer' }} onClick={onToggleExpand}>
-          <Typography variant="body2" noWrap>
+          <Typography variant="body2" noWrap sx={{ fontWeight: 500 }}>
             {preview}
           </Typography>
           <Stack direction="row" spacing={0.5} sx={{ mt: 0.5 }}>
-            <Chip size="small" variant="soft" label={tx(`surveys.builder.types.${question.type}`)} />
-            {question.isRequired && <Chip size="small" color="warning" variant="soft" label={tx('surveys.builder.form.required')} />}
-            {question.isMindDive && <Chip size="small" color="info" variant="soft" label={tx('surveys.builder.form.mindDive')} />}
+            <Label variant="soft">{tx(`surveys.builder.types.${question.type}`)}</Label>
+            {question.isRequired && (
+              <Label color="warning" variant="soft">
+                {tx('surveys.builder.form.required')}
+              </Label>
+            )}
+            {question.isMindDive && (
+              <Label color="info" variant="soft">
+                {tx('surveys.builder.form.mindDive')}
+              </Label>
+            )}
           </Stack>
         </Box>
         <Tooltip title={tx('surveys.builder.actions.duplicate')}>
@@ -84,7 +97,7 @@ export default function SortableQuestionRow({
       </Stack>
 
       <Collapse in={expanded} unmountOnExit>
-        <Box sx={{ pl: 5 }}>
+        <Box sx={{ pl: 5, pt: 2 }}>
           <QuestionEditorPanel
             question={question}
             blockOptions={blockOptions}
