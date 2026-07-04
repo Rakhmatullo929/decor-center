@@ -13,16 +13,23 @@ import {
   fetchQuestionBlocks,
   fetchQuestions,
   fetchSurveyResults,
+  fetchTest,
   fetchTests,
+  moveQuestion,
+  reorderQuestionBlocks,
+  reorderQuestions,
   updateQuestion,
   updateQuestionBlock,
   updateTest,
 } from './surveys-requests';
 import type {
+  MoveQuestionPayload,
   Question,
   QuestionBlock,
   QuestionBlockUpsertPayload,
   QuestionUpsertPayload,
+  ReorderQuestionBlocksPayload,
+  ReorderQuestionsPayload,
   ResultsExportParams,
   ResultsParams,
   SurveyResults,
@@ -30,6 +37,13 @@ import type {
   TestListParams,
   TestUpsertPayload,
 } from './types';
+
+// ── Test detail (full tree: blocks + nested questions) ─────────────────
+export function useTestQuery(testId: number) {
+  return useFetch<Test>(['surveys', 'test', testId], () => fetchTest(testId), {
+    enabled: Number.isFinite(testId),
+  });
+}
 
 // ── Tests ──────────────────────────────────────────────────────────────
 export function useTestsQuery(params: TestListParams) {
@@ -73,6 +87,11 @@ export function useUpdateQuestionBlockMutation() {
 export function useDeleteQuestionBlockMutation() {
   return useMutate<void, number>((id) => deleteQuestionBlock(id));
 }
+export function useReorderQuestionBlocksMutation() {
+  return useMutate<QuestionBlock[], ReorderQuestionBlocksPayload>((payload) =>
+    reorderQuestionBlocks(payload)
+  );
+}
 
 // ── Questions ──────────────────────────────────────────────────────────
 export function useQuestionsQuery(blockId: number) {
@@ -90,6 +109,12 @@ export function useUpdateQuestionMutation() {
 }
 export function useDeleteQuestionMutation() {
   return useMutate<void, number>((id) => deleteQuestion(id));
+}
+export function useReorderQuestionsMutation() {
+  return useMutate<Question[], ReorderQuestionsPayload>((payload) => reorderQuestions(payload));
+}
+export function useMoveQuestionMutation() {
+  return useMutate<Question[], MoveQuestionPayload>((payload) => moveQuestion(payload));
 }
 
 // ── Results ────────────────────────────────────────────────────────────

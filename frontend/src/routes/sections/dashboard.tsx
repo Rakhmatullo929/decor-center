@@ -9,7 +9,6 @@ const EmployeesPage = lazy(() => import('src/pages/app/employees'));
 const SpecialtiesPage = lazy(() => import('src/pages/app/specialties'));
 const SurveyTestsPage = lazy(() => import('src/pages/app/survey-tests'));
 const SurveyBlocksPage = lazy(() => import('src/pages/app/survey-blocks'));
-const SurveyQuestionsPage = lazy(() => import('src/pages/app/survey-questions'));
 const SurveyResultsPage = lazy(() => import('src/pages/app/survey-results'));
 const KioskEntryPage = lazy(() => import('src/pages/app/survey-kiosk-entry'));
 const KioskAnswerPage = lazy(() => import('src/pages/app/survey-kiosk-answer'));
@@ -56,14 +55,6 @@ export const dashboardRoutes = [
         element: (
           <PermissionGuard page="tests" action="read">
             <SurveyBlocksPage />
-          </PermissionGuard>
-        ),
-      },
-      {
-        path: 'surveys/blocks/:blockId/questions',
-        element: (
-          <PermissionGuard page="questions" action="read">
-            <SurveyQuestionsPage />
           </PermissionGuard>
         ),
       },

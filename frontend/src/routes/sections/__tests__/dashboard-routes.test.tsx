@@ -11,7 +11,6 @@ describe('dashboardRoutes', () => {
     const p = paths(children);
     expect(p).toContain('surveys/tests');
     expect(p).toContain('surveys/tests/:testId/blocks');
-    expect(p).toContain('surveys/blocks/:blockId/questions');
     expect(p).toContain('surveys/results');
     expect(p).not.toContain('medical');
     expect(p).not.toContain('testing');

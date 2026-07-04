@@ -2,6 +2,8 @@ from django.db import models
 
 from apps.core.models import TimeStampedModel
 
+from .i18n import display_text, empty_i18n
+
 
 class Test(TimeStampedModel):
     """Opinion-survey definition (no scoring, no correct answers)."""
@@ -41,35 +43,73 @@ class Test(TimeStampedModel):
 class QuestionBlock(TimeStampedModel):
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="blocks")
     order = models.PositiveIntegerField(default=0)
-    title = models.CharField(max_length=255, blank=True)
+    # Bilingual {"uz": ..., "ru": ...}; legacy plain strings are still readable (see .i18n).
+    title = models.JSONField(default=empty_i18n, blank=True)
 
     class Meta:
         ordering = ["order", "id"]
 
     def __str__(self):
-        return self.title or f"Block<{self.pk}>"
+        return display_text(self.title) or f"Block<{self.pk}>"
 
 
 class Question(TimeStampedModel):
     class Type(models.TextChoices):
-        SINGLE = "single", "По одному (radio)"
-        MULTIPLE = "multiple", "Несколько (checkbox)"
-        TEXTAREA = "textarea", "Свободный текст"
+        SINGLE = "single", "Один вариант (radio)"
+        MULTIPLE = "multiple", "Несколько вариантов (checkbox)"
+        SHORT_TEXT = "short_text", "Короткий текст"
+        TEXTAREA = "textarea", "Длинный текст / открытый вопрос (MIND DIVE)"
+        NPS = "nps", "NPS-шкала (0-10)"
+        SCALE5 = "scale5", "Шкала оценки (1-5)"
+        FORM_FIELD = "form_field", "Поле формы (текст/дата)"
+        SIGNATURE_DATE = "signature_date", "Подпись + дата"
+        SECTION_HEADER = "section_header", "Заголовок раздела"
+        # Reserved for future use — not yet rendered by the builder or the kiosk.
+        DROPDOWN = "dropdown", "Выпадающий список"
+        DATE = "date", "Дата"
+        NUMBER = "number", "Число"
+        MATRIX = "matrix", "Матрица/сетка"
+        RANKING = "ranking", "Ранжирование"
+        FILE_UPLOAD = "file_upload", "Загрузка файла"
+
+    # Types that never carry an `options` list.
+    NO_OPTIONS_TYPES = frozenset(
+        {
+            Type.SHORT_TEXT,
+            Type.TEXTAREA,
+            Type.NPS,
+            Type.SCALE5,
+            Type.FORM_FIELD,
+            Type.SIGNATURE_DATE,
+            Type.SECTION_HEADER,
+            Type.DATE,
+            Type.NUMBER,
+            Type.FILE_UPLOAD,
+        }
+    )
+    SCALE_TYPES = frozenset({Type.NPS, Type.SCALE5})
 
     block = models.ForeignKey(
         QuestionBlock, on_delete=models.CASCADE, related_name="questions"
     )
-    type = models.CharField(max_length=16, choices=Type.choices, default=Type.SINGLE)
+    type = models.CharField(max_length=20, choices=Type.choices, default=Type.SINGLE)
     order = models.PositiveIntegerField(default=0)
-    text = models.TextField()
-    # Stable option IDs so analytics survive reordering: [{"id": "<uuid>", "text": "..."}].
-    options = models.JSONField(default=list, blank=True)  # [] for textarea
+    # Bilingual {"uz": ..., "ru": ...}; legacy plain strings are still readable (see .i18n).
+    text = models.JSONField(default=empty_i18n)
+    # Stable option IDs so analytics survive reordering:
+    # [{"id": "<uuid>", "text": {"uz": "...", "ru": "..."}}].
+    options = models.JSONField(default=list, blank=True)  # [] when NO_OPTIONS_TYPES
+    # Type-specific config: scale min/max + edge labels, placeholders, etc.
+    settings = models.JSONField(default=dict, blank=True)
+    is_required = models.BooleanField(default=False)
+    # Flags an open question for deeper qualitative analysis (spec: "MIND DIVE").
+    is_mind_dive = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["order", "id"]
 
     def __str__(self):
-        return self.text[:60]
+        return display_text(self.text)[:60]
 
 
 class SurveySession(TimeStampedModel):

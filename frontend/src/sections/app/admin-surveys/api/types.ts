@@ -1,7 +1,52 @@
-export type QuestionType = 'single' | 'multiple' | 'textarea';
+/** Bilingual text stored as {uz, ru} on the backend (apps/surveys/i18n.py). */
+export type LocalizedText = { uz: string; ru: string };
+
+export const EMPTY_LOCALIZED_TEXT: LocalizedText = { uz: '', ru: '' };
+
+export type QuestionType =
+  | 'single'
+  | 'multiple'
+  | 'short_text'
+  | 'textarea'
+  | 'nps'
+  | 'scale5'
+  | 'form_field'
+  | 'signature_date'
+  | 'section_header'
+  // Reserved for future use — not yet rendered by the builder or the kiosk.
+  | 'dropdown'
+  | 'date'
+  | 'number'
+  | 'matrix'
+  | 'ranking'
+  | 'file_upload';
+
+/** Question types the builder can fully create/edit today. */
+export const IMPLEMENTED_QUESTION_TYPES: QuestionType[] = [
+  'single',
+  'multiple',
+  'short_text',
+  'textarea',
+  'nps',
+  'scale5',
+  'form_field',
+  'signature_date',
+  'section_header',
+];
 
 /** Stable option id survives reordering so analytics don't drift (spec §4.1). */
-export type TestOption = { id: string; text: string };
+export type TestOption = { id: string; text: LocalizedText };
+
+/** Type-specific config: scale bounds/labels, placeholders, form field kind, etc. */
+export type QuestionSettings = {
+  min?: number;
+  max?: number;
+  leftLabel?: LocalizedText;
+  rightLabel?: LocalizedText;
+  placeholder?: LocalizedText;
+  fieldType?: 'text' | 'date';
+  [key: string]: unknown;
+};
 
 /** Matches Plan 2 `TestSerializer` (camelCase). */
 export type Test = {
@@ -14,6 +59,8 @@ export type Test = {
   testDaysFrom: number | null;
   testDaysTo: number | null;
   month: number[];
+  /** Nested read-only tree (blocks + their questions) — present on detail fetches. */
+  blocks?: QuestionBlock[];
 };
 
 export type TestListParams = {
@@ -40,13 +87,14 @@ export type QuestionBlock = {
   id: number;
   test: number;
   order: number;
-  title: string;
+  title: LocalizedText;
+  questions?: Question[];
 };
 
 export type QuestionBlockUpsertPayload = {
   test: number;
   order: number;
-  title: string;
+  title: LocalizedText;
 };
 
 /** Matches Plan 2 `QuestionSerializer`. */
@@ -55,17 +103,27 @@ export type Question = {
   block: number;
   type: QuestionType;
   order: number;
-  text: string;
+  text: LocalizedText;
   options: TestOption[];
+  settings: QuestionSettings;
+  isRequired: boolean;
+  isMindDive: boolean;
 };
 
 export type QuestionUpsertPayload = {
   block: number;
   type: QuestionType;
   order: number;
-  text: string;
+  text: LocalizedText;
   options: TestOption[];
+  settings?: QuestionSettings;
+  isRequired?: boolean;
+  isMindDive?: boolean;
 };
+
+export type ReorderQuestionBlocksPayload = { test: number; order: number[] };
+export type ReorderQuestionsPayload = { block: number; order: number[] };
+export type MoveQuestionPayload = { question: number; targetBlock: number; order: number[] };
 
 /**
  * Matches Plan 2 `survey-sessions/results/` aggregate serializer:

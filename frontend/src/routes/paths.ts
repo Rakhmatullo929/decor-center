@@ -20,7 +20,6 @@ export const paths = {
     surveys: {
       tests: '/surveys/tests',
       blocks: (testId: number | string) => `/surveys/tests/${testId}/blocks`,
-      questions: (blockId: number | string) => `/surveys/blocks/${blockId}/questions`,
       results: '/surveys/results',
     },
     kiosk: {

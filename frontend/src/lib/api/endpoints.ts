@@ -28,8 +28,11 @@ export const API_ENDPOINTS = {
     test: (id: number | string) => `${API_V1}/tests/${id}/`,
     questionBlocks: `${API_V1}/question-blocks/`,
     questionBlock: (id: number | string) => `${API_V1}/question-blocks/${id}/`,
+    reorderQuestionBlocks: `${API_V1}/question-blocks/reorder/`,
     questions: `${API_V1}/questions/`,
     question: (id: number | string) => `${API_V1}/questions/${id}/`,
+    reorderQuestions: `${API_V1}/questions/reorder/`,
+    moveQuestion: `${API_V1}/questions/move/`,
     // Kiosk + results
     sessions: `${API_V1}/survey-sessions/`,
     session: (id: number | string) => `${API_V1}/survey-sessions/${id}/`,

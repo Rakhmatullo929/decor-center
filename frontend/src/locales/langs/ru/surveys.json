@@ -33,37 +33,56 @@
     "toasts": { "created": "Опрос создан", "updated": "Опрос обновлён", "deleted": "Опрос удалён" },
     "dialogs": { "delete": { "title": "Удалить опрос?", "content": "Действие необратимо." } }
   },
-  "blocks": {
-    "title": "Блоки вопросов",
-    "empty": "Блоки не добавлены",
-    "untitled": "Без названия",
-    "orderLabel": "Порядок: {{order}}",
-    "actions": { "create": "Добавить блок" },
-    "form": { "createTitle": "Новый блок", "editTitle": "Редактировать блок", "order": "Порядок", "title": "Название" },
-    "toasts": { "created": "Блок создан", "updated": "Блок обновлён", "deleted": "Блок удалён" },
-    "dialogs": { "delete": { "title": "Удалить блок?", "content": "Вопросы блока также будут удалены." } }
-  },
-  "questions": {
-    "title": "Вопросы",
-    "empty": "Вопросы не добавлены",
-    "types": { "single": "Один вариант", "multiple": "Несколько вариантов", "textarea": "Свободный текст" },
-    "actions": { "create": "Добавить вопрос", "addOption": "Добавить вариант" },
+  "builder": {
+    "title": "Конструктор опроса",
+    "emptyBlocks": "Добавьте первый блок, чтобы начать",
+    "emptyQuestions": "Перетащите вопрос сюда или добавьте новый",
+    "untitledBlock": "Блок без названия",
+    "untitledQuestion": "Вопрос без текста",
+    "questionCount": "Вопросов: {{count}}",
+    "comingSoon": "Скоро",
+    "types": {
+      "single": "Один вариант ответа",
+      "multiple": "Несколько вариантов ответа",
+      "short_text": "Короткий текстовый ответ",
+      "textarea": "Длинный текст / MIND DIVE",
+      "nps": "NPS-шкала (0–10)",
+      "scale5": "Шкала оценки (1–5)",
+      "form_field": "Поле формы (текст/дата)",
+      "signature_date": "Подпись + дата",
+      "section_header": "Заголовок раздела",
+      "dropdown": "Выпадающий список",
+      "date": "Дата",
+      "number": "Число",
+      "matrix": "Матрица/сетка",
+      "ranking": "Ранжирование",
+      "file_upload": "Загрузка файла"
+    },
+    "actions": {
+      "addBlock": "Добавить блок",
+      "addQuestion": "Добавить вопрос",
+      "addOption": "Добавить вариант",
+      "duplicate": "Дублировать"
+    },
     "form": {
-      "createTitle": "Новый вопрос",
-      "editTitle": "Редактировать вопрос",
-      "type": "Тип",
-      "order": "Порядок",
+      "blockTitle": "Название блока",
       "text": "Текст вопроса",
-      "options": "Варианты ответа",
-      "optionLabel": "Вариант {{n}}"
+      "placeholder": "Плейсхолдер",
+      "optionLabel": "Вариант {{n}}",
+      "leftLabel": "Подпись слева",
+      "rightLabel": "Подпись справа",
+      "scaleStart": "Начало шкалы",
+      "scaleRange": "Диапазон",
+      "fieldType": "Тип поля",
+      "fieldTypeText": "Текст",
+      "fieldTypeDate": "Дата",
+      "required": "Обязательный",
+      "mindDive": "MIND DIVE",
+      "moveToBlock": "Перенести в блок…"
     },
-    "validation": {
-      "textRequired": "Введите текст вопроса",
-      "optionText": "Введите текст варианта",
-      "minOptions": "Нужно минимум 2 варианта"
-    },
-    "toasts": { "created": "Вопрос создан", "updated": "Вопрос обновлён", "deleted": "Вопрос удалён" },
-    "dialogs": { "delete": { "title": "Удалить вопрос?", "content": "Действие необратимо." } }
+    "dialogs": {
+      "deleteBlock": { "title": "Удалить блок", "content": "Вопросы блока также будут удалены." }
+    }
   },
   "results": {
     "title": "Результаты опросов",

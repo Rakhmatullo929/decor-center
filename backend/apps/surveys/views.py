@@ -1,6 +1,7 @@
 import base64
 import binascii
 
+from django.db import transaction
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
@@ -16,10 +17,12 @@ from apps.employees.serializers import EmployeeSerializer
 from apps.integrations.registry import get_face_recognition_service
 
 from .filters import SurveySessionFilter
+from .i18n import display_text
 from .models import Answer, Question, QuestionBlock, SurveySession, Test  # noqa: F401
 from .scheduling import due_surveys
 from .serializers import (
     AdminFillSerializer,
+    QuestionBlockPublicSerializer,
     QuestionBlockSerializer,
     QuestionSerializer,
     StartSurveySerializer,
@@ -61,12 +64,144 @@ class QuestionBlockViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     filterset_fields = ["test"]
 
+    @extend_schema(
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "test": {"type": "integer"},
+                    "order": {"type": "array", "items": {"type": "integer"}},
+                },
+                "required": ["test", "order"],
+            }
+        },
+        responses={200: QuestionBlockSerializer(many=True)},
+    )
+    @action(detail=False, methods=["post"])
+    def reorder(self, request):
+        """Drag&drop reorder: atomically set `order` for every block of a test."""
+        test_id = request.data.get("test")
+        order = request.data.get("order")
+        if not test_id or not isinstance(order, list) or not order:
+            raise ValidationError({"detail": "'test' and a non-empty 'order' array are required."})
+
+        blocks = {b.id: b for b in QuestionBlock.objects.filter(test_id=test_id)}
+        if set(order) != set(blocks):
+            raise ValidationError(
+                {"order": "Must list exactly the block ids belonging to this test."}
+            )
+
+        with transaction.atomic():
+            for index, block_id in enumerate(order):
+                block = blocks[block_id]
+                if block.order != index:
+                    block.order = index
+                    block.save(update_fields=["order", "updated_at"])
+
+        updated = QuestionBlock.objects.filter(test_id=test_id).prefetch_related("questions")
+        return Response(QuestionBlockSerializer(updated, many=True).data)
+
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
     permission_classes = [IsAdminOrReadOnly]
     filterset_fields = ["block"]
+
+    @extend_schema(
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "block": {"type": "integer"},
+                    "order": {"type": "array", "items": {"type": "integer"}},
+                },
+                "required": ["block", "order"],
+            }
+        },
+        responses={200: QuestionSerializer(many=True)},
+    )
+    @action(detail=False, methods=["post"])
+    def reorder(self, request):
+        """Drag&drop reorder within a single block: atomically set `order`."""
+        block_id = request.data.get("block")
+        order = request.data.get("order")
+        if not block_id or not isinstance(order, list) or not order:
+            raise ValidationError({"detail": "'block' and a non-empty 'order' array are required."})
+
+        questions = {q.id: q for q in Question.objects.filter(block_id=block_id)}
+        if set(order) != set(questions):
+            raise ValidationError(
+                {"order": "Must list exactly the question ids belonging to this block."}
+            )
+
+        with transaction.atomic():
+            for index, question_id in enumerate(order):
+                question = questions[question_id]
+                if question.order != index:
+                    question.order = index
+                    question.save(update_fields=["order", "updated_at"])
+
+        updated = Question.objects.filter(block_id=block_id)
+        return Response(QuestionSerializer(updated, many=True).data)
+
+    @extend_schema(
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "question": {"type": "integer"},
+                    "target_block": {"type": "integer"},
+                    "order": {"type": "array", "items": {"type": "integer"}},
+                },
+                "required": ["question", "target_block", "order"],
+            }
+        },
+        responses={200: QuestionSerializer(many=True)},
+    )
+    @action(detail=False, methods=["post"])
+    def move(self, request):
+        """Drag&drop a question into a (possibly different) block, then atomically
+        reorder the target block's full question list (which must include it)."""
+        question_id = request.data.get("question")
+        target_block_id = request.data.get("target_block")
+        order = request.data.get("order")
+        if not question_id or not target_block_id or not isinstance(order, list) or not order:
+            raise ValidationError(
+                {"detail": "'question', 'target_block' and a non-empty 'order' array are required."}
+            )
+
+        question = Question.objects.select_related("block__test").filter(pk=question_id).first()
+        if question is None:
+            raise ValidationError({"question": "Not found."})
+        target_block = QuestionBlock.objects.filter(pk=target_block_id).first()
+        if target_block is None:
+            raise ValidationError({"target_block": "Not found."})
+        if question.block.test_id != target_block.test_id:
+            raise ValidationError(
+                {"target_block": "Cannot move a question to a block of a different survey."}
+            )
+
+        with transaction.atomic():
+            if question.block_id != target_block_id:
+                question.block = target_block
+                question.save(update_fields=["block", "updated_at"])
+
+            target_questions = {
+                q.id: q for q in Question.objects.filter(block_id=target_block_id)
+            }
+            if set(order) != set(target_questions):
+                raise ValidationError(
+                    {"order": "Must list exactly the question ids of the target block after the move."}
+                )
+            for index, q_id in enumerate(order):
+                q = target_questions[q_id]
+                if q.order != index:
+                    q.order = index
+                    q.save(update_fields=["order", "updated_at"])
+
+        updated = Question.objects.filter(block_id=target_block_id)
+        return Response(QuestionSerializer(updated, many=True).data)
 
 
 class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
@@ -173,7 +308,7 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
             {
                 "session": SurveySessionSerializer(session).data,
                 "test": {"id": survey.id, "title": survey.title},
-                "blocks": QuestionBlockSerializer(blocks, many=True).data,
+                "blocks": QuestionBlockPublicSerializer(blocks, many=True).data,
             },
             status=status.HTTP_201_CREATED,
         )
@@ -288,7 +423,7 @@ def _aggregate_results(survey: Test) -> dict:
                 questions_out.append(
                     {
                         "id": question.id,
-                        "text": question.text,
+                        "text": display_text(question.text),
                         "type": question.type,
                         "textValues": texts,
                         "responseCount": len(texts),
@@ -303,15 +438,19 @@ def _aggregate_results(survey: Test) -> dict:
                 questions_out.append(
                     {
                         "id": question.id,
-                        "text": question.text,
+                        "text": display_text(question.text),
                         "type": question.type,
                         "options": [
-                            {"id": opt["id"], "text": opt["text"], "count": counts[opt["id"]]}
+                            {
+                                "id": opt["id"],
+                                "text": display_text(opt.get("text")),
+                                "count": counts[opt["id"]],
+                            }
                             for opt in question.options
                         ],
                     }
                 )
         blocks_out.append(
-            {"id": block.id, "title": block.title, "questions": questions_out}
+            {"id": block.id, "title": display_text(block.title), "questions": questions_out}
         )
     return {"test": {"id": survey.id, "title": survey.title}, "blocks": blocks_out}

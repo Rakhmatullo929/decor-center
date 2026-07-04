@@ -2,10 +2,13 @@ import { request, API_ENDPOINTS } from 'src/utils/axios';
 import type { Pagination } from 'src/hooks/api';
 
 import type {
+  MoveQuestionPayload,
   Question,
   QuestionBlock,
   QuestionBlockUpsertPayload,
   QuestionUpsertPayload,
+  ReorderQuestionBlocksPayload,
+  ReorderQuestionsPayload,
   ResultsExportParams,
   ResultsParams,
   SurveyResults,
@@ -17,6 +20,9 @@ import type {
 // ── Tests ──────────────────────────────────────────────────────────────
 export function fetchTests(params: TestListParams) {
   return request<Pagination<Test>>({ method: 'GET', url: API_ENDPOINTS.surveys.tests, params });
+}
+export function fetchTest(id: number) {
+  return request<Test>({ method: 'GET', url: API_ENDPOINTS.surveys.test(id) });
 }
 export function createTest(payload: TestUpsertPayload) {
   return request<Test>({ method: 'POST', url: API_ENDPOINTS.surveys.tests, data: payload });
@@ -53,6 +59,13 @@ export function updateQuestionBlock(id: number, payload: Partial<QuestionBlockUp
 export function deleteQuestionBlock(id: number) {
   return request<void>({ method: 'DELETE', url: API_ENDPOINTS.surveys.questionBlock(id) });
 }
+export function reorderQuestionBlocks(payload: ReorderQuestionBlocksPayload) {
+  return request<QuestionBlock[]>({
+    method: 'POST',
+    url: API_ENDPOINTS.surveys.reorderQuestionBlocks,
+    data: payload,
+  });
+}
 
 // ── Questions ──────────────────────────────────────────────────────────
 export function fetchQuestions(blockId: number) {
@@ -74,6 +87,20 @@ export function updateQuestion(id: number, payload: Partial<QuestionUpsertPayloa
 }
 export function deleteQuestion(id: number) {
   return request<void>({ method: 'DELETE', url: API_ENDPOINTS.surveys.question(id) });
+}
+export function reorderQuestions(payload: ReorderQuestionsPayload) {
+  return request<Question[]>({
+    method: 'POST',
+    url: API_ENDPOINTS.surveys.reorderQuestions,
+    data: payload,
+  });
+}
+export function moveQuestion(payload: MoveQuestionPayload) {
+  return request<Question[]>({
+    method: 'POST',
+    url: API_ENDPOINTS.surveys.moveQuestion,
+    data: payload,
+  });
 }
 
 // ── Results ────────────────────────────────────────────────────────────
