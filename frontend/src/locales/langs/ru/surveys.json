@@ -35,6 +35,8 @@
   },
   "builder": {
     "title": "Конструктор опроса",
+    "blocksTitle": "Блоки опроса",
+    "questionsTitle": "Вопросы блока",
     "emptyBlocks": "Добавьте первый блок, чтобы начать",
     "emptyQuestions": "Перетащите вопрос сюда или добавьте новый",
     "untitledBlock": "Блок без названия",
@@ -62,7 +64,9 @@
       "addBlock": "Добавить блок",
       "addQuestion": "Добавить вопрос",
       "addOption": "Добавить вариант",
-      "duplicate": "Дублировать"
+      "duplicate": "Дублировать",
+      "openQuestions": "Вопросы",
+      "backToBlocks": "Все блоки"
     },
     "form": {
       "blockTitle": "Название блока",

@@ -14,7 +14,7 @@ type Props = {
   blockIndex: number;
 };
 
-/** Static stand-in for `SortableBlockCard`, rendered inside `DragOverlay` so a
+/** Static stand-in for `BlockListRow`, rendered inside `DragOverlay` so a
  * dragged block keeps looking like the real card instead of a bare label. */
 export default function BlockCardPreview({ block, blockIndex }: Props) {
   const { tx } = useLocales();

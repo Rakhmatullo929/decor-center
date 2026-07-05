@@ -1,31 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import {
-  DndContext,
   DragEndEvent,
-  DragOverlay,
   DragStartEvent,
   KeyboardSensor,
   PointerSensor,
-  closestCenter,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { SortableContext, arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
+import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import useLocales from 'src/locales/use-locales';
 import uuidv4 from 'src/utils/uuidv4';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
-import EmptyContent from 'src/components/empty-content';
-import Iconify from 'src/components/iconify';
-import { useSettingsContext } from 'src/components/settings';
-import { paths } from 'src/routes/paths';
 import { useCheckPermission } from 'src/auth/hooks';
 
-import type { LocalizedText, Question, QuestionBlock, QuestionType } from '../api/types';
+import type { LocalizedText, Question, QuestionBlock, QuestionType } from '../../api/types';
 import {
   useCreateQuestionBlockMutation,
   useCreateQuestionMutation,
@@ -37,31 +24,29 @@ import {
   useTestQuery,
   useUpdateQuestionBlockMutation,
   useUpdateQuestionMutation,
-} from '../api/use-surveys-api';
-import BlockCardPreview from './components/block-card-preview';
-import BuilderSkeleton from './components/builder-skeleton';
-import QuestionRowPreview from './components/question-row-preview';
-import SortableBlockCard from './components/sortable-block-card';
-import { QUESTION_TYPE_META, defaultOptionText, defaultSettingsFor } from './utils/question-type-meta';
+} from '../../api/use-surveys-api';
+import { QUESTION_TYPE_META, defaultOptionText, defaultSettingsFor } from '../utils/question-type-meta';
 
-type DragData = { type: 'block' } | { type: 'question'; blockId: number } | { type: 'blockdrop'; blockId: number };
+export type DragData =
+  | { type: 'block' }
+  | { type: 'question'; blockId: number }
+  | { type: 'blockdrop'; blockId: number };
 
-type ActiveDrag =
+export type ActiveDrag =
   | { kind: 'block'; block: QuestionBlock; blockIndex: number }
   | { kind: 'question'; question: Question };
 
-function blockLabel(block: QuestionBlock, tx: (key: string) => string) {
-  return block.title.ru || block.title.uz || tx('surveys.builder.untitledBlock');
-}
-
-export default function SurveyBuilderView() {
+/**
+ * All builder state, mutations and drag&drop handlers, shared by the blocks-list
+ * page and the per-block questions page — both operate on the same `Test` tree
+ * (a single test fetch already includes every block and question), so splitting
+ * the pages doesn't need splitting this logic: each page just renders a subset of
+ * what this hook returns and only triggers the handlers relevant to its own drags.
+ */
+export function useSurveyBuilder(testId: number) {
   const { tx, t } = useLocales();
-  const settings = useSettingsContext();
   const { canWritePage } = useCheckPermission();
   const canWrite = canWritePage('tests');
-
-  const { testId: testIdParam } = useParams();
-  const testId = Number(testIdParam);
 
   const testQuery = useTestQuery(testId);
 
@@ -117,9 +102,12 @@ export default function SurveyBuilderView() {
     );
   };
 
-  const handleDeleteBlock = (blockId: number) => {
+  const handleDeleteBlock = (blockId: number, onSuccess?: () => void) => {
     deleteBlockMutation.mutate(blockId, {
-      onSuccess: () => setBlocks((prev) => prev.filter((b) => b.id !== blockId)),
+      onSuccess: () => {
+        setBlocks((prev) => prev.filter((b) => b.id !== blockId));
+        onSuccess?.();
+      },
     });
   };
 
@@ -211,8 +199,8 @@ export default function SurveyBuilderView() {
     );
     scheduleSave(`question-${questionId}`, () => {
       // Look up the question by id across all blocks (not the `blockId` captured at
-      // schedule time) — it may have been dragged into a different block before this
-      // debounced save fires, and saving against the stale block would silently no-op.
+      // schedule time) — it may have been dragged/moved into a different block before
+      // this debounced save fires, and saving against the stale block would silently no-op.
       const block = blocksRef.current.find((b) => (b.questions ?? []).some((q) => q.id === questionId));
       const question = block?.questions?.find((q) => q.id === questionId);
       if (!block || !question) return;
@@ -291,9 +279,8 @@ export default function SurveyBuilderView() {
     const overData = over.data.current as DragData | undefined;
 
     if (activeData?.type === 'block') {
-      // `over` may be the target block itself, or one of its nested questions/dropzone
-      // when the pointer ends up hovering the block's question list — resolve to the
-      // owning block id in every case.
+      // `over` may be the target block itself, or (on the combined page layout)
+      // one of its nested questions/dropzone — resolve to the owning block id.
       let targetBlockId: number | undefined;
       if (overData?.type === 'block') targetBlockId = Number(String(over.id).replace('block-', ''));
       else if (overData?.type === 'question') targetBlockId = overData.blockId;
@@ -372,78 +359,24 @@ export default function SurveyBuilderView() {
     }
   };
 
-  if (testQuery.isLoading) {
-    return (
-      <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-        <BuilderSkeleton />
-      </Container>
-    );
-  }
-
-  return (
-    <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-      <CustomBreadcrumbs
-        heading={tx('surveys.builder.title')}
-        links={[
-          { name: tx('surveys.tests.title'), href: paths.app.surveys.tests },
-          { name: testQuery.data?.title ?? '', href: paths.app.surveys.blocks(testId) },
-        ]}
-        action={
-          canWrite && (
-            <Button variant="contained" startIcon={<Iconify icon="mingcute:add-line" />} onClick={handleAddBlock}>
-              {tx('surveys.builder.actions.addBlock')}
-            </Button>
-          )
-        }
-        sx={{ mb: { xs: 3, md: 5 } }}
-      />
-
-      {blocks.length === 0 ? (
-        <Paper variant="outlined">
-          <EmptyContent filled title={tx('surveys.builder.emptyBlocks')} sx={{ py: 10 }} />
-        </Paper>
-      ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext items={blocks.map((b) => `block-${b.id}`)} strategy={verticalListSortingStrategy}>
-            <Stack spacing={2}>
-              {blocks.map((block, blockIndex) => (
-                <SortableBlockCard
-                  key={block.id}
-                  block={block}
-                  blockIndex={blockIndex}
-                  blockOptionsForMove={blocks
-                    .filter((b) => b.id !== block.id)
-                    .map((b) => ({ id: b.id, label: blockLabel(b, tx) }))}
-                  expandedQuestionId={expandedQuestionId}
-                  onToggleExpandQuestion={(questionId) =>
-                    setExpandedQuestionId((prev) => (prev === questionId ? null : questionId))
-                  }
-                  onTitleChange={(title) => handleBlockTitleChange(block.id, title)}
-                  onDeleteBlock={() => handleDeleteBlock(block.id)}
-                  onAddQuestion={(type) => handleAddQuestion(block.id, type)}
-                  onQuestionChange={(questionId, patch) => handleQuestionChange(block.id, questionId, patch)}
-                  onDeleteQuestion={(questionId) => handleDeleteQuestion(block.id, questionId)}
-                  onDuplicateQuestion={(questionId) => handleDuplicateQuestion(block.id, questionId)}
-                  onMoveQuestionToBlock={(questionId, targetBlockId) =>
-                    handleMoveQuestionToBlock(block.id, questionId, targetBlockId)
-                  }
-                />
-              ))}
-            </Stack>
-          </SortableContext>
-          <DragOverlay>
-            {activeDrag?.kind === 'block' && (
-              <BlockCardPreview block={activeDrag.block} blockIndex={activeDrag.blockIndex} />
-            )}
-            {activeDrag?.kind === 'question' && <QuestionRowPreview question={activeDrag.question} />}
-          </DragOverlay>
-        </DndContext>
-      )}
-    </Container>
-  );
+  return {
+    tx,
+    canWrite,
+    testQuery,
+    blocks,
+    expandedQuestionId,
+    setExpandedQuestionId,
+    activeDrag,
+    sensors,
+    handleDragStart,
+    handleDragEnd,
+    handleAddBlock,
+    handleDeleteBlock,
+    handleBlockTitleChange,
+    handleAddQuestion,
+    handleDeleteQuestion,
+    handleDuplicateQuestion,
+    handleQuestionChange,
+    handleMoveQuestionToBlock,
+  };
 }

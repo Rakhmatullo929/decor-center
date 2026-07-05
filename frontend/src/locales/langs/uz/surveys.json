@@ -35,6 +35,8 @@
   },
   "builder": {
     "title": "So‘rov konstruktori",
+    "blocksTitle": "So‘rov bloklari",
+    "questionsTitle": "Blok savollari",
     "emptyBlocks": "Boshlash uchun birinchi blokni qo‘shing",
     "emptyQuestions": "Savolni shu yerga torting yoki yangisini qo‘shing",
     "untitledBlock": "Nomsiz blok",
@@ -62,7 +64,9 @@
       "addBlock": "Blok qo‘shish",
       "addQuestion": "Savol qo‘shish",
       "addOption": "Variant qo‘shish",
-      "duplicate": "Nusxalash"
+      "duplicate": "Nusxalash",
+      "openQuestions": "Savollar",
+      "backToBlocks": "Barcha bloklar"
     },
     "form": {
       "blockTitle": "Blok nomi",
