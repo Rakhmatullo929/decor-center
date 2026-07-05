@@ -55,11 +55,11 @@ export default function SortableBlockCard({
   const questions = block.questions ?? [];
   const deleteConfirm = useBoolean();
 
-  const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
+  const { setNodeRef, attributes, listeners, transform, transition, isDragging, isOver: isBlockOver } = useSortable({
     id: `block-${block.id}`,
     data: { type: 'block' },
   });
-  const { setNodeRef: setDropRef } = useDroppable({
+  const { setNodeRef: setDropRef, isOver: isQuestionDropOver } = useDroppable({
     id: `blockdrop-${block.id}`,
     data: { type: 'blockdrop', blockId: block.id },
   });
@@ -68,7 +68,14 @@ export default function SortableBlockCard({
     <>
       <Card
         ref={setNodeRef}
-        sx={{ p: 3, opacity: isDragging ? 0.6 : 1, transform: CSS.Transform.toString(transform), transition }}
+        sx={{
+          p: 3,
+          opacity: isDragging ? 0.6 : 1,
+          transform: CSS.Transform.toString(transform),
+          transition,
+          bgcolor: isBlockOver ? 'action.hover' : 'background.paper',
+          boxShadow: isBlockOver ? (theme) => theme.customShadows?.z8 : undefined,
+        }}
       >
         <Stack direction="row" spacing={1.5} alignItems="flex-start">
           <DragHandle width={22} attributes={attributes} listeners={listeners} />
@@ -91,7 +98,18 @@ export default function SortableBlockCard({
 
         <Divider sx={{ my: 2.5 }} />
 
-        <Box ref={setDropRef} sx={{ minHeight: 56 }}>
+        <Box
+          ref={setDropRef}
+          sx={{
+            minHeight: 56,
+            borderRadius: 1,
+            transition: (theme) => theme.transitions.create(['background-color', 'box-shadow']),
+            ...(isQuestionDropOver && {
+              bgcolor: 'action.hover',
+              boxShadow: (theme) => `inset 0 0 0 2px ${theme.palette.primary.main}`,
+            }),
+          }}
+        >
           <SortableContext items={questions.map((q) => `question-${q.id}`)} strategy={verticalListSortingStrategy}>
             <Stack spacing={1.5}>
               {questions.length === 0 && (

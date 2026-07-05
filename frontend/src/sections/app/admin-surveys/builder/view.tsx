@@ -13,11 +13,9 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
 import useLocales from 'src/locales/use-locales';
 import uuidv4 from 'src/utils/uuidv4';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
@@ -40,10 +38,17 @@ import {
   useUpdateQuestionBlockMutation,
   useUpdateQuestionMutation,
 } from '../api/use-surveys-api';
+import BlockCardPreview from './components/block-card-preview';
+import BuilderSkeleton from './components/builder-skeleton';
+import QuestionRowPreview from './components/question-row-preview';
 import SortableBlockCard from './components/sortable-block-card';
 import { QUESTION_TYPE_META, defaultOptionText, defaultSettingsFor } from './utils/question-type-meta';
 
 type DragData = { type: 'block' } | { type: 'question'; blockId: number } | { type: 'blockdrop'; blockId: number };
+
+type ActiveDrag =
+  | { kind: 'block'; block: QuestionBlock; blockIndex: number }
+  | { kind: 'question'; question: Question };
 
 function blockLabel(block: QuestionBlock, tx: (key: string) => string) {
   return block.title.ru || block.title.uz || tx('surveys.builder.untitledBlock');
@@ -64,7 +69,7 @@ export default function SurveyBuilderView() {
   const blocksRef = useRef<QuestionBlock[]>([]);
   const loadedTestId = useRef<number | null>(null);
   const [expandedQuestionId, setExpandedQuestionId] = useState<number | null>(null);
-  const [activeDrag, setActiveDrag] = useState<{ kind: 'block' | 'question'; label: string } | null>(null);
+  const [activeDrag, setActiveDrag] = useState<ActiveDrag | null>(null);
 
   function setBlocks(updater: QuestionBlock[] | ((prev: QuestionBlock[]) => QuestionBlock[])) {
     setBlocksState((prev) => {
@@ -268,11 +273,13 @@ export default function SurveyBuilderView() {
   const handleDragStart = (event: DragStartEvent) => {
     const data = event.active.data.current as DragData | undefined;
     if (data?.type === 'block') {
-      const block = blocksRef.current.find((b) => `block-${b.id}` === event.active.id);
-      if (block) setActiveDrag({ kind: 'block', label: blockLabel(block, tx) });
+      const blockIndex = blocksRef.current.findIndex((b) => `block-${b.id}` === event.active.id);
+      if (blockIndex !== -1) {
+        setActiveDrag({ kind: 'block', block: blocksRef.current[blockIndex], blockIndex });
+      }
     } else if (data?.type === 'question') {
       const question = blocksRef.current.flatMap((b) => b.questions ?? []).find((q) => `question-${q.id}` === event.active.id);
-      if (question) setActiveDrag({ kind: 'question', label: question.text.ru || question.text.uz || '' });
+      if (question) setActiveDrag({ kind: 'question', question });
     }
   };
 
@@ -368,9 +375,7 @@ export default function SurveyBuilderView() {
   if (testQuery.isLoading) {
     return (
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-        <Stack alignItems="center" sx={{ py: 10 }}>
-          <CircularProgress />
-        </Stack>
+        <BuilderSkeleton />
       </Container>
     );
   }
@@ -432,13 +437,10 @@ export default function SurveyBuilderView() {
             </Stack>
           </SortableContext>
           <DragOverlay>
-            {activeDrag && (
-              <Paper sx={{ p: 1.5, boxShadow: (theme) => theme.customShadows?.z20 }}>
-                <Typography variant="body2" noWrap sx={{ maxWidth: 320 }}>
-                  {activeDrag.label || tx('surveys.builder.untitledQuestion')}
-                </Typography>
-              </Paper>
+            {activeDrag?.kind === 'block' && (
+              <BlockCardPreview block={activeDrag.block} blockIndex={activeDrag.blockIndex} />
             )}
+            {activeDrag?.kind === 'question' && <QuestionRowPreview question={activeDrag.question} />}
           </DragOverlay>
         </DndContext>
       )}

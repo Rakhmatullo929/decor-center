@@ -45,7 +45,7 @@ export default function SortableQuestionRow({
   const { tx } = useLocales();
   const meta = QUESTION_TYPE_META[question.type];
   const deleteConfirm = useBoolean();
-  const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
+  const { setNodeRef, attributes, listeners, transform, transition, isDragging, isOver } = useSortable({
     id: `question-${question.id}`,
     data: { type: 'question', blockId },
   });
@@ -63,6 +63,7 @@ export default function SortableQuestionRow({
           transform: CSS.Transform.toString(transform),
           transition,
           ...(expanded && { bgcolor: 'background.neutral' }),
+          ...(isOver && { boxShadow: (theme) => `inset 0 0 0 2px ${theme.palette.primary.main}` }),
         }}
       >
         <Stack direction="row" spacing={1.5} alignItems="flex-start">
