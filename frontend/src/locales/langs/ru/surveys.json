@@ -42,7 +42,13 @@
     "untitledBlock": "Блок без названия",
     "untitledQuestion": "Вопрос без текста",
     "questionCount": "Вопросов: {{count}}",
-    "comingSoon": "Скоро",
+    "typeGroups": {
+      "choice": "Выбор варианта",
+      "text": "Текст",
+      "scale": "Шкалы",
+      "form": "Форма",
+      "structure": "Структура"
+    },
     "types": {
       "single": "Один вариант ответа",
       "multiple": "Несколько вариантов ответа",

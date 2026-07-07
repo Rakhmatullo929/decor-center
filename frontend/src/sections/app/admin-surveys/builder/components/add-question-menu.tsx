@@ -2,15 +2,14 @@ import { useState } from 'react';
 import Button from '@mui/material/Button';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import ListSubheader from '@mui/material/ListSubheader';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import Tooltip from '@mui/material/Tooltip';
 import useLocales from 'src/locales/use-locales';
 import Iconify from 'src/components/iconify';
 
-import { IMPLEMENTED_QUESTION_TYPES } from '../../api/types';
 import type { QuestionType } from '../../api/types';
-import { QUESTION_TYPE_META, RESERVED_QUESTION_TYPES } from '../utils/question-type-meta';
+import { QUESTION_TYPE_GROUPS, QUESTION_TYPE_META } from '../utils/question-type-meta';
 
 type Props = {
   onSelect: (type: QuestionType) => void;
@@ -33,33 +32,28 @@ export default function AddQuestionMenu({ onSelect, buttonProps }: Props) {
       >
         {tx('surveys.builder.actions.addQuestion')}
       </Button>
-      <Menu anchorEl={anchorEl} open={open} onClose={() => setAnchorEl(null)}>
-        {IMPLEMENTED_QUESTION_TYPES.map((type) => (
-          <MenuItem
-            key={type}
-            onClick={() => {
-              onSelect(type);
-              setAnchorEl(null);
-            }}
-          >
-            <ListItemIcon>
-              <Iconify icon={QUESTION_TYPE_META[type].icon} />
-            </ListItemIcon>
-            <ListItemText>{tx(`surveys.builder.types.${type}`)}</ListItemText>
-          </MenuItem>
-        ))}
-        {RESERVED_QUESTION_TYPES.map((type) => (
-          <Tooltip key={type} title={tx('surveys.builder.comingSoon')} placement="right">
-            <span>
-              <MenuItem disabled>
-                <ListItemIcon>
-                  <Iconify icon={QUESTION_TYPE_META[type].icon} />
-                </ListItemIcon>
-                <ListItemText>{tx(`surveys.builder.types.${type}`)}</ListItemText>
-              </MenuItem>
-            </span>
-          </Tooltip>
-        ))}
+      <Menu anchorEl={anchorEl} open={open} onClose={() => setAnchorEl(null)} sx={{ maxHeight: 480 }}>
+        {/* MUI's Menu clones each direct child to wire up keyboard navigation, so
+            the groups must be a flat array — a Fragment per group breaks that. */}
+        {QUESTION_TYPE_GROUPS.flatMap((group) => [
+          <ListSubheader key={group.labelKey} sx={{ lineHeight: '32px' }}>
+            {tx(group.labelKey)}
+          </ListSubheader>,
+          ...group.types.map((type) => (
+            <MenuItem
+              key={type}
+              onClick={() => {
+                onSelect(type);
+                setAnchorEl(null);
+              }}
+            >
+              <ListItemIcon>
+                <Iconify icon={QUESTION_TYPE_META[type].icon} />
+              </ListItemIcon>
+              <ListItemText>{tx(`surveys.builder.types.${type}`)}</ListItemText>
+            </MenuItem>
+          )),
+        ])}
       </Menu>
     </>
   );

@@ -42,7 +42,13 @@
     "untitledBlock": "Nomsiz blok",
     "untitledQuestion": "Matnsiz savol",
     "questionCount": "Savollar: {{count}}",
-    "comingSoon": "Tez orada",
+    "typeGroups": {
+      "choice": "Variant tanlash",
+      "text": "Matn",
+      "scale": "Shkalalar",
+      "form": "Forma",
+      "structure": "Struktura"
+    },
     "types": {
       "single": "Bitta javob varianti",
       "multiple": "Bir nechta javob varianti",

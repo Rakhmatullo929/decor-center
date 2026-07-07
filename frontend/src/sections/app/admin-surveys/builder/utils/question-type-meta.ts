@@ -1,4 +1,3 @@
-import { IMPLEMENTED_QUESTION_TYPES } from '../../api/types';
 import type { LocalizedText, QuestionType } from '../../api/types';
 
 export type QuestionTypeMeta = {
@@ -65,9 +64,15 @@ export const QUESTION_TYPE_META: Record<QuestionType, QuestionTypeMeta> = {
   },
 };
 
-export const RESERVED_QUESTION_TYPES: QuestionType[] = (
-  Object.keys(QUESTION_TYPE_META) as QuestionType[]
-).filter((type) => !IMPLEMENTED_QUESTION_TYPES.includes(type));
+/** How the "add question" menu groups its (implemented-only) entries, so admins
+ * scan by intent ("I need a scale") instead of a single flat list of nine items. */
+export const QUESTION_TYPE_GROUPS: { labelKey: string; types: QuestionType[] }[] = [
+  { labelKey: 'surveys.builder.typeGroups.choice', types: ['single', 'multiple'] },
+  { labelKey: 'surveys.builder.typeGroups.text', types: ['short_text', 'textarea'] },
+  { labelKey: 'surveys.builder.typeGroups.scale', types: ['nps', 'scale5'] },
+  { labelKey: 'surveys.builder.typeGroups.form', types: ['form_field', 'signature_date'] },
+  { labelKey: 'surveys.builder.typeGroups.structure', types: ['section_header'] },
+];
 
 export function defaultSettingsFor(type: QuestionType) {
   if (type === 'nps') return { min: 0, max: 10 };
