@@ -79,6 +79,7 @@ export default function EmployeeUpsertDialog({ open, onClose, employee, onSaved 
     () => ({
       fullName: employee?.fullName ?? '',
       specialty: employee?.specialty ?? '',
+      phone: employee?.phone ?? '',
       photo: employee?.photo ?? null,
       isActive: employee?.isActive ?? true,
       hireDate: employee?.hireDate ?? '',
@@ -182,6 +183,7 @@ export default function EmployeeUpsertDialog({ open, onClose, employee, onSaved 
             payload: {
               fullName: values.fullName,
               specialty: Number(values.specialty),
+              phone: values.phone,
               isActive: values.isActive,
               hireDate: values.hireDate || null,
               workExperience: values.workExperience === '' ? null : Number(values.workExperience),
@@ -191,6 +193,7 @@ export default function EmployeeUpsertDialog({ open, onClose, employee, onSaved 
         : await createMutation.mutateAsync({
             fullName: values.fullName,
             specialty: Number(values.specialty),
+            phone: values.phone,
             isActive: values.isActive,
             hireDate: values.hireDate || null,
             workExperience: values.workExperience === '' ? null : Number(values.workExperience),
@@ -227,6 +230,12 @@ export default function EmployeeUpsertDialog({ open, onClose, employee, onSaved 
             </Stack>
 
             <RHFTextField name="fullName" label={`${tx('employees.form.fullName')} *`} />
+
+            <RHFTextField
+              name="phone"
+              label={`${tx('employees.form.phone')} *`}
+              placeholder="+998901234567"
+            />
 
             <RHFSelect name="specialty" label={`${tx('employees.form.specialty')} *`}>
               {specialtyOptions.map((option) => (

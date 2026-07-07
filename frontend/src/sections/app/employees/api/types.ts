@@ -4,6 +4,8 @@ export type Employee = {
   fullName: string;
   specialty: number;
   specialtyName: string;
+  /** Employee phone (E.164, e.g. +998901234567) — used for kiosk SMS OTP. */
+  phone: string;
   photo: string | null;
   isActive: boolean;
   /** ISO date (YYYY-MM-DD) or null — drives kiosk survey scheduling (Plan 2). */
@@ -25,6 +27,7 @@ export type EmployeeListParams = {
 export type EmployeeUpsertPayload = {
   fullName: string;
   specialty: number;
+  phone: string;
   /** New photo file; omit to keep the existing one on edit. */
   photo?: File;
   isActive?: boolean;

@@ -19,6 +19,7 @@
     "editTitle": "Xodimni tahrirlash",
     "fullName": "F.I.Sh.",
     "specialty": "Mutaxassislik",
+    "phone": "Telefon",
     "hireDate": "Ishga kirgan sana",
     "workExperience": "Ish tajribasi (yil)",
     "photoHint": "Yuz aniq ko'rinadigan old tomondan olingan surat (Face ID uchun)",
@@ -69,6 +70,8 @@
   "validation": {
     "fullNameRequired": "F.I.Sh. majburiy",
     "specialtyRequired": "Mutaxassislikni tanlang",
+    "phoneRequired": "Telefon majburiy",
+    "phoneInvalid": "Format: +998901234567",
     "photoRequired": "Foto majburiy",
     "workExperienceMin": "Tajriba manfiy bo'lishi mumkin emas"
   }
