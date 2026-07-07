@@ -1,7 +1,9 @@
 import datetime
 
 import pytest
+from rest_framework.test import APIClient
 
+from apps.surveys.kiosk_token import issue_kiosk_token
 from apps.surveys.models import Answer, Question, SurveySession
 
 from .factories import (
@@ -15,6 +17,13 @@ pytestmark = pytest.mark.django_db
 
 SESSIONS = "/api/v1/survey-sessions/"
 TESTS = "/api/v1/tests/"
+
+
+def kiosk_client(employee_id, *, fallback=False):
+    """A client carrying a valid kiosk token (post-OTP) for the given employee."""
+    client = APIClient()
+    client.credentials(HTTP_X_KIOSK_TOKEN=issue_kiosk_token(employee_id, fallback=fallback))
+    return client
 
 
 @pytest.fixture
@@ -74,21 +83,21 @@ def test_identify_unknown_face_404(employee_client, face_image_fail):
 
 # --- due --------------------------------------------------------------------
 
-def test_due_lists_scheduled_surveys(employee_client):
+def test_due_lists_scheduled_surveys():
     emp = EmployeeFactory(hire_date=datetime.date(2026, 6, 1))
     survey = TestFactory(is_after_application=True, after_days=1)
-    resp = employee_client.get(f"{SESSIONS}due/?employee={emp.id}")
+    resp = kiosk_client(emp.id).get(f"{SESSIONS}due/?employee={emp.id}")
     assert resp.status_code == 200
     assert survey.id in [t["id"] for t in resp.data]
 
 
 # --- start ------------------------------------------------------------------
 
-def test_start_returns_blocks_and_questions(employee_client, survey_with_questions, face_image):
+def test_start_returns_blocks_and_questions(survey_with_questions, face_image):
     survey, q_single, q_text = survey_with_questions
     emp = EmployeeFactory()
     face_image.seek(0)
-    resp = employee_client.post(
+    resp = kiosk_client(emp.id).post(
         f"{SESSIONS}start/",
         {"employee": emp.id, "test": survey.id, "face_image": face_image},
         format="multipart",
@@ -100,11 +109,11 @@ def test_start_returns_blocks_and_questions(employee_client, survey_with_questio
     assert resp.data["session"]["face_verified"] is True
 
 
-def test_start_face_failure_403(employee_client, survey_with_questions, face_image_fail):
+def test_start_face_failure_403(survey_with_questions, face_image_fail):
     survey, _, _ = survey_with_questions
     emp = EmployeeFactory()
     face_image_fail.seek(0)
-    resp = employee_client.post(
+    resp = kiosk_client(emp.id).post(
         f"{SESSIONS}start/",
         {"employee": emp.id, "test": survey.id, "face_image": face_image_fail},
         format="multipart",
@@ -124,12 +133,13 @@ def _start(client, survey, emp, face_image):
     )
 
 
-def test_submit_persists_answers(employee_client, survey_with_questions, face_image):
+def test_submit_persists_answers(survey_with_questions, face_image):
     survey, q_single, q_text = survey_with_questions
     emp = EmployeeFactory()
-    start = _start(employee_client, survey, emp, face_image)
+    client = kiosk_client(emp.id)
+    start = _start(client, survey, emp, face_image)
     session_id = start.data["session"]["id"]
-    resp = employee_client.post(
+    resp = client.post(
         f"{SESSIONS}{session_id}/submit/",
         {"answers": [
             {"question": q_single.id, "selectedOptionIds": ["a"]},

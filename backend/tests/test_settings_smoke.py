@@ -15,7 +15,7 @@ def test_installed_apps_are_reduced():
     assert "apps.assessments" not in settings.INSTALLED_APPS
 
 
-def test_decor_dict_has_only_face_keys():
+def test_decor_dict_has_only_face_and_kiosk_keys():
     keys = set(settings.DECOR)
     assert keys == {
         "FACE_SIMILARITY_THRESHOLD",
@@ -30,6 +30,12 @@ def test_decor_dict_has_only_face_keys():
         "ANTI_SPOOFING_THRESHOLD",
         "FACE_WARMUP_ON_STARTUP",
         "REVERIFY_ON_SUBMIT",
+        # Kiosk SMS OTP
+        "SMS_BACKEND",
+        "KIOSK_OTP_STATIC_CODE",
+        "KIOSK_OTP_TTL_SECONDS",
+        "KIOSK_OTP_MAX_ATTEMPTS",
+        "KIOSK_TOKEN_TTL",
     }
     # scoring / TTS / testgen knobs are gone
     for gone in ("QUESTIONS_PER_TEST", "PASS_THRESHOLD", "TESTGEN_LANGUAGE",

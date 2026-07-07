@@ -229,7 +229,11 @@ def test_is_required_and_mind_dive_flags_roundtrip(admin_client):
 
 # --- kiosk-facing shape stays a flat string -----------------------------------
 
-def test_kiosk_start_returns_flat_text(employee_client, face_image):
+def test_kiosk_start_returns_flat_text(face_image):
+    from rest_framework.test import APIClient
+
+    from apps.surveys.kiosk_token import issue_kiosk_token
+
     survey = TestFactory()
     block = QuestionBlockFactory(test=survey, title="Блок")
     QuestionFactory(
@@ -240,7 +244,9 @@ def test_kiosk_start_returns_flat_text(employee_client, face_image):
     )
     emp = EmployeeFactory()
     face_image.seek(0)
-    resp = employee_client.post(
+    client = APIClient()
+    client.credentials(HTTP_X_KIOSK_TOKEN=issue_kiosk_token(emp.id))
+    resp = client.post(
         "/api/v1/survey-sessions/start/",
         {"employee": emp.id, "test": survey.id, "face_image": face_image},
         format="multipart",
