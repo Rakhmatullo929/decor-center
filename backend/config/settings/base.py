@@ -153,4 +153,7 @@ DECOR = {
     "SMS_BACKEND": env(
         "DECOR_SMS_BACKEND", default="apps.integrations.mocks.MockSmsSender"
     ),
+    "KIOSK_OTP_STATIC_CODE": env("DECOR_KIOSK_OTP_STATIC_CODE", default="0000"),
+    "KIOSK_OTP_TTL_SECONDS": env.int("DECOR_KIOSK_OTP_TTL_SECONDS", default=300),
+    "KIOSK_OTP_MAX_ATTEMPTS": env.int("DECOR_KIOSK_OTP_MAX_ATTEMPTS", default=5),
 }
