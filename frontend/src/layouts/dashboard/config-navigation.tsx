@@ -5,6 +5,7 @@ import { useCheckPermission } from 'src/auth/hooks';
 import useLocales from 'src/locales/use-locales';
 import Iconify from 'src/components/iconify';
 import { useTestOptionsQuery } from 'src/sections/app/admin-surveys/api/use-surveys-api';
+import type { Test } from 'src/sections/app/admin-surveys/api/types';
 
 // ----------------------------------------------------------------------
 
@@ -20,6 +21,14 @@ type NavGroup = {
   subheader: string;
   items: NavItem[];
 };
+
+/** Icon reflects how the survey is triggered, so the sidebar reads at a glance
+ * instead of every entry looking identical. */
+function surveyIconName(test: Test): string {
+  if (test.isAdminConducted) return 'solar:user-speak-rounded-bold-duotone'; // 1-on-1 conversation
+  if (test.isAfterApplication) return 'solar:user-plus-rounded-bold-duotone'; // one-off after hire
+  return 'solar:repeat-bold-duotone'; // periodic (monthly / recurring window)
+}
 
 export function useNavData() {
   const { tx } = useLocales();
@@ -51,28 +60,31 @@ export function useNavData() {
       groups.push({ subheader: tx('common.navigation.management'), items: managementItems });
     }
 
-    const surveyItems: NavItem[] = [];
-    if (canReadTests) {
+    if (canReadTests && tests.length) {
       // No standalone tests-list/management screen — surveys are administered
       // on the backend. Each one links straight into its own block/question
       // builder, flat under the "Опросы" subheader (like every other group).
-      surveyItems.push(
-        ...tests.map((test) => ({
+      groups.push({
+        subheader: tx('common.navigation.surveysGroup'),
+        items: tests.map((test) => ({
           title: test.title,
           path: paths.app.surveys.blocks(test.id),
-          icon: icon('solar:clipboard-list-bold-duotone'),
-        }))
-      );
-    }
-    if (canReadPage('results')) {
-      surveyItems.push({
-        title: tx('common.navigation.results'),
-        path: paths.app.surveys.results,
-        icon: icon('solar:chart-square-bold-duotone'),
+          icon: icon(surveyIconName(test)),
+        })),
       });
     }
-    if (surveyItems.length) {
-      groups.push({ subheader: tx('common.navigation.surveysGroup'), items: surveyItems });
+
+    if (canReadPage('results')) {
+      groups.push({
+        subheader: tx('common.navigation.resultsGroup'),
+        items: [
+          {
+            title: tx('common.navigation.results'),
+            path: paths.app.surveys.results,
+            icon: icon('solar:chart-square-bold-duotone'),
+          },
+        ],
+      });
     }
 
     if (checkPermission('survey', 'submit')) {
