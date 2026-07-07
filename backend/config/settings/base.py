@@ -111,6 +111,13 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "apps.core.pagination.DefaultPagination",
     "PAGE_SIZE": 20,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    # Scoped rate limits for the public (anonymous) kiosk endpoints only —
+    # applied per-action via SurveySessionViewSet.get_throttles.
+    "DEFAULT_THROTTLE_RATES": {
+        "kiosk_identify": env("DECOR_THROTTLE_IDENTIFY", default="30/min"),
+        "kiosk_otp": env("DECOR_THROTTLE_OTP", default="10/min"),
+        "kiosk_lookup": env("DECOR_THROTTLE_LOOKUP", default="30/min"),
+    },
 }
 
 SIMPLE_JWT = {

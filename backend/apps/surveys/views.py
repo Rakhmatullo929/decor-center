@@ -10,6 +10,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 
 from apps.accounts.permissions import IsAdmin
 from apps.core.excel import xlsx_response
@@ -226,12 +227,26 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
             return SurveySessionDetailSerializer
         return SurveySessionSerializer
 
+    _KIOSK_THROTTLE_SCOPES = {
+        "identify": "kiosk_identify",
+        "request_otp": "kiosk_otp",
+        "verify_otp": "kiosk_otp",
+        "employees_lookup": "kiosk_lookup",
+    }
+
     def get_permissions(self):
         if self.action in ("identify", "request_otp", "verify_otp", "employees_lookup"):
             return [AllowAny()]
         if self.action in ("due", "start", "submit"):
             return [IsKioskVerified()]
         return [IsAdmin()]
+
+    def get_throttles(self):
+        scope = self._KIOSK_THROTTLE_SCOPES.get(self.action)
+        if scope:
+            self.throttle_scope = scope
+            return [ScopedRateThrottle()]
+        return super().get_throttles()
 
     def get_queryset(self):
         queryset = super().get_queryset()
