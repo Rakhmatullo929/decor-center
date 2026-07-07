@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.utils.module_loading import import_string
 
-from .base import AntiSpoofingService, FaceRecognitionService
+from .base import AntiSpoofingService, FaceRecognitionService, SmsSender
 
 
 def get_face_recognition_service() -> FaceRecognitionService:
@@ -11,3 +11,7 @@ def get_face_recognition_service() -> FaceRecognitionService:
 
 def get_anti_spoofing_service() -> AntiSpoofingService:
     return import_string(settings.DECOR["ANTI_SPOOFING_BACKEND"])()
+
+
+def get_sms_sender() -> SmsSender:
+    return import_string(settings.DECOR["SMS_BACKEND"])()

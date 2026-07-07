@@ -149,4 +149,8 @@ DECOR = {
     "FACE_WARMUP_ON_STARTUP": env.bool("DECOR_FACE_WARMUP_ON_STARTUP", default=False),
     # Submit-time face re-verification for surveys defaults OFF (opinion surveys, no integrity gate).
     "REVERIFY_ON_SUBMIT": env("DECOR_REVERIFY_ON_SUBMIT", default="off"),
+    # ── Kiosk SMS OTP ──────────────────────────────────────────────────────
+    "SMS_BACKEND": env(
+        "DECOR_SMS_BACKEND", default="apps.integrations.mocks.MockSmsSender"
+    ),
 }

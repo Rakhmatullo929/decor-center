@@ -7,13 +7,17 @@ both success and failure paths are reproducible:
 Real providers replace these via the DECOR_*_BACKEND settings.
 """
 import hashlib
+import logging
 
 from .base import (
     AntiSpoofingService,
     DetectedFace,
     FaceRecognitionService,
     NoFaceDetectedError,
+    SmsSender,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class MockFaceRecognitionService(FaceRecognitionService):
@@ -58,3 +62,10 @@ class MockAntiSpoofingService(AntiSpoofingService):
         if not image_bytes or b"SPOOF" in image_bytes:
             return False, 0.0
         return True, 1.0
+
+
+class MockSmsSender(SmsSender):
+    """Logs instead of sending. Used until a real provider (Eskiz) is wired up."""
+
+    def send(self, phone: str, text: str) -> None:
+        logger.info("MockSmsSender: would send SMS to %s: %s", phone, text)
