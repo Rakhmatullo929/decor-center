@@ -110,6 +110,7 @@ export default function SurveyBlockQuestionsView() {
               label={tx('surveys.builder.form.blockTitle')}
               value={block.title}
               onChange={(title) => handleBlockTitleChange(block.id, title)}
+              showFlagIcons
             />
           </Box>
           <Tooltip title={tx('surveys.builder.dialogs.deleteBlock.title')}>

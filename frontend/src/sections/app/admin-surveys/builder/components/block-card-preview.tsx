@@ -6,6 +6,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import useLocales from 'src/locales/use-locales';
 import Iconify from 'src/components/iconify';
+import Label from 'src/components/label';
 
 import type { QuestionBlock } from '../../api/types';
 
@@ -46,9 +47,9 @@ export default function BlockCardPreview({ block, blockIndex }: Props) {
 
       <Divider sx={{ my: 2.5 }} />
 
-      <Typography variant="caption" color="text.secondary">
+      <Label variant="soft" color="default">
         {tx('surveys.builder.questionCount', { count: questionCount })}
-      </Typography>
+      </Label>
     </Card>
   );
 }
