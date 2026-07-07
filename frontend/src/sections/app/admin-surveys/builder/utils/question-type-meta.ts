@@ -1,4 +1,4 @@
-import type { LocalizedText, QuestionType } from '../../api/types';
+import type { QuestionType } from '../../api/types';
 
 export type QuestionTypeMeta = {
   type: QuestionType;
@@ -81,16 +81,13 @@ export function defaultSettingsFor(type: QuestionType) {
 }
 
 /**
- * Non-blank default text for a freshly added option ("Вариант 1" / "Variant 1").
- * The backend rejects options with empty text in both languages, so a brand new
- * option can never be saved blank — pre-fill it, the admin edits it afterwards.
+ * Non-blank default text for a freshly added option ("Вариант 1").
+ * The backend rejects options with empty text, so a brand new option can never
+ * be saved blank — pre-fill it, the admin edits it afterwards.
  */
 export function defaultOptionText(
   t: (key: string, opts?: Record<string, unknown>) => string,
   index: number
-): LocalizedText {
-  return {
-    uz: t('surveys.builder.form.optionLabel', { n: index + 1, lng: 'uz' }),
-    ru: t('surveys.builder.form.optionLabel', { n: index + 1, lng: 'ru' }),
-  };
+): string {
+  return t('surveys.builder.form.optionLabel', { n: index + 1 });
 }

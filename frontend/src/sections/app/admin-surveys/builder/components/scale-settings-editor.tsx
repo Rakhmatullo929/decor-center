@@ -4,8 +4,6 @@ import TextField from '@mui/material/TextField';
 import useLocales from 'src/locales/use-locales';
 
 import type { QuestionSettings, QuestionType } from '../../api/types';
-import { EMPTY_LOCALIZED_TEXT } from '../../api/types';
-import BilingualTextField from './bilingual-text-field';
 
 type Props = {
   type: Extract<QuestionType, 'nps' | 'scale5'>;
@@ -35,15 +33,19 @@ export default function ScaleSettingsEditor({ type, settings, onChange }: Props)
       {type === 'scale5' && (
         <TextField size="small" label={tx('surveys.builder.form.scaleRange')} value="1–5" disabled sx={{ maxWidth: 160 }} />
       )}
-      <BilingualTextField
+      <TextField
+        size="small"
         label={tx('surveys.builder.form.leftLabel')}
-        value={settings.leftLabel ?? EMPTY_LOCALIZED_TEXT}
-        onChange={(leftLabel) => onChange({ ...settings, leftLabel })}
+        value={settings.leftLabel ?? ''}
+        onChange={(e) => onChange({ ...settings, leftLabel: e.target.value })}
+        fullWidth
       />
-      <BilingualTextField
+      <TextField
+        size="small"
         label={tx('surveys.builder.form.rightLabel')}
-        value={settings.rightLabel ?? EMPTY_LOCALIZED_TEXT}
-        onChange={(rightLabel) => onChange({ ...settings, rightLabel })}
+        value={settings.rightLabel ?? ''}
+        onChange={(e) => onChange({ ...settings, rightLabel: e.target.value })}
+        fullWidth
       />
     </Stack>
   );

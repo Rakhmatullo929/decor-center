@@ -17,8 +17,8 @@ type Props = {
 export default function OptionsEditor({ options, onChange }: Props) {
   const { tx, t } = useLocales();
 
-  const setOptionText = (id: string, lang: 'uz' | 'ru', value: string) => {
-    onChange(options.map((opt) => (opt.id === id ? { ...opt, text: { ...opt.text, [lang]: value } } : opt)));
+  const setOptionText = (id: string, value: string) => {
+    onChange(options.map((opt) => (opt.id === id ? { ...opt, text: value } : opt)));
   };
 
   const removeOption = (id: string) => {
@@ -26,7 +26,7 @@ export default function OptionsEditor({ options, onChange }: Props) {
   };
 
   const addOption = () => {
-    // The backend rejects options with blank text in both languages.
+    // The backend rejects options with blank text.
     onChange([...options, { id: uuidv4(), text: defaultOptionText(t, options.length) }]);
   };
 
@@ -35,18 +35,11 @@ export default function OptionsEditor({ options, onChange }: Props) {
       {options.map((opt, index) => (
         <Stack key={opt.id} direction="row" spacing={1} alignItems="center">
           <TextField
-            label={`${tx('surveys.builder.form.optionLabel', { n: index + 1 })  } (UZ)`}
+            label={tx('surveys.builder.form.optionLabel', { n: index + 1 })}
             size="small"
             fullWidth
-            value={opt.text.uz}
-            onChange={(e) => setOptionText(opt.id, 'uz', e.target.value)}
-          />
-          <TextField
-            label={`${tx('surveys.builder.form.optionLabel', { n: index + 1 })  } (RU)`}
-            size="small"
-            fullWidth
-            value={opt.text.ru}
-            onChange={(e) => setOptionText(opt.id, 'ru', e.target.value)}
+            value={opt.text}
+            onChange={(e) => setOptionText(opt.id, e.target.value)}
           />
           <IconButton color="error" size="small" onClick={() => removeOption(opt.id)}>
             <Iconify icon="solar:trash-bin-trash-bold" width={18} />

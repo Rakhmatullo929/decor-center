@@ -1,8 +1,3 @@
-/** Bilingual text stored as {uz, ru} on the backend (apps/surveys/i18n.py). */
-export type LocalizedText = { uz: string; ru: string };
-
-export const EMPTY_LOCALIZED_TEXT: LocalizedText = { uz: '', ru: '' };
-
 export type QuestionType =
   | 'single'
   | 'multiple'
@@ -35,15 +30,15 @@ export const IMPLEMENTED_QUESTION_TYPES: QuestionType[] = [
 ];
 
 /** Stable option id survives reordering so analytics don't drift (spec §4.1). */
-export type TestOption = { id: string; text: LocalizedText };
+export type TestOption = { id: string; text: string };
 
 /** Type-specific config: scale bounds/labels, placeholders, form field kind, etc. */
 export type QuestionSettings = {
   min?: number;
   max?: number;
-  leftLabel?: LocalizedText;
-  rightLabel?: LocalizedText;
-  placeholder?: LocalizedText;
+  leftLabel?: string;
+  rightLabel?: string;
+  placeholder?: string;
   fieldType?: 'text' | 'date';
   [key: string]: unknown;
 };
@@ -76,14 +71,14 @@ export type QuestionBlock = {
   id: number;
   test: number;
   order: number;
-  title: LocalizedText;
+  title: string;
   questions?: Question[];
 };
 
 export type QuestionBlockUpsertPayload = {
   test: number;
   order: number;
-  title: LocalizedText;
+  title: string;
 };
 
 /** Matches Plan 2 `QuestionSerializer`. */
@@ -92,7 +87,7 @@ export type Question = {
   block: number;
   type: QuestionType;
   order: number;
-  text: LocalizedText;
+  text: string;
   options: TestOption[];
   settings: QuestionSettings;
   isRequired: boolean;
@@ -103,7 +98,7 @@ export type QuestionUpsertPayload = {
   block: number;
   type: QuestionType;
   order: number;
-  text: LocalizedText;
+  text: string;
   options: TestOption[];
   settings?: QuestionSettings;
   isRequired?: boolean;

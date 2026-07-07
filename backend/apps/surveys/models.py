@@ -2,8 +2,6 @@ from django.db import models
 
 from apps.core.models import TimeStampedModel
 
-from .i18n import display_text, empty_i18n
-
 
 class Test(TimeStampedModel):
     """Opinion-survey definition (no scoring, no correct answers)."""
@@ -43,14 +41,13 @@ class Test(TimeStampedModel):
 class QuestionBlock(TimeStampedModel):
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="blocks")
     order = models.PositiveIntegerField(default=0)
-    # Bilingual {"uz": ..., "ru": ...}; legacy plain strings are still readable (see .i18n).
-    title = models.JSONField(default=empty_i18n, blank=True)
+    title = models.CharField(max_length=255, blank=True)
 
     class Meta:
         ordering = ["order", "id"]
 
     def __str__(self):
-        return display_text(self.title) or f"Block<{self.pk}>"
+        return self.title or f"Block<{self.pk}>"
 
 
 class Question(TimeStampedModel):
@@ -94,10 +91,8 @@ class Question(TimeStampedModel):
     )
     type = models.CharField(max_length=20, choices=Type.choices, default=Type.SINGLE)
     order = models.PositiveIntegerField(default=0)
-    # Bilingual {"uz": ..., "ru": ...}; legacy plain strings are still readable (see .i18n).
-    text = models.JSONField(default=empty_i18n)
-    # Stable option IDs so analytics survive reordering:
-    # [{"id": "<uuid>", "text": {"uz": "...", "ru": "..."}}].
+    text = models.TextField(blank=True)
+    # Stable option IDs so analytics survive reordering: [{"id": "<uuid>", "text": "..."}].
     options = models.JSONField(default=list, blank=True)  # [] when NO_OPTIONS_TYPES
     # Type-specific config: scale min/max + edge labels, placeholders, etc.
     settings = models.JSONField(default=dict, blank=True)
@@ -109,7 +104,7 @@ class Question(TimeStampedModel):
         ordering = ["order", "id"]
 
     def __str__(self):
-        return display_text(self.text)[:60]
+        return self.text[:60]
 
 
 class SurveySession(TimeStampedModel):

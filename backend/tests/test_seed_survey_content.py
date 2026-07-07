@@ -44,7 +44,7 @@ def test_seed_survey_content_deep_survey_shape(surveys):
     assert survey.blocks.count() == 7
     assert Question.objects.filter(block__test=survey).count() == 28
 
-    loyalty = survey.blocks.get(title__ru="II. ЛОЯЛЬНОСТЬ")
+    loyalty = survey.blocks.get(title="II. ЛОЯЛЬНОСТЬ")
     nps_question = loyalty.questions.first()
     assert nps_question.type == Question.Type.NPS
     assert nps_question.settings["min"] == 1

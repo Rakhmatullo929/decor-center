@@ -7,6 +7,7 @@ import Card from '@mui/material/Card';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import useLocales from 'src/locales/use-locales';
@@ -15,14 +16,13 @@ import Iconify from 'src/components/iconify';
 import Label from 'src/components/label';
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import type { LocalizedText, QuestionBlock } from '../../api/types';
-import BilingualTextField from './bilingual-text-field';
+import type { QuestionBlock } from '../../api/types';
 import DragHandle from './drag-handle';
 
 type Props = {
   block: QuestionBlock;
   blockIndex: number;
-  onTitleChange: (title: LocalizedText) => void;
+  onTitleChange: (title: string) => void;
   onDelete: () => void;
   onOpen: () => void;
 };
@@ -43,9 +43,6 @@ export default function BlockListRow({ block, blockIndex, onTitleChange, onDelet
     id: `block-${block.id}`,
     data: { type: 'block' },
   });
-
-  const primaryTitle = block.title.ru || block.title.uz;
-  const secondaryTitle = block.title.ru && block.title.uz ? block.title.uz : null;
 
   return (
     <>
@@ -68,11 +65,12 @@ export default function BlockListRow({ block, blockIndex, onTitleChange, onDelet
 
           <Box sx={{ flexGrow: 1, minWidth: 0 }}>
             {editing.value ? (
-              <BilingualTextField
+              <TextField
                 label={tx('surveys.builder.form.blockTitle')}
                 value={block.title}
-                onChange={onTitleChange}
-                showFlagIcons
+                onChange={(e) => onTitleChange(e.target.value)}
+                size="small"
+                fullWidth
               />
             ) : (
               <Box
@@ -80,13 +78,8 @@ export default function BlockListRow({ block, blockIndex, onTitleChange, onDelet
                 sx={{ cursor: 'pointer', py: 0.5, '&:hover': { opacity: 0.72 } }}
               >
                 <Typography variant="subtitle1" noWrap>
-                  {primaryTitle || tx('surveys.builder.untitledBlock')}
+                  {block.title || tx('surveys.builder.untitledBlock')}
                 </Typography>
-                {secondaryTitle && (
-                  <Typography variant="body2" color="text.secondary" noWrap>
-                    {secondaryTitle}
-                  </Typography>
-                )}
               </Box>
             )}
           </Box>

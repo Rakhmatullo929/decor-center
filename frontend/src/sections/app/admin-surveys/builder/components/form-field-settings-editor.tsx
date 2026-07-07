@@ -4,8 +4,6 @@ import TextField from '@mui/material/TextField';
 import useLocales from 'src/locales/use-locales';
 
 import type { QuestionSettings } from '../../api/types';
-import { EMPTY_LOCALIZED_TEXT } from '../../api/types';
-import BilingualTextField from './bilingual-text-field';
 
 type Props = {
   settings: QuestionSettings;
@@ -29,10 +27,12 @@ export default function FormFieldSettingsEditor({ settings, onChange }: Props) {
         <MenuItem value="text">{tx('surveys.builder.form.fieldTypeText')}</MenuItem>
         <MenuItem value="date">{tx('surveys.builder.form.fieldTypeDate')}</MenuItem>
       </TextField>
-      <BilingualTextField
+      <TextField
+        size="small"
         label={tx('surveys.builder.form.placeholder')}
-        value={settings.placeholder ?? EMPTY_LOCALIZED_TEXT}
-        onChange={(placeholder) => onChange({ ...settings, placeholder })}
+        value={settings.placeholder ?? ''}
+        onChange={(e) => onChange({ ...settings, placeholder: e.target.value })}
+        fullWidth
       />
     </Stack>
   );

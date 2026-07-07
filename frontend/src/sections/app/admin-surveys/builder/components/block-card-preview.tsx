@@ -20,7 +20,7 @@ type Props = {
 export default function BlockCardPreview({ block, blockIndex }: Props) {
   const { tx } = useLocales();
   const questionCount = block.questions?.length ?? 0;
-  const title = block.title.ru || block.title.uz || tx('surveys.builder.untitledBlock');
+  const title = block.title || tx('surveys.builder.untitledBlock');
 
   return (
     <Card

@@ -53,7 +53,7 @@ export default function SortableQuestionRow({
     data: { type: 'question', blockId },
   });
 
-  const preview = question.text.ru || question.text.uz || tx('surveys.builder.untitledQuestion');
+  const preview = question.text || tx('surveys.builder.untitledQuestion');
 
   return (
     <>

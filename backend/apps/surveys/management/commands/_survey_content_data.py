@@ -1,12 +1,17 @@
-"""Real bilingual (uz/ru) content for the 5 standard surveys, transcribed from the
-company's reference document ("Decor_Center_Sorovnomalar_UZ_RU"). Consumed by
-`seed_survey_content.py`, which matches each entry to its `Test` by title (the
-titles here are exactly the ones created by `seed_surveys.py`).
+"""Content for the 5 standard surveys, transcribed from the company's reference
+document ("Decor_Center_Sorovnomalar_UZ_RU"). Consumed by `seed_survey_content.py`,
+which matches each entry to its `Test` by title (the titles here are exactly the
+ones created by `seed_surveys.py`).
+
+The source document lists each string in Uzbek and Russian, but the surveys app
+only stores a single text per field — the Russian text is kept as it's the
+primary language shown in the builder; the `uz` argument is accepted for parity
+with the reference document but discarded.
 """
 
 
-def _t(uz: str, ru: str) -> dict:
-    return {"uz": uz, "ru": ru}
+def _t(uz: str, ru: str) -> str:
+    return ru
 
 
 def _opt(idx: int, uz: str, ru: str) -> dict:

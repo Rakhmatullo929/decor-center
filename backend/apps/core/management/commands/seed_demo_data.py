@@ -36,11 +36,6 @@ EMPLOYEES = [
 
 DEMO_SURVEY_TITLE = "Опрос вовлечённости (демо)"
 
-
-def _ru(text: str) -> dict:
-    """Demo copy is Russian-only for now; uz stays empty until translated."""
-    return {"uz": "", "ru": text}
-
 DEMO_BLOCKS = [
     {
         "title": "Рабочее место и условия",
@@ -128,17 +123,15 @@ class Command(BaseCommand):
         if created:
             for block_def in DEMO_BLOCKS:
                 block = QuestionBlock.objects.create(
-                    test=survey, order=block_def["order"], title=_ru(block_def["title"])
+                    test=survey, order=block_def["order"], title=block_def["title"]
                 )
                 for q in block_def["questions"]:
                     Question.objects.create(
                         block=block,
                         type=q["type"],
                         order=q["order"],
-                        text=_ru(q["text"]),
-                        options=[
-                            {"id": opt["id"], "text": _ru(opt["text"])} for opt in q["options"]
-                        ],
+                        text=q["text"],
+                        options=q["options"],
                     )
             self.stdout.write(self.style.SUCCESS(f'Demo survey created: "{DEMO_SURVEY_TITLE}".'))
         else:

@@ -17,7 +17,6 @@ from apps.employees.serializers import EmployeeSerializer
 from apps.integrations.registry import get_face_recognition_service
 
 from .filters import SurveySessionFilter
-from .i18n import display_text
 from .models import Answer, Question, QuestionBlock, SurveySession, Test  # noqa: F401
 from .scheduling import due_surveys
 from .serializers import (
@@ -428,7 +427,7 @@ def _aggregate_results(survey: Test) -> dict:
                 questions_out.append(
                     {
                         "id": question.id,
-                        "text": display_text(question.text),
+                        "text": question.text,
                         "type": question.type,
                         "textValues": texts,
                         "responseCount": len(texts),
@@ -443,12 +442,12 @@ def _aggregate_results(survey: Test) -> dict:
                 questions_out.append(
                     {
                         "id": question.id,
-                        "text": display_text(question.text),
+                        "text": question.text,
                         "type": question.type,
                         "options": [
                             {
                                 "id": opt["id"],
-                                "text": display_text(opt.get("text")),
+                                "text": opt.get("text"),
                                 "count": counts[opt["id"]],
                             }
                             for opt in question.options
@@ -456,6 +455,6 @@ def _aggregate_results(survey: Test) -> dict:
                     }
                 )
         blocks_out.append(
-            {"id": block.id, "title": display_text(block.title), "questions": questions_out}
+            {"id": block.id, "title": block.title, "questions": questions_out}
         )
     return {"test": {"id": survey.id, "title": survey.title}, "blocks": blocks_out}

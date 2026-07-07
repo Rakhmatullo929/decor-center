@@ -25,7 +25,7 @@ describe('surveys-requests', () => {
       block: 3,
       type: 'single',
       order: 0,
-      text: { uz: '', ru: 'Q' },
+      text: 'Q',
       options: [],
     });
     expect(request).toHaveBeenCalledWith(

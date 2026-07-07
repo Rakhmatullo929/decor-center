@@ -18,7 +18,7 @@ type Props = {
 export default function QuestionRowPreview({ question }: Props) {
   const { tx } = useLocales();
   const meta = QUESTION_TYPE_META[question.type];
-  const preview = question.text.ru || question.text.uz || tx('surveys.builder.untitledQuestion');
+  const preview = question.text || tx('surveys.builder.untitledQuestion');
 
   return (
     <Paper

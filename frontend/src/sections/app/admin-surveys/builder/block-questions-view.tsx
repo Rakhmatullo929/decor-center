@@ -9,6 +9,7 @@ import Container from '@mui/material/Container';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
@@ -21,7 +22,6 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 
 import AddQuestionMenu from './components/add-question-menu';
-import BilingualTextField from './components/bilingual-text-field';
 import BuilderSkeleton from './components/builder-skeleton';
 import QuestionRowPreview from './components/question-row-preview';
 import SortableQuestionRow from './components/sortable-question-row';
@@ -108,11 +108,12 @@ export default function SurveyBlockQuestionsView() {
       <Card sx={{ p: 3, mb: 3 }}>
         <Stack direction="row" spacing={1.5} alignItems="flex-start">
           <Box sx={{ flexGrow: 1 }}>
-            <BilingualTextField
+            <TextField
               label={tx('surveys.builder.form.blockTitle')}
               value={block.title}
-              onChange={(title) => handleBlockTitleChange(block.id, title)}
-              showFlagIcons
+              onChange={(e) => handleBlockTitleChange(block.id, e.target.value)}
+              size="small"
+              fullWidth
             />
           </Box>
           <Tooltip title={tx('surveys.builder.dialogs.deleteBlock.title')}>

@@ -12,7 +12,7 @@ import useLocales from 'src/locales/use-locales';
 import uuidv4 from 'src/utils/uuidv4';
 import { useCheckPermission } from 'src/auth/hooks';
 
-import type { LocalizedText, Question, QuestionBlock, QuestionType } from '../../api/types';
+import type { Question, QuestionBlock, QuestionType } from '../../api/types';
 import {
   useCreateQuestionBlockMutation,
   useCreateQuestionMutation,
@@ -97,7 +97,7 @@ export function useSurveyBuilder(testId: number) {
   const handleAddBlock = () => {
     const order = blocksRef.current.length;
     createBlockMutation.mutate(
-      { test: testId, order, title: { uz: '', ru: '' } },
+      { test: testId, order, title: '' },
       { onSuccess: (block) => setBlocks((prev) => [...prev, { ...block, questions: [] }]) }
     );
   };
@@ -111,7 +111,7 @@ export function useSurveyBuilder(testId: number) {
     });
   };
 
-  const handleBlockTitleChange = (blockId: number, title: LocalizedText) => {
+  const handleBlockTitleChange = (blockId: number, title: string) => {
     const snapshot = blocksRef.current;
     setBlocks((prev) => prev.map((b) => (b.id === blockId ? { ...b, title } : b)));
     scheduleSave(`block-${blockId}`, () => {
@@ -131,9 +131,9 @@ export function useSurveyBuilder(testId: number) {
         block: blockId,
         type,
         order,
-        text: { uz: '', ru: '' },
-        // The backend rejects options with blank text in both languages, so a new
-        // single/multiple question can't start with empty option placeholders.
+        text: '',
+        // The backend rejects options with blank text, so a new single/multiple
+        // question can't start with empty option placeholders.
         options: hasOptions
           ? [
               { id: uuidv4(), text: defaultOptionText(t, 0) },

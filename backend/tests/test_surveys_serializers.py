@@ -60,15 +60,13 @@ def test_test_after_application_requires_after_days():
 
 
 def test_test_nested_blocks_read():
-    """Legacy plain-string title/text (e.g. from a seed script or pre-migration data)
-    is normalized to {uz, ru} on read, not just on write."""
     survey = TestFactory()
     block = QuestionBlockFactory(test=survey, title="B1")
     Question.objects.create(block=block, type="textarea", text="Free", options=[])
     data = TestSerializer(survey).data
-    assert data["blocks"][0]["title"] == {"uz": "", "ru": "B1"}
+    assert data["blocks"][0]["title"] == "B1"
     assert data["blocks"][0]["questions"][0]["type"] == "textarea"
-    assert data["blocks"][0]["questions"][0]["text"] == {"uz": "", "ru": "Free"}
+    assert data["blocks"][0]["questions"][0]["text"] == "Free"
 
 
 def test_submit_serializer_camel_case_fields():

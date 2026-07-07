@@ -7,9 +7,7 @@ import TextField from '@mui/material/TextField';
 import useLocales from 'src/locales/use-locales';
 
 import type { Question } from '../../api/types';
-import { EMPTY_LOCALIZED_TEXT } from '../../api/types';
 import { QUESTION_TYPE_META } from '../utils/question-type-meta';
-import BilingualTextField from './bilingual-text-field';
 import FormFieldSettingsEditor from './form-field-settings-editor';
 import OptionsEditor from './options-editor';
 import ScaleSettingsEditor from './scale-settings-editor';
@@ -28,18 +26,21 @@ export default function QuestionEditorPanel({ question, blockOptions, onChange, 
 
   return (
     <Stack spacing={2} sx={{ pt: 1 }}>
-      <BilingualTextField
+      <TextField
         label={tx('surveys.builder.form.text')}
         value={question.text}
-        onChange={(text) => onChange({ text })}
+        onChange={(e) => onChange({ text: e.target.value })}
         multiline={question.type === 'textarea'}
+        minRows={question.type === 'textarea' ? 2 : undefined}
+        fullWidth
       />
 
       {(question.type === 'short_text' || question.type === 'textarea') && (
-        <BilingualTextField
+        <TextField
           label={tx('surveys.builder.form.placeholder')}
-          value={question.settings.placeholder ?? EMPTY_LOCALIZED_TEXT}
-          onChange={(placeholder) => onChange({ settings: { ...question.settings, placeholder } })}
+          value={question.settings.placeholder ?? ''}
+          onChange={(e) => onChange({ settings: { ...question.settings, placeholder: e.target.value } })}
+          fullWidth
         />
       )}
 

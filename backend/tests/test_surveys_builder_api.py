@@ -143,36 +143,27 @@ def test_question_move_cross_survey_rejected(admin_client):
     assert resp.status_code == 400
 
 
-# --- bilingual text round-trip ------------------------------------------------
+# --- text round-trip -----------------------------------------------------------
 
-def test_question_text_accepts_bilingual_object(admin_client):
+def test_question_text_round_trips_plain_string(admin_client):
     block = QuestionBlockFactory()
     payload = {
         "block": block.id,
         "type": "short_text",
-        "text": {"uz": "Savol matni", "ru": "Текст вопроса"},
+        "text": "Текст вопроса",
         "options": [],
     }
     resp = admin_client.post(QUESTIONS, payload, format="json")
     assert resp.status_code == 201, resp.data
-    assert resp.data["text"] == {"uz": "Savol matni", "ru": "Текст вопроса"}
+    assert resp.data["text"] == "Текст вопроса"
 
 
-def test_question_text_accepts_legacy_plain_string(admin_client):
-    """Backward compat: a plain string is upgraded into {"uz": "", "ru": <value>}."""
-    block = QuestionBlockFactory()
-    payload = {"block": block.id, "type": "short_text", "text": "Plain question", "options": []}
-    resp = admin_client.post(QUESTIONS, payload, format="json")
-    assert resp.status_code == 201, resp.data
-    assert resp.data["text"] == {"uz": "", "ru": "Plain question"}
-
-
-def test_block_title_accepts_bilingual_object(admin_client):
+def test_block_title_round_trips_plain_string(admin_client):
     survey = TestFactory()
-    payload = {"test": survey.id, "order": 0, "title": {"uz": "Bo'lim", "ru": "Раздел"}}
+    payload = {"test": survey.id, "order": 0, "title": "Раздел"}
     resp = admin_client.post(BLOCKS, payload, format="json")
     assert resp.status_code == 201, resp.data
-    assert resp.data["title"] == {"uz": "Bo'lim", "ru": "Раздел"}
+    assert resp.data["title"] == "Раздел"
 
 
 # --- new question types -------------------------------------------------------
@@ -182,14 +173,13 @@ def test_nps_question_gets_default_scale_settings(admin_client):
     payload = {
         "block": block.id,
         "type": Question.Type.NPS,
-        "text": {"uz": "Tavsiya qilasizmi?", "ru": "Порекомендуете?"},
+        "text": "Порекомендуете?",
         "options": [],
     }
     resp = admin_client.post(QUESTIONS, payload, format="json")
     assert resp.status_code == 201, resp.data
     assert resp.data["settings"]["min"] == 0
     assert resp.data["settings"]["max"] == 10
-    assert resp.data["settings"]["left_label"] == {"uz": "", "ru": ""}
 
 
 def test_scale5_question_gets_default_scale_settings(admin_client):
@@ -199,13 +189,13 @@ def test_scale5_question_gets_default_scale_settings(admin_client):
         "type": Question.Type.SCALE5,
         "text": "Satisfaction",
         "options": [],
-        "settings": {"left_label": {"ru": "Плохо"}, "right_label": {"ru": "Отлично"}},
+        "settings": {"left_label": "Плохо", "right_label": "Отлично"},
     }
     resp = admin_client.post(QUESTIONS, payload, format="json")
     assert resp.status_code == 201, resp.data
     assert resp.data["settings"]["min"] == 1
     assert resp.data["settings"]["max"] == 5
-    assert resp.data["settings"]["left_label"] == {"uz": "", "ru": "Плохо"}
+    assert resp.data["settings"]["left_label"] == "Плохо"
 
 
 def test_section_header_rejects_options(admin_client):
@@ -239,14 +229,14 @@ def test_is_required_and_mind_dive_flags_roundtrip(admin_client):
 
 # --- kiosk-facing shape stays a flat string -----------------------------------
 
-def test_kiosk_start_resolves_bilingual_text_to_display_string(employee_client, face_image):
+def test_kiosk_start_returns_flat_text(employee_client, face_image):
     survey = TestFactory()
-    block = QuestionBlockFactory(test=survey, title={"uz": "Blok", "ru": "Блок"})
+    block = QuestionBlockFactory(test=survey, title="Блок")
     QuestionFactory(
         block=block,
         type=Question.Type.SINGLE,
-        text={"uz": "Savol?", "ru": "Вопрос?"},
-        options=[{"id": "a", "text": {"uz": "Ha", "ru": "Да"}}, {"id": "b", "text": {"uz": "Yo'q", "ru": "Нет"}}],
+        text="Вопрос?",
+        options=[{"id": "a", "text": "Да"}, {"id": "b", "text": "Нет"}],
     )
     emp = EmployeeFactory()
     face_image.seek(0)
