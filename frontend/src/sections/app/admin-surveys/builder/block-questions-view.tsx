@@ -87,7 +87,9 @@ export default function SurveyBlockQuestionsView() {
       <CustomBreadcrumbs
         heading={tx('surveys.builder.questionsTitle')}
         links={[
-          { name: tx('surveys.tests.title'), href: paths.app.surveys.tests },
+          // No standalone tests-list screen to link back to — surveys are
+          // administered on the backend, so this crumb is a label, not a link.
+          { name: tx('surveys.tests.title') },
           { name: testQuery.data?.title ?? '', href: paths.app.surveys.blocks(testId) },
           { name: blockLabel(block, tx) },
         ]}
@@ -141,10 +143,11 @@ export default function SurveyBlockQuestionsView() {
         >
           <SortableContext items={questions.map((q) => `question-${q.id}`)} strategy={verticalListSortingStrategy}>
             <Stack spacing={1.5}>
-              {questions.map((question) => (
+              {questions.map((question, questionIndex) => (
                 <SortableQuestionRow
                   key={question.id}
                   question={question}
+                  questionIndex={questionIndex}
                   blockId={block.id}
                   blockOptions={blockOptionsForMove}
                   expanded={expandedQuestionId === question.id}

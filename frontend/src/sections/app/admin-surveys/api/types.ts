@@ -71,17 +71,6 @@ export type TestListParams = {
   isActive?: boolean;
 };
 
-export type TestUpsertPayload = {
-  title: string;
-  isActive: boolean;
-  isAdminConducted: boolean;
-  isAfterApplication: boolean;
-  afterDays: number | null;
-  testDaysFrom: number | null;
-  testDaysTo: number | null;
-  month: number[];
-};
-
 /** Matches Plan 2 `QuestionBlockSerializer`. */
 export type QuestionBlock = {
   id: number;

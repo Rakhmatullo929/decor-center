@@ -7,7 +7,6 @@ import { LoadingScreen } from 'src/components/loading-screen';
 const HomePage = lazy(() => import('src/pages/home'));
 const EmployeesPage = lazy(() => import('src/pages/app/employees'));
 const SpecialtiesPage = lazy(() => import('src/pages/app/specialties'));
-const SurveyTestsPage = lazy(() => import('src/pages/app/survey-tests'));
 const SurveyBlocksPage = lazy(() => import('src/pages/app/survey-blocks'));
 const SurveyBlockQuestionsPage = lazy(() => import('src/pages/app/survey-block-questions'));
 const SurveyResultsPage = lazy(() => import('src/pages/app/survey-results'));
@@ -40,14 +39,6 @@ export const dashboardRoutes = [
         element: (
           <PermissionGuard page="specialties" action="read">
             <SpecialtiesPage />
-          </PermissionGuard>
-        ),
-      },
-      {
-        path: 'surveys/tests',
-        element: (
-          <PermissionGuard page="tests" action="read">
-            <SurveyTestsPage />
           </PermissionGuard>
         ),
       },

@@ -51,7 +51,9 @@ export default function SurveyBlocksView() {
       <CustomBreadcrumbs
         heading={tx('surveys.builder.blocksTitle')}
         links={[
-          { name: tx('surveys.tests.title'), href: paths.app.surveys.tests },
+          // No standalone tests-list screen to link back to — surveys are
+          // administered on the backend, so this crumb is a label, not a link.
+          { name: tx('surveys.tests.title') },
           { name: testQuery.data?.title ?? '' },
         ]}
         action={

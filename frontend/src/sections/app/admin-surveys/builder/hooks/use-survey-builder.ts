@@ -321,24 +321,31 @@ export function useSurveyBuilder(testId: number) {
         if (sourceBlock === targetBlock && overData?.type !== 'question') return prev;
 
         // Resolve the drop target's index against the pre-drag array — looking it up
-        // after the splice below would shift indices for anything past `movingIndex`.
-        let insertIndex = targetBlock.questions.length;
+        // after removing the dragged item would shift indices for anything past it.
+        let targetIndex = targetBlock.questions.length;
         if (overData?.type === 'question') {
           const overQuestionId = Number(String(over.id).replace('question-', ''));
           const idx = targetBlock.questions.findIndex((q) => q.id === overQuestionId);
-          if (idx !== -1) insertIndex = idx;
+          if (idx !== -1) targetIndex = idx;
         }
 
-        const [moving] = sourceBlock.questions.splice(movingIndex, 1);
-        moving.block = targetBlock.id;
+        if (sourceBlock === targetBlock) {
+          // Same-block reorder: `arrayMove` (also used for block reordering above)
+          // removes at `movingIndex` and re-inserts at the ORIGINAL `targetIndex` —
+          // no manual "-1" compensation needed, and critically, this is the only
+          // way to correctly land on the very last slot (a hand-rolled splice that
+          // decrements the target index can never place the dragged item after the
+          // last row — it always lands one slot short of the end).
+          if (targetIndex === movingIndex) return prev;
+          sourceBlock.questions = arrayMove(sourceBlock.questions, movingIndex, targetIndex).map(
+            (q, index) => ({ ...q, order: index })
+          );
+        } else {
+          const [moving] = sourceBlock.questions.splice(movingIndex, 1);
+          moving.block = targetBlock.id;
+          targetBlock.questions.splice(targetIndex, 0, moving);
 
-        if (sourceBlock === targetBlock && movingIndex < insertIndex) {
-          insertIndex -= 1;
-        }
-        targetBlock.questions.splice(insertIndex, 0, moving);
-
-        sourceBlock.questions = sourceBlock.questions.map((q, index) => ({ ...q, order: index }));
-        if (targetBlock !== sourceBlock) {
+          sourceBlock.questions = sourceBlock.questions.map((q, index) => ({ ...q, order: index }));
           targetBlock.questions = targetBlock.questions.map((q, index) => ({ ...q, order: index }));
         }
 

@@ -1,14 +1,10 @@
-import { keepPreviousData } from '@tanstack/react-query';
-
 import { useFetch, useFetchList, useMutate } from 'src/hooks/api';
 
 import {
   createQuestion,
   createQuestionBlock,
-  createTest,
   deleteQuestion,
   deleteQuestionBlock,
-  deleteTest,
   exportSurveyResults,
   fetchQuestionBlocks,
   fetchQuestions,
@@ -20,7 +16,6 @@ import {
   reorderQuestions,
   updateQuestion,
   updateQuestionBlock,
-  updateTest,
 } from './surveys-requests';
 import type {
   MoveQuestionPayload,
@@ -34,8 +29,6 @@ import type {
   ResultsParams,
   SurveyResults,
   Test,
-  TestListParams,
-  TestUpsertPayload,
 } from './types';
 
 // ── Test detail (full tree: blocks + nested questions) ─────────────────
@@ -46,24 +39,15 @@ export function useTestQuery(testId: number) {
 }
 
 // ── Tests ──────────────────────────────────────────────────────────────
-export function useTestsQuery(params: TestListParams) {
-  return useFetchList<Test>(['surveys', 'tests', params], () => fetchTests(params), {
-    placeholderData: keepPreviousData,
-  });
-}
-export function useTestOptionsQuery() {
-  return useFetch(['surveys', 'testOptions'], () => fetchTests({ pageSize: 200, ordering: 'title' }));
-}
-export function useCreateTestMutation() {
-  return useMutate<Test, TestUpsertPayload>((payload) => createTest(payload));
-}
-export function useUpdateTestMutation() {
-  return useMutate<Test, { id: number; payload: Partial<TestUpsertPayload> }>(({ id, payload }) =>
-    updateTest(id, payload)
+// There is no tests list/management screen — surveys are seeded/administered on
+// the backend. This is the read-only option list used by the nav sidebar and
+// the results page's survey picker.
+export function useTestOptionsQuery(options?: { enabled?: boolean }) {
+  return useFetch(
+    ['surveys', 'testOptions'],
+    () => fetchTests({ pageSize: 200, ordering: 'title' }),
+    options
   );
-}
-export function useDeleteTestMutation() {
-  return useMutate<void, number>((id) => deleteTest(id));
 }
 
 // ── Question blocks ────────────────────────────────────────────────────

@@ -14,24 +14,16 @@ import type {
   SurveyResults,
   Test,
   TestListParams,
-  TestUpsertPayload,
 } from './types';
 
 // ── Tests ──────────────────────────────────────────────────────────────
+// Read-only: surveys are created/edited/deleted on the backend (seeds/admin),
+// not through this frontend.
 export function fetchTests(params: TestListParams) {
   return request<Pagination<Test>>({ method: 'GET', url: API_ENDPOINTS.surveys.tests, params });
 }
 export function fetchTest(id: number) {
   return request<Test>({ method: 'GET', url: API_ENDPOINTS.surveys.test(id) });
-}
-export function createTest(payload: TestUpsertPayload) {
-  return request<Test>({ method: 'POST', url: API_ENDPOINTS.surveys.tests, data: payload });
-}
-export function updateTest(id: number, payload: Partial<TestUpsertPayload>) {
-  return request<Test>({ method: 'PATCH', url: API_ENDPOINTS.surveys.test(id), data: payload });
-}
-export function deleteTest(id: number) {
-  return request<void>({ method: 'DELETE', url: API_ENDPOINTS.surveys.test(id) });
 }
 
 // ── Question blocks ────────────────────────────────────────────────────

@@ -1,5 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
@@ -21,6 +22,7 @@ import QuestionEditorPanel from './question-editor-panel';
 
 type Props = {
   question: Question;
+  questionIndex: number;
   blockId: number;
   blockOptions: { id: number; label: string }[];
   expanded: boolean;
@@ -33,6 +35,7 @@ type Props = {
 
 export default function SortableQuestionRow({
   question,
+  questionIndex,
   blockId,
   blockOptions,
   expanded,
@@ -68,6 +71,18 @@ export default function SortableQuestionRow({
       >
         <Stack direction="row" spacing={1.5} alignItems="flex-start">
           <DragHandle attributes={attributes} listeners={listeners} />
+          <Avatar
+            sx={{
+              width: 26,
+              height: 26,
+              mt: 0.25,
+              fontSize: 13,
+              bgcolor: 'background.neutral',
+              color: 'text.secondary',
+            }}
+          >
+            {questionIndex + 1}
+          </Avatar>
           <Iconify icon={meta.icon} width={20} style={{ marginTop: 2, flexShrink: 0 }} />
           <Box sx={{ flexGrow: 1, minWidth: 0, cursor: 'pointer' }} onClick={onToggleExpand}>
             <Typography variant="body2" noWrap sx={{ fontWeight: 500 }}>

@@ -5,22 +5,34 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 
 import { useAuthContext, useCheckPermission } from 'src/auth/hooks';
+import { LoadingScreen } from 'src/components/loading-screen';
 import useLocales from 'src/locales/use-locales';
 import { paths } from 'src/routes/paths';
+import { useTestOptionsQuery } from 'src/sections/app/admin-surveys/api/use-surveys-api';
 
 /** Role landing: every account is redirected to its primary screen. */
 export default function HomePage() {
   const { logout } = useAuthContext();
   const { tx } = useLocales();
   const { canReadPage, canWritePage, checkPermission } = useCheckPermission();
+  const canReadTests = canReadPage('tests');
+  // There's no tests-list screen — an admin's primary screen is straight into
+  // the first survey's block builder, so it has to be looked up first.
+  const testOptionsQuery = useTestOptionsQuery({ enabled: canReadTests });
 
   // Kiosk accounts (employee role) land on the Face-ID survey flow.
   if (checkPermission('survey', 'submit')) {
     return <Navigate to={paths.app.kiosk.root} replace />;
   }
-  // Admin lands on the survey tests screen; managers on their primary directory.
-  if (canReadPage('tests')) {
-    return <Navigate to={paths.app.surveys.tests} replace />;
+  if (canReadTests) {
+    if (testOptionsQuery.isLoading) {
+      return <LoadingScreen />;
+    }
+    const firstTest = testOptionsQuery.data?.results[0];
+    if (firstTest) {
+      return <Navigate to={paths.app.surveys.blocks(firstTest.id)} replace />;
+    }
+    // No surveys exist yet (fresh install) — fall through to the next best screen.
   }
   if (canReadPage('results')) {
     return <Navigate to={paths.app.surveys.results} replace />;
