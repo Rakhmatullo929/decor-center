@@ -1,5 +1,5 @@
 {
-  "appName": "Локомотивное депо",
+  "appName": "Decor Center",
   "navigation": {
     "management": "Управление",
     "employees": "Сотрудники",
@@ -74,7 +74,7 @@
   },
   "auth": {
     "title": "Вход в систему",
-    "subtitle": "Локомотивное депо: контроль знаний и медосмотр",
+    "subtitle": "Decor Center: контроль знаний и медосмотр",
     "username": "Логин",
     "password": "Пароль",
     "rememberMe": "Запомнить меня",
