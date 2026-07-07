@@ -34,10 +34,23 @@ export type SurveySession = {
   requiresSubmitReverify?: boolean;
 };
 
-export type IdentifyEmployeePayload = { faceImage: File };
-export type IdentifyEmployeeResponse = { employee: Employee };
+/** Public identify payload — matches KioskIdentifiedEmployeeSerializer (camelCase). */
+export type KioskEmployee = {
+  id: number;
+  fullName: string;
+  specialtyName: string;
+  photo: string | null;
+  phoneMasked: string;
+};
 
-export type StartSurveyPayload = { employee: number; test: number; faceImage: File };
+export type RequestOtpResponse = { phoneMasked: string };
+export type VerifyOtpResponse = { kioskToken: string };
+export type EmployeeLookupItem = { id: number; fullName: string };
+
+export type IdentifyEmployeePayload = { faceImage: File };
+export type IdentifyEmployeeResponse = { employee: KioskEmployee };
+
+export type StartSurveyPayload = { employee: number; test: number; faceImage?: File };
 export type StartSurveyResponse = { session: SurveySession; test: Test; blocks: SurveyBlock[] };
 
 export type SubmitAnswerItem = {
