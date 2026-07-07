@@ -15,6 +15,12 @@ class SpecialtySerializer(serializers.ModelSerializer):
 
 class EmployeeSerializer(serializers.ModelSerializer):
     specialty_name = serializers.CharField(source="specialty.name", read_only=True)
+    phone = serializers.RegexField(
+        r"^\+\d{9,15}$",
+        required=False,
+        allow_blank=True,
+        error_messages={"invalid": "Phone must be E.164, e.g. +998901234567."},
+    )
 
     class Meta:
         model = Employee
@@ -24,6 +30,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
             "full_name",
             "specialty",
             "specialty_name",
+            "phone",
             "photo",
             "hire_date",
             "work_experience",

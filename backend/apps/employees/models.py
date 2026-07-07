@@ -31,6 +31,9 @@ class Employee(TimeStampedModel):
     # Face embedding generated from the reference photo (SRS §4.3); internal only.
     face_embedding = models.JSONField(null=True, blank=True, editable=False)
     is_active = models.BooleanField(default=True)
+    # Employee phone for kiosk SMS OTP (E.164, e.g. +998901234567). Nullable for
+    # already-imported employees; required by the admin form via the serializer.
+    phone = models.CharField(max_length=20, blank=True, default="")
 
     class Meta:
         ordering = ["full_name"]
