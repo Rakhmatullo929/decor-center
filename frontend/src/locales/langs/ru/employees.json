@@ -19,6 +19,7 @@
     "editTitle": "Редактирование сотрудника",
     "fullName": "Ф.И.О.",
     "specialty": "Специальность",
+    "phone": "Телефон",
     "hireDate": "Работает с",
     "workExperience": "Стаж (лет)",
     "photoHint": "Чёткое фронтальное фото (используется для Face ID)",
@@ -70,6 +71,8 @@
     "fullNameRequired": "Ф.И.О. обязательно",
     "specialtyRequired": "Выберите специальность",
     "photoRequired": "Фото обязательно",
+    "phoneRequired": "Телефон обязателен",
+    "phoneInvalid": "Формат: +998901234567",
     "workExperienceMin": "Стаж не может быть отрицательным"
   }
 }

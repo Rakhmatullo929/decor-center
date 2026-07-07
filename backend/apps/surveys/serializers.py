@@ -134,7 +134,7 @@ class StartSurveySerializer(serializers.Serializer):
     test = serializers.PrimaryKeyRelatedField(
         queryset=Test.objects.filter(is_active=True)
     )
-    face_image = serializers.ImageField()
+    face_image = serializers.ImageField(required=False)
 
 
 class AnswerItemSerializer(serializers.Serializer):
@@ -203,3 +203,20 @@ class SurveySessionDetailSerializer(SurveySessionSerializer):
     class Meta(SurveySessionSerializer.Meta):
         fields = SurveySessionSerializer.Meta.fields + ["answers"]
         read_only_fields = fields
+
+
+class KioskIdentifiedEmployeeSerializer(serializers.ModelSerializer):
+    """Public identify payload: enough for the kiosk banner + a masked phone. No PII leak
+    beyond what a matching face already implies; never exposes the raw phone/embedding."""
+
+    specialty_name = serializers.CharField(source="specialty.name", read_only=True)
+    phone_masked = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Employee
+        fields = ["id", "full_name", "specialty_name", "photo", "phone_masked"]
+
+    def get_phone_masked(self, obj) -> str:
+        from .otp import mask_phone
+
+        return mask_phone(obj.phone)

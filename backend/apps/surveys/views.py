@@ -8,19 +8,24 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 
-from apps.accounts.permissions import IsAdmin, IsAdminOrEmployee
+from apps.accounts.permissions import IsAdmin
 from apps.core.excel import xlsx_response
 from apps.employees.models import Employee
-from apps.employees.serializers import EmployeeSerializer
 from apps.integrations.registry import get_face_recognition_service
 
 from .filters import SurveySessionFilter
+from .kiosk_token import issue_kiosk_token
 from .models import Answer, Question, QuestionBlock, SurveySession, Test  # noqa: F401
+from .otp import OtpError, PhoneNotSetError, request_otp, verify_otp
+from .permissions import IsKioskVerified
 from .scheduling import due_surveys
 from .serializers import (
     AdminFillSerializer,
+    KioskIdentifiedEmployeeSerializer,
     QuestionBlockPublicSerializer,
     QuestionBlockSerializer,
     QuestionSerializer,
@@ -222,10 +227,26 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
             return SurveySessionDetailSerializer
         return SurveySessionSerializer
 
+    _KIOSK_THROTTLE_SCOPES = {
+        "identify": "kiosk_identify",
+        "request_otp": "kiosk_otp",
+        "verify_otp": "kiosk_otp",
+        "employees_lookup": "kiosk_lookup",
+    }
+
     def get_permissions(self):
-        if self.action in ("identify", "due", "start", "submit"):
-            return [IsAdminOrEmployee()]
+        if self.action in ("identify", "request_otp", "verify_otp", "employees_lookup"):
+            return [AllowAny()]
+        if self.action in ("due", "start", "submit"):
+            return [IsKioskVerified()]
         return [IsAdmin()]
+
+    def get_throttles(self):
+        scope = self._KIOSK_THROTTLE_SCOPES.get(self.action)
+        if scope:
+            self.throttle_scope = scope
+            return [ScopedRateThrottle()]
+        return super().get_throttles()
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -241,7 +262,7 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
                 "required": ["face_image"],
             }
         },
-        responses={200: EmployeeSerializer},
+        responses={200: KioskIdentifiedEmployeeSerializer},
     )
     @action(detail=False, methods=["post"])
     def identify(self, request):
@@ -270,7 +291,53 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
         employee = Employee.objects.select_related("specialty").get(id=best_id)
-        return Response({"employee": EmployeeSerializer(employee).data})
+        return Response({"employee": KioskIdentifiedEmployeeSerializer(employee).data})
+
+    @extend_schema(request={"application/json": {"type": "object",
+        "properties": {"employee": {"type": "integer"}}, "required": ["employee"]}})
+    @action(detail=False, methods=["post"], url_path="request-otp")
+    def request_otp(self, request):
+        """Send an SMS one-time code to a (face- or manually-)identified employee."""
+        employee = self._active_employee(request.data.get("employee"))
+        try:
+            phone_masked = request_otp(employee)
+        except PhoneNotSetError:
+            return Response(
+                {"detail": "No phone number on file. Contact the administrator.",
+                 "code": "phone_not_set"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return Response({"phone_masked": phone_masked})
+
+    @extend_schema(request={"application/json": {"type": "object", "properties": {
+        "employee": {"type": "integer"}, "code": {"type": "string"},
+        "fallback": {"type": "boolean"}}, "required": ["employee", "code"]}})
+    @action(detail=False, methods=["post"], url_path="verify-otp")
+    def verify_otp(self, request):
+        """Verify the SMS code; on success mint a short-lived kiosk token."""
+        employee = self._active_employee(request.data.get("employee"))
+        try:
+            verify_otp(employee, str(request.data.get("code") or ""))
+        except OtpError as exc:
+            return Response(
+                {"detail": "Code verification failed.", "code": str(exc)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        token = issue_kiosk_token(employee.id, fallback=bool(request.data.get("fallback")))
+        return Response({"kiosk_token": token})
+
+    @action(detail=False, methods=["get"], url_path="employees-lookup")
+    def employees_lookup(self, request):
+        """Minimal name search for the manual fallback (needs a >=2 char query)."""
+        query = (request.query_params.get("q") or "").strip()
+        if len(query) < 2:
+            return Response([])
+        rows = (
+            Employee.objects.filter(is_active=True, full_name__icontains=query)
+            .order_by("full_name")
+            .values("id", "full_name")[:20]
+        )
+        return Response(list(rows))
 
     @extend_schema(responses={200: TestSerializer(many=True)})
     @action(detail=False, methods=["get"])
@@ -279,6 +346,8 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
         employee_id = request.query_params.get("employee")
         if not employee_id:
             raise ValidationError({"employee": ["This query parameter is required."]})
+        if str(employee_id) != str(getattr(request, "kiosk_employee_id", None)):
+            raise PermissionDenied({"detail": "Employee mismatch.", "code": "kiosk_mismatch"})
         employee = Employee.objects.filter(pk=employee_id, is_active=True).first()
         if employee is None:
             return Response({"detail": "Employee not found."}, status=status.HTTP_404_NOT_FOUND)
@@ -288,19 +357,29 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
     @extend_schema(request=StartSurveySerializer)
     @action(detail=False, methods=["post"])
     def start(self, request):
-        """Face-ID gate + session creation with a frozen question set."""
+        """Face-ID gate (or OTP-only fallback) + session creation with a frozen question set."""
         serializer = StartSurveySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        face_image = serializer.validated_data["face_image"]
-        face_image.seek(0)
-        face_bytes = face_image.read()
-        survey = serializer.validated_data["test"]
+        employee = serializer.validated_data["employee"]
+        if employee.id != getattr(request, "kiosk_employee_id", None):
+            raise PermissionDenied({"detail": "Employee mismatch.", "code": "kiosk_mismatch"})
+        fallback = bool(getattr(request, "kiosk_fallback", False))
 
+        face_image = serializer.validated_data.get("face_image")
+        face_bytes = None
+        if face_image is not None:
+            face_image.seek(0)
+            face_bytes = face_image.read()
+        if not fallback and face_bytes is None:
+            raise ValidationError({"face_image": ["This field is required."]})
+
+        survey = serializer.validated_data["test"]
         try:
             session, _questions = start_survey_session(
-                employee=serializer.validated_data["employee"],
+                employee=employee,
                 test=survey,
                 face_image_bytes=face_bytes,
+                require_face_match=not fallback,
             )
         except FaceVerificationError as exc:
             raise PermissionDenied({"detail": str(exc), "code": "face_verify_failed"}) from exc
@@ -322,6 +401,8 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
     def submit(self, request, pk=None):
         """Persist answers (optional submit re-verify) and complete the session."""
         session = self.get_object()
+        if session.employee_id != getattr(request, "kiosk_employee_id", None):
+            raise PermissionDenied({"detail": "Employee mismatch.", "code": "kiosk_mismatch"})
         serializer = SubmitSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         face_b64 = serializer.validated_data.get("faceImage")
@@ -400,6 +481,12 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
             headers=["Block", "Question", "Type", "Answer", "Count"],
             rows=rows,
         )
+
+    def _active_employee(self, employee_id) -> Employee:
+        employee = Employee.objects.filter(pk=employee_id, is_active=True).first()
+        if employee is None:
+            raise ValidationError({"detail": "Employee not found.", "code": "not_found"})
+        return employee
 
     def _require_test(self, request) -> Test:
         test_id = request.query_params.get("test")

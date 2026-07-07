@@ -93,7 +93,7 @@ export function useNavData() {
         items: [
           {
             title: tx('common.navigation.kiosk'),
-            path: paths.app.kiosk.root,
+            path: paths.scan,
             icon: icon('solar:posts-carousel-vertical-bold-duotone'),
           },
         ],

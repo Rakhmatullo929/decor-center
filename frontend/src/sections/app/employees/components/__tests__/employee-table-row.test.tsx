@@ -23,6 +23,7 @@ const activeEmployee: Employee = {
   fullName: 'Alisher Karimov',
   specialty: 3,
   specialtyName: 'Electrician',
+  phone: '+998901234567',
   photo: null,
   isActive: true,
   hireDate: null,

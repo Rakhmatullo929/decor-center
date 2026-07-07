@@ -1,6 +1,8 @@
 export const paths = {
   login: '/login',
   home: '/home',
+  /** Public, login-free survey kiosk (camera-first face + SMS OTP). */
+  scan: '/scan',
 
   page403: '/403',
   page404: '/404',

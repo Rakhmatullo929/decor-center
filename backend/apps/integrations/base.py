@@ -110,3 +110,15 @@ class AntiSpoofingService(ABC):
     @abstractmethod
     def check_liveness(self, image_bytes: bytes) -> tuple[bool, float]:
         """Return (is_live, score). Higher score = more likely a genuine live capture."""
+
+
+class SmsError(Exception):
+    """Raised when an SMS provider fails to accept/deliver a message."""
+
+
+class SmsSender(ABC):
+    """Outbound SMS port. The mock no-ops in dev/CI; Eskiz sends in prod."""
+
+    @abstractmethod
+    def send(self, phone: str, text: str) -> None:
+        """Send `text` to `phone` (E.164). Raise SmsError on provider failure."""

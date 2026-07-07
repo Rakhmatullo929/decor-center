@@ -15,7 +15,23 @@
       "identifyingStatus": "ANIQLANMOQDA...",
       "readyStatus": "SKANERLASHGA TAYYOR",
       "cameraDenied": "Kameraga ruxsat berilmadi. Brauzer sozlamalarida ruxsat bering.",
-      "cameraUnavailable": "Kamera topilmadi yoki ishga tushmadi."
+      "cameraUnavailable": "Kamera topilmadi yoki ishga tushmadi.",
+      "cantRecognize": "Aniqlanmayapti — ism bo‘yicha tanlash"
+    },
+    "confirm": {
+      "sendPrompt": "{{phone}} raqamiga SMS-kod yuborilsinmi?",
+      "notMe": "Bu men emasman",
+      "sendCode": "Kod yuborish"
+    },
+    "otp": {
+      "title": "SMS kodini kiriting",
+      "sentTo": "Kod {{phone}} raqamiga yuborildi",
+      "verify": "Tasdiqlash"
+    },
+    "manual": {
+      "title": "O‘zingizni ism bo‘yicha toping",
+      "searchPlaceholder": "Ismni kiriting (kamida 2 harf)",
+      "backToCamera": "Kameraga qaytish"
     },
     "due": {
       "title": "Mavjud so‘rovlar",

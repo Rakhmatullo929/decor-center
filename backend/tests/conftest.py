@@ -16,6 +16,16 @@ def isolated_media_root(settings, tmp_path):
     settings.MEDIA_ROOT = str(tmp_path)
 
 
+@pytest.fixture(autouse=True)
+def _clear_throttle_cache():
+    """Reset DRF throttle counters between tests so per-scope rate limits never leak."""
+    from django.core.cache import cache
+
+    cache.clear()
+    yield
+    cache.clear()
+
+
 def png_bytes(color="white") -> bytes:
     buffer = io.BytesIO()
     Image.new("RGB", (8, 8), color).save(buffer, "PNG")

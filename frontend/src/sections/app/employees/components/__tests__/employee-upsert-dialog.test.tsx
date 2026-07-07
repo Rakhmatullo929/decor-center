@@ -87,6 +87,7 @@ const employee: Employee = {
   fullName: 'Alisher Karimov',
   specialty: 2,
   specialtyName: 'Welder',
+  phone: '+998901234567',
   photo: 'https://example.com/photo.jpg',
   isActive: true,
   hireDate: null,
@@ -167,6 +168,7 @@ describe('EmployeeUpsertDialog', () => {
     const { onSaved, onClose } = renderDialog();
 
     await user.type(screen.getByLabelText('employees.form.fullName *'), 'John Doe');
+    await user.type(screen.getByLabelText('employees.form.phone *'), '+998901234567');
 
     await user.click(screen.getByLabelText('employees.form.specialty *'));
     await user.click(await screen.findByRole('option', { name: 'Therapist' }));
@@ -179,7 +181,10 @@ describe('EmployeeUpsertDialog', () => {
     expect(mockCreateMutateAsync).toHaveBeenCalledWith({
       fullName: 'John Doe',
       specialty: 1,
+      phone: '+998901234567',
       isActive: true,
+      hireDate: null,
+      workExperience: 0,
       photo: expect.any(File),
     });
 
@@ -205,7 +210,14 @@ describe('EmployeeUpsertDialog', () => {
     await waitFor(() => expect(mockUpdateMutateAsync).toHaveBeenCalledTimes(1));
     expect(mockUpdateMutateAsync).toHaveBeenCalledWith({
       id: 5,
-      payload: { fullName: 'Alisher K.', specialty: 2, isActive: true },
+      payload: {
+        fullName: 'Alisher K.',
+        specialty: 2,
+        phone: '+998901234567',
+        isActive: true,
+        hireDate: null,
+        workExperience: 0,
+      },
     });
 
     expect(mockEnqueueSnackbar).toHaveBeenCalledWith('employees.toasts.updated');

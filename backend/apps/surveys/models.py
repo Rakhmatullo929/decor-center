@@ -182,3 +182,24 @@ class FaceVerificationLog(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class OtpChallenge(TimeStampedModel):
+    """One SMS one-time-code challenge for kiosk login (post face/manual identify)."""
+
+    employee = models.ForeignKey(
+        "employees.Employee", on_delete=models.PROTECT, related_name="otp_challenges"
+    )
+    code_hash = models.CharField(max_length=64)
+    attempts = models.PositiveSmallIntegerField(default=0)
+    is_used = models.BooleanField(default=False)
+    expires_at = models.DateTimeField()
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["employee", "created_at"])]
+
+    def is_expired(self) -> bool:
+        from django.utils import timezone
+
+        return timezone.now() >= self.expires_at

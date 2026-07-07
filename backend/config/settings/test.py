@@ -13,6 +13,7 @@ DECOR = {
     **DECOR,
     "FACE_RECOGNITION_BACKEND": "apps.integrations.mocks.MockFaceRecognitionService",
     "ANTI_SPOOFING_BACKEND": "apps.integrations.mocks.MockAntiSpoofingService",
+    "SMS_BACKEND": "apps.integrations.mocks.MockSmsSender",
     # Pin submit-time re-verify OFF so submit tests stay deterministic.
     "REVERIFY_ON_SUBMIT": "off",
 }

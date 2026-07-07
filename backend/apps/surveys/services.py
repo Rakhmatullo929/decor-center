@@ -118,31 +118,47 @@ def _presented_questions(test: Test) -> list[Question]:
 
 
 def start_survey_session(
-    *, employee: Employee, test: Test, face_image_bytes: bytes
+    *, employee: Employee, test: Test, face_image_bytes: bytes | None,
+    require_face_match: bool = True,
 ) -> tuple[SurveySession, list[Question]]:
-    """Verify Face-ID, then create a session and freeze the presented question set."""
-    if not employee.face_embedding:
-        raise SurveyFlowError(
-            "Employee has no reference photo embedding. Contact the administrator."
-        )
+    """Verify Face-ID (unless fallback), then create a session and freeze the questions.
 
+    require_face_match=False (manual/OTP fallback): the face is not a hard gate — OTP
+    is the authenticator. A capture, if provided, is still compared and logged.
+    """
     service = get_face_recognition_service()
-    matched, score = service.compare(employee.face_embedding, face_image_bytes)
-    FaceVerificationLog.objects.create(
-        employee=employee,
-        stage=FaceVerificationLog.Stage.START,
-        success=matched,
-        similarity_score=score,
-    )
-    if not matched:
-        raise FaceVerificationError("Face-ID check failed: face does not match or not detected.")
+
+    if require_face_match:
+        if not employee.face_embedding:
+            raise SurveyFlowError(
+                "Employee has no reference photo embedding. Contact the administrator."
+            )
+        matched, score = service.compare(employee.face_embedding, face_image_bytes)
+        FaceVerificationLog.objects.create(
+            employee=employee, stage=FaceVerificationLog.Stage.START,
+            success=matched, similarity_score=score,
+        )
+        if not matched:
+            raise FaceVerificationError(
+                "Face-ID check failed: face does not match or not detected."
+            )
+        face_verified = True
+    else:
+        matched = False
+        if employee.face_embedding and face_image_bytes:
+            matched, score = service.compare(employee.face_embedding, face_image_bytes)
+            FaceVerificationLog.objects.create(
+                employee=employee, stage=FaceVerificationLog.Stage.START,
+                success=matched, similarity_score=score, reason="fallback",
+            )
+        face_verified = matched
 
     questions = _presented_questions(test)
     with transaction.atomic():
         session = SurveySession.objects.create(
             employee=employee,
             test=test,
-            face_verified=True,
+            face_verified=face_verified,
             face_embedding=employee.face_embedding,
             model_version=backend_model_version(service),
         )

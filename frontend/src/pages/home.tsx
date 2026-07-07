@@ -20,9 +20,9 @@ export default function HomePage() {
   // the first survey's block builder, so it has to be looked up first.
   const testOptionsQuery = useTestOptionsQuery({ enabled: canReadTests });
 
-  // Kiosk accounts (employee role) land on the Face-ID survey flow.
+  // Kiosk accounts (employee role) land on the public Face-ID + SMS survey flow.
   if (checkPermission('survey', 'submit')) {
-    return <Navigate to={paths.app.kiosk.root} replace />;
+    return <Navigate to={paths.scan} replace />;
   }
   if (canReadTests) {
     if (testOptionsQuery.isLoading) {

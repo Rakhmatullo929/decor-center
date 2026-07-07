@@ -8,6 +8,7 @@ describe('employee schema', () => {
     const value = await schema.validate({
       fullName: 'Ivan',
       specialty: 1,
+      phone: '+998901234567',
       photo: 'x',
       isActive: true,
       hireDate: '2024-01-15',
@@ -21,6 +22,7 @@ describe('employee schema', () => {
     const value = await schema.validate({
       fullName: 'Ivan',
       specialty: 1,
+      phone: '+998901234567',
       photo: 'x',
       isActive: true,
       hireDate: '',

@@ -3,6 +3,8 @@ import * as Yup from 'yup';
 export type EmployeeFormValues = {
   fullName: string;
   specialty: number | '';
+  /** Phone (E.164, e.g. +998901234567) — used for kiosk SMS OTP. */
+  phone: string;
   /** `File` for a new upload, `string` URL for the existing photo on edit. */
   photo: File | string | null;
   isActive: boolean;
@@ -18,6 +20,13 @@ export function buildEmployeeSchema(tx: (key: string) => string) {
     specialty: Yup.number()
       .typeError(tx('employees.validation.specialtyRequired'))
       .required(tx('employees.validation.specialtyRequired')),
+    phone: Yup.string()
+      .trim()
+      .required(tx('employees.validation.phoneRequired'))
+      .matches(/^\+\d{9,15}$/, {
+        message: tx('employees.validation.phoneInvalid'),
+        excludeEmptyString: true,
+      }),
     photo: Yup.mixed<File | string>()
       .nullable()
       .test('photo-required', tx('employees.validation.photoRequired'), (value) => Boolean(value)),
