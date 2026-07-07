@@ -331,6 +331,8 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
         employee_id = request.query_params.get("employee")
         if not employee_id:
             raise ValidationError({"employee": ["This query parameter is required."]})
+        if str(employee_id) != str(getattr(request, "kiosk_employee_id", None)):
+            raise PermissionDenied({"detail": "Employee mismatch.", "code": "kiosk_mismatch"})
         employee = Employee.objects.filter(pk=employee_id, is_active=True).first()
         if employee is None:
             return Response({"detail": "Employee not found."}, status=status.HTTP_404_NOT_FOUND)
@@ -340,19 +342,29 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
     @extend_schema(request=StartSurveySerializer)
     @action(detail=False, methods=["post"])
     def start(self, request):
-        """Face-ID gate + session creation with a frozen question set."""
+        """Face-ID gate (or OTP-only fallback) + session creation with a frozen question set."""
         serializer = StartSurveySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        face_image = serializer.validated_data["face_image"]
-        face_image.seek(0)
-        face_bytes = face_image.read()
-        survey = serializer.validated_data["test"]
+        employee = serializer.validated_data["employee"]
+        if employee.id != getattr(request, "kiosk_employee_id", None):
+            raise PermissionDenied({"detail": "Employee mismatch.", "code": "kiosk_mismatch"})
+        fallback = bool(getattr(request, "kiosk_fallback", False))
 
+        face_image = serializer.validated_data.get("face_image")
+        face_bytes = None
+        if face_image is not None:
+            face_image.seek(0)
+            face_bytes = face_image.read()
+        if not fallback and face_bytes is None:
+            raise ValidationError({"face_image": ["This field is required."]})
+
+        survey = serializer.validated_data["test"]
         try:
             session, _questions = start_survey_session(
-                employee=serializer.validated_data["employee"],
+                employee=employee,
                 test=survey,
                 face_image_bytes=face_bytes,
+                require_face_match=not fallback,
             )
         except FaceVerificationError as exc:
             raise PermissionDenied({"detail": str(exc), "code": "face_verify_failed"}) from exc
@@ -374,6 +386,8 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
     def submit(self, request, pk=None):
         """Persist answers (optional submit re-verify) and complete the session."""
         session = self.get_object()
+        if session.employee_id != getattr(request, "kiosk_employee_id", None):
+            raise PermissionDenied({"detail": "Employee mismatch.", "code": "kiosk_mismatch"})
         serializer = SubmitSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         face_b64 = serializer.validated_data.get("faceImage")

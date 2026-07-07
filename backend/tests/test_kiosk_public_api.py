@@ -1,8 +1,14 @@
 import pytest
 
+from apps.surveys.kiosk_token import issue_kiosk_token
 from apps.surveys.models import OtpChallenge
 
-from .factories import EmployeeFactory
+from .factories import EmployeeFactory, QuestionFactory
+
+
+def _kiosk(api_client, employee_id, fallback=False):
+    api_client.credentials(HTTP_X_KIOSK_TOKEN=issue_kiosk_token(employee_id, fallback=fallback))
+    return api_client
 
 
 @pytest.mark.django_db
@@ -66,3 +72,52 @@ def test_employees_lookup_requires_query(api_client):
     hits = api_client.get("/api/v1/survey-sessions/employees-lookup/?q=zafar").data
     assert len(hits) == 1
     assert set(hits[0]) == {"id", "full_name"}
+
+
+@pytest.mark.django_db
+def test_due_requires_kiosk_token(api_client):
+    emp = EmployeeFactory(phone="+998901234567")
+    # no kiosk token → rejected (401 unauthorized, since a JWT authenticator is present)
+    assert api_client.get(
+        f"/api/v1/survey-sessions/due/?employee={emp.id}"
+    ).status_code in (401, 403)
+
+
+@pytest.mark.django_db
+def test_start_primary_verifies_face(api_client, face_image):
+    emp = EmployeeFactory(phone="+998901234567")
+    q = QuestionFactory()
+    test = q.block.test
+    resp = _kiosk(api_client, emp.id).post(
+        "/api/v1/survey-sessions/start/",
+        {"employee": emp.id, "test": test.id, "face_image": face_image},
+        format="multipart",
+    )
+    assert resp.status_code == 201, resp.content
+    assert resp.data["session"]["face_verified"] is True
+
+
+@pytest.mark.django_db
+def test_start_fallback_without_face_succeeds(api_client):
+    emp = EmployeeFactory(phone="+998901234567")
+    q = QuestionFactory()
+    test = q.block.test
+    resp = _kiosk(api_client, emp.id, fallback=True).post(
+        "/api/v1/survey-sessions/start/",
+        {"employee": emp.id, "test": test.id},
+        format="multipart",
+    )
+    assert resp.status_code == 201, resp.content
+
+
+@pytest.mark.django_db
+def test_start_rejects_employee_mismatch(api_client, face_image):
+    emp = EmployeeFactory(phone="+998901234567")
+    other = EmployeeFactory(phone="+998900000000")
+    q = QuestionFactory()
+    resp = _kiosk(api_client, other.id).post(
+        "/api/v1/survey-sessions/start/",
+        {"employee": emp.id, "test": q.block.test.id, "face_image": face_image},
+        format="multipart",
+    )
+    assert resp.status_code == 403

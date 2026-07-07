@@ -134,7 +134,7 @@ class StartSurveySerializer(serializers.Serializer):
     test = serializers.PrimaryKeyRelatedField(
         queryset=Test.objects.filter(is_active=True)
     )
-    face_image = serializers.ImageField()
+    face_image = serializers.ImageField(required=False)
 
 
 class AnswerItemSerializer(serializers.Serializer):
