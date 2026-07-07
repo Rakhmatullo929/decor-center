@@ -10,8 +10,6 @@ const SpecialtiesPage = lazy(() => import('src/pages/app/specialties'));
 const SurveyBlocksPage = lazy(() => import('src/pages/app/survey-blocks'));
 const SurveyBlockQuestionsPage = lazy(() => import('src/pages/app/survey-block-questions'));
 const SurveyResultsPage = lazy(() => import('src/pages/app/survey-results'));
-const KioskEntryPage = lazy(() => import('src/pages/app/survey-kiosk-entry'));
-const KioskAnswerPage = lazy(() => import('src/pages/app/survey-kiosk-answer'));
 
 export const dashboardRoutes = [
   {
@@ -63,22 +61,6 @@ export const dashboardRoutes = [
         element: (
           <PermissionGuard page="results" action="read">
             <SurveyResultsPage />
-          </PermissionGuard>
-        ),
-      },
-      {
-        path: 'kiosk',
-        element: (
-          <PermissionGuard page="survey" action="submit">
-            <KioskEntryPage />
-          </PermissionGuard>
-        ),
-      },
-      {
-        path: 'kiosk/answer',
-        element: (
-          <PermissionGuard page="survey" action="submit">
-            <KioskAnswerPage />
           </PermissionGuard>
         ),
       },

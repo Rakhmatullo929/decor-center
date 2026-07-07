@@ -26,7 +26,7 @@ import { errorReader } from 'src/utils/error-reader';
 import Iconify from 'src/components/iconify';
 import LanguagePopover from 'src/layouts/_common/language-popover';
 //
-import type { Employee } from '../../employees/api/types';
+import type { KioskEmployee } from '../api/types';
 import { useIdentifyEmployeeMutation } from '../api/use-survey-kiosk-api';
 import ThreeBg from './three-bg';
 
@@ -36,9 +36,13 @@ type Phase = 'scanning' | 'identified';
 type CameraError = 'denied' | 'unavailable';
 
 type Props = {
-  onIdentified: (employee: Employee, faceBlob: Blob) => void;
+  onIdentified: (employee: KioskEmployee, faceBlob: Blob) => void;
   onBack: () => void;
+  /** Offered after repeated identify failures: fall back to manual name + SMS. */
+  onManualFallback?: () => void;
 };
+
+const MANUAL_FALLBACK_AFTER = 3;
 
 // ── Keyframes ──────────────────────────────────────────────────────────────
 
@@ -86,7 +90,7 @@ function IdentifiedEmployeeBanner({
   employee,
   onRescan,
 }: {
-  employee: Employee;
+  employee: KioskEmployee;
   onRescan: () => void;
 }) {
   const { tx } = useLocales();
@@ -204,7 +208,7 @@ function IdentifiedEmployeeBanner({
 
 // ── Main component ──────────────────────────────────────────────────────────
 
-export default function FaceIdStep({ onIdentified, onBack }: Props) {
+export default function FaceIdStep({ onIdentified, onBack, onManualFallback }: Props) {
   const { tx } = useLocales();
   const theme = useTheme();
   const router = useRouter();
@@ -221,10 +225,11 @@ export default function FaceIdStep({ onIdentified, onBack }: Props) {
   const streamRef = useRef<MediaStream | null>(null);
 
   const [phase, setPhase]                       = useState<Phase>('scanning');
-  const [identifiedEmployee, setIdentifiedEmployee] = useState<Employee | null>(null);
+  const [identifiedEmployee, setIdentifiedEmployee] = useState<KioskEmployee | null>(null);
   const [capturedBlob, setCapturedBlob]         = useState<Blob | null>(null);
   const [cameraError, setCameraError]           = useState<CameraError | null>(null);
   const [identifyError, setIdentifyError]       = useState<string | null>(null);
+  const [failCount, setFailCount]               = useState(0);
 
   const identifyMutation = useIdentifyEmployeeMutation();
 
@@ -278,9 +283,13 @@ export default function FaceIdStep({ onIdentified, onBack }: Props) {
         onSuccess: (data) => {
           setCapturedBlob(blob);
           setIdentifiedEmployee(data.employee);
+          setFailCount(0);
           setPhase('identified');
         },
-        onError: (err) => setIdentifyError(errorReader(err)),
+        onError: (err) => {
+          setIdentifyError(errorReader(err));
+          setFailCount((n) => n + 1);
+        },
       }
     );
   }, [identifyMutation]);
@@ -790,6 +799,21 @@ export default function FaceIdStep({ onIdentified, onBack }: Props) {
             >
               {identifyError}
             </Alert>
+          )}
+          {onManualFallback && failCount >= MANUAL_FALLBACK_AFTER && (
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={onManualFallback}
+              sx={{
+                mt: 1.5,
+                color: white,
+                borderColor: alpha(white, 0.4),
+                '&:hover': { borderColor: white, bgcolor: alpha(white, 0.08) },
+              }}
+            >
+              {tx('survey.kiosk.faceId.cantRecognize')}
+            </Button>
           )}
         </Box>
       )}

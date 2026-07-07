@@ -1,5 +1,7 @@
-export { default as EmployeeStep } from './employee-step';
 export { default as FaceIdStep } from './face-id-step';
+export { default as ConfirmStep } from './confirm-step';
+export { default as OtpStep } from './otp-step';
+export { default as ManualPickStep } from './manual-pick-step';
 export { default as DueSurveysStep } from './due-surveys-step';
 export { default as QuestionStep, type KioskAnswer } from './question-step';
 export { default as ThankYouStep } from './thank-you-step';

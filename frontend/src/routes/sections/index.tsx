@@ -2,6 +2,7 @@ import { Navigate, useRoutes } from 'react-router-dom';
 import { paths } from 'src/routes/paths';
 import { mainRoutes } from './main';
 import { authRoutes } from './auth';
+import { publicRoutes } from './public';
 import { dashboardRoutes } from './dashboard';
 
 export default function Router() {
@@ -10,9 +11,13 @@ export default function Router() {
       path: '/',
       element: <Navigate to={paths.login} replace />,
     },
+    ...publicRoutes,
     ...authRoutes,
     ...dashboardRoutes,
     ...mainRoutes,
+    // The kiosk is public now — redirect the old authenticated routes to /scan.
+    { path: '/kiosk', element: <Navigate to={paths.scan} replace /> },
+    { path: '/kiosk/*', element: <Navigate to={paths.scan} replace /> },
     { path: '*', element: <Navigate to="/404" replace /> },
   ]);
 }
