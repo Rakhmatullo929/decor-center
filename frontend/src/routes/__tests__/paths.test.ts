@@ -2,9 +2,8 @@ import { paths } from '../paths';
 
 describe('survey + kiosk paths', () => {
   it('admin survey paths', () => {
-    expect(paths.app.surveys.tests).toBe('/surveys/tests');
     expect(paths.app.surveys.blocks(4)).toBe('/surveys/tests/4/blocks');
-    expect(paths.app.surveys.questions(8)).toBe('/surveys/blocks/8/questions');
+    expect(paths.app.surveys.block(4, 16)).toBe('/surveys/tests/4/blocks/16');
     expect(paths.app.surveys.results).toBe('/surveys/results');
   });
   it('kiosk paths', () => {

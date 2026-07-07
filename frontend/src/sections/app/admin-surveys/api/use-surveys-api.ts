@@ -1,55 +1,53 @@
-import { keepPreviousData } from '@tanstack/react-query';
-
 import { useFetch, useFetchList, useMutate } from 'src/hooks/api';
 
 import {
   createQuestion,
   createQuestionBlock,
-  createTest,
   deleteQuestion,
   deleteQuestionBlock,
-  deleteTest,
   exportSurveyResults,
   fetchQuestionBlocks,
   fetchQuestions,
   fetchSurveyResults,
+  fetchTest,
   fetchTests,
+  moveQuestion,
+  reorderQuestionBlocks,
+  reorderQuestions,
   updateQuestion,
   updateQuestionBlock,
-  updateTest,
 } from './surveys-requests';
 import type {
+  MoveQuestionPayload,
   Question,
   QuestionBlock,
   QuestionBlockUpsertPayload,
   QuestionUpsertPayload,
+  ReorderQuestionBlocksPayload,
+  ReorderQuestionsPayload,
   ResultsExportParams,
   ResultsParams,
   SurveyResults,
   Test,
-  TestListParams,
-  TestUpsertPayload,
 } from './types';
 
-// ── Tests ──────────────────────────────────────────────────────────────
-export function useTestsQuery(params: TestListParams) {
-  return useFetchList<Test>(['surveys', 'tests', params], () => fetchTests(params), {
-    placeholderData: keepPreviousData,
+// ── Test detail (full tree: blocks + nested questions) ─────────────────
+export function useTestQuery(testId: number) {
+  return useFetch<Test>(['surveys', 'test', testId], () => fetchTest(testId), {
+    enabled: Number.isFinite(testId),
   });
 }
-export function useTestOptionsQuery() {
-  return useFetch(['surveys', 'testOptions'], () => fetchTests({ pageSize: 200, ordering: 'title' }));
-}
-export function useCreateTestMutation() {
-  return useMutate<Test, TestUpsertPayload>((payload) => createTest(payload));
-}
-export function useUpdateTestMutation() {
-  return useMutate<Test, { id: number; payload: Partial<TestUpsertPayload> }>(({ id, payload }) =>
-    updateTest(id, payload)
+
+// ── Tests ──────────────────────────────────────────────────────────────
+// There is no tests list/management screen — surveys are seeded/administered on
+// the backend. This is the read-only option list used by the nav sidebar and
+// the results page's survey picker.
+export function useTestOptionsQuery(options?: { enabled?: boolean }) {
+  return useFetch(
+    ['surveys', 'testOptions'],
+    () => fetchTests({ pageSize: 200, ordering: 'title' }),
+    options
   );
-}
-export function useDeleteTestMutation() {
-  return useMutate<void, number>((id) => deleteTest(id));
 }
 
 // ── Question blocks ────────────────────────────────────────────────────
@@ -73,6 +71,11 @@ export function useUpdateQuestionBlockMutation() {
 export function useDeleteQuestionBlockMutation() {
   return useMutate<void, number>((id) => deleteQuestionBlock(id));
 }
+export function useReorderQuestionBlocksMutation() {
+  return useMutate<QuestionBlock[], ReorderQuestionBlocksPayload>((payload) =>
+    reorderQuestionBlocks(payload)
+  );
+}
 
 // ── Questions ──────────────────────────────────────────────────────────
 export function useQuestionsQuery(blockId: number) {
@@ -90,6 +93,12 @@ export function useUpdateQuestionMutation() {
 }
 export function useDeleteQuestionMutation() {
   return useMutate<void, number>((id) => deleteQuestion(id));
+}
+export function useReorderQuestionsMutation() {
+  return useMutate<Question[], ReorderQuestionsPayload>((payload) => reorderQuestions(payload));
+}
+export function useMoveQuestionMutation() {
+  return useMutate<Question[], MoveQuestionPayload>((payload) => moveQuestion(payload));
 }
 
 // ── Results ────────────────────────────────────────────────────────────

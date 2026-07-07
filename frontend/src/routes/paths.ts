@@ -18,9 +18,9 @@ export const paths = {
     employees: '/employees',
     specialties: '/specialties',
     surveys: {
-      tests: '/surveys/tests',
       blocks: (testId: number | string) => `/surveys/tests/${testId}/blocks`,
-      questions: (blockId: number | string) => `/surveys/blocks/${blockId}/questions`,
+      block: (testId: number | string, blockId: number | string) =>
+        `/surveys/tests/${testId}/blocks/${blockId}`,
       results: '/surveys/results',
     },
     kiosk: {

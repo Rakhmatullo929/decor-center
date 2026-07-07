@@ -9,9 +9,9 @@ describe('dashboardRoutes', () => {
   it('registers the survey admin routes and drops depo routes', () => {
     const { children } = dashboardRoutes[0];
     const p = paths(children);
-    expect(p).toContain('surveys/tests');
+    expect(p).not.toContain('surveys/tests');
     expect(p).toContain('surveys/tests/:testId/blocks');
-    expect(p).toContain('surveys/blocks/:blockId/questions');
+    expect(p).toContain('surveys/tests/:testId/blocks/:blockId');
     expect(p).toContain('surveys/results');
     expect(p).not.toContain('medical');
     expect(p).not.toContain('testing');

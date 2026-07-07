@@ -1,7 +1,47 @@
-export type QuestionType = 'single' | 'multiple' | 'textarea';
+export type QuestionType =
+  | 'single'
+  | 'multiple'
+  | 'short_text'
+  | 'textarea'
+  | 'nps'
+  | 'scale5'
+  | 'form_field'
+  | 'signature_date'
+  | 'section_header'
+  // Reserved for future use — not yet rendered by the builder or the kiosk.
+  | 'dropdown'
+  | 'date'
+  | 'number'
+  | 'matrix'
+  | 'ranking'
+  | 'file_upload';
+
+/** Question types the builder can fully create/edit today. */
+export const IMPLEMENTED_QUESTION_TYPES: QuestionType[] = [
+  'single',
+  'multiple',
+  'short_text',
+  'textarea',
+  'nps',
+  'scale5',
+  'form_field',
+  'signature_date',
+  'section_header',
+];
 
 /** Stable option id survives reordering so analytics don't drift (spec §4.1). */
 export type TestOption = { id: string; text: string };
+
+/** Type-specific config: scale bounds/labels, placeholders, form field kind, etc. */
+export type QuestionSettings = {
+  min?: number;
+  max?: number;
+  leftLabel?: string;
+  rightLabel?: string;
+  placeholder?: string;
+  fieldType?: 'text' | 'date';
+  [key: string]: unknown;
+};
 
 /** Matches Plan 2 `TestSerializer` (camelCase). */
 export type Test = {
@@ -14,6 +54,8 @@ export type Test = {
   testDaysFrom: number | null;
   testDaysTo: number | null;
   month: number[];
+  /** Nested read-only tree (blocks + their questions) — present on detail fetches. */
+  blocks?: QuestionBlock[];
 };
 
 export type TestListParams = {
@@ -24,23 +66,13 @@ export type TestListParams = {
   isActive?: boolean;
 };
 
-export type TestUpsertPayload = {
-  title: string;
-  isActive: boolean;
-  isAdminConducted: boolean;
-  isAfterApplication: boolean;
-  afterDays: number | null;
-  testDaysFrom: number | null;
-  testDaysTo: number | null;
-  month: number[];
-};
-
 /** Matches Plan 2 `QuestionBlockSerializer`. */
 export type QuestionBlock = {
   id: number;
   test: number;
   order: number;
   title: string;
+  questions?: Question[];
 };
 
 export type QuestionBlockUpsertPayload = {
@@ -57,6 +89,9 @@ export type Question = {
   order: number;
   text: string;
   options: TestOption[];
+  settings: QuestionSettings;
+  isRequired: boolean;
+  isMindDive: boolean;
 };
 
 export type QuestionUpsertPayload = {
@@ -65,7 +100,14 @@ export type QuestionUpsertPayload = {
   order: number;
   text: string;
   options: TestOption[];
+  settings?: QuestionSettings;
+  isRequired?: boolean;
+  isMindDive?: boolean;
 };
+
+export type ReorderQuestionBlocksPayload = { test: number; order: number[] };
+export type ReorderQuestionsPayload = { block: number; order: number[] };
+export type MoveQuestionPayload = { question: number; targetBlock: number; order: number[] };
 
 /**
  * Matches Plan 2 `survey-sessions/results/` aggregate serializer:

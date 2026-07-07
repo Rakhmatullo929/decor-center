@@ -13,12 +13,13 @@ def _validate_options_shape(options):
         raise serializers.ValidationError("Options must be a non-empty list.")
     normalized = []
     for opt in options:
-        if not isinstance(opt, dict) or not str(opt.get("text", "")).strip():
+        text = str(opt.get("text") or "").strip() if isinstance(opt, dict) else ""
+        if not isinstance(opt, dict) or not text:
             raise serializers.ValidationError(
                 "Each option must be an object with non-empty 'text'."
             )
         oid = str(opt.get("id") or uuid.uuid4())
-        normalized.append({"id": oid, "text": opt["text"]})
+        normalized.append({"id": oid, "text": text})
     ids = [opt["id"] for opt in normalized]
     if len(ids) != len(set(ids)):
         raise serializers.ValidationError("Option ids must be unique.")
@@ -26,24 +27,39 @@ def _validate_options_shape(options):
 
 
 class QuestionSerializer(serializers.ModelSerializer):
+    """Question as edited by the admin builder."""
+
     class Meta:
         model = Question
-        fields = ["id", "block", "type", "order", "text", "options"]
+        fields = [
+            "id", "block", "type", "order", "text", "options", "settings",
+            "is_required", "is_mind_dive",
+        ]
 
     def validate(self, attrs):
         q_type = attrs.get("type", getattr(self.instance, "type", Question.Type.SINGLE))
         options = attrs.get("options", getattr(self.instance, "options", []))
-        if q_type == Question.Type.TEXTAREA:
-            if options:
-                raise serializers.ValidationError(
-                    {"options": "Textarea questions must have no options."}
-                )
-            attrs["options"] = []
-        else:
+        settings_val = dict(
+            attrs.get("settings", getattr(self.instance, "settings", None) or {})
+        )
+
+        if q_type in (Question.Type.SINGLE, Question.Type.MULTIPLE):
             try:
                 attrs["options"] = _validate_options_shape(options)
             except serializers.ValidationError as exc:
                 raise serializers.ValidationError({"options": exc.detail}) from exc
+        else:
+            if options:
+                raise serializers.ValidationError(
+                    {"options": f"{q_type} questions must have no options."}
+                )
+            attrs["options"] = []
+
+        if q_type in Question.SCALE_TYPES:
+            default_min, default_max = (0, 10) if q_type == Question.Type.NPS else (1, 5)
+            settings_val.setdefault("min", default_min)
+            settings_val.setdefault("max", default_max)
+        attrs["settings"] = settings_val
         return attrs
 
 
@@ -52,10 +68,25 @@ class QuestionPublicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ["id", "type", "order", "text", "options"]
+        fields = [
+            "id", "type", "order", "text", "options", "settings",
+            "is_required", "is_mind_dive",
+        ]
 
 
 class QuestionBlockSerializer(serializers.ModelSerializer):
+    """Block as edited by the admin builder."""
+
+    questions = QuestionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = QuestionBlock
+        fields = ["id", "test", "order", "title", "questions"]
+
+
+class QuestionBlockPublicSerializer(serializers.ModelSerializer):
+    """Block as presented to the kiosk."""
+
     questions = QuestionPublicSerializer(many=True, read_only=True)
 
     class Meta:

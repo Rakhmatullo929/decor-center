@@ -9,6 +9,9 @@ describe('API_ENDPOINTS.surveys', () => {
     expect(s.questionBlock(3)).toBe('/api/v1/question-blocks/3/');
     expect(s.questions).toBe('/api/v1/questions/');
     expect(s.question(9)).toBe('/api/v1/questions/9/');
+    expect(s.reorderQuestionBlocks).toBe('/api/v1/question-blocks/reorder/');
+    expect(s.reorderQuestions).toBe('/api/v1/questions/reorder/');
+    expect(s.moveQuestion).toBe('/api/v1/questions/move/');
   });
   it('exposes survey-session actions', () => {
     expect(s.identify).toBe('/api/v1/survey-sessions/identify/');

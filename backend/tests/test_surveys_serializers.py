@@ -66,6 +66,7 @@ def test_test_nested_blocks_read():
     data = TestSerializer(survey).data
     assert data["blocks"][0]["title"] == "B1"
     assert data["blocks"][0]["questions"][0]["type"] == "textarea"
+    assert data["blocks"][0]["questions"][0]["text"] == "Free"
 
 
 def test_submit_serializer_camel_case_fields():

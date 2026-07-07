@@ -7,9 +7,8 @@ import { LoadingScreen } from 'src/components/loading-screen';
 const HomePage = lazy(() => import('src/pages/home'));
 const EmployeesPage = lazy(() => import('src/pages/app/employees'));
 const SpecialtiesPage = lazy(() => import('src/pages/app/specialties'));
-const SurveyTestsPage = lazy(() => import('src/pages/app/survey-tests'));
 const SurveyBlocksPage = lazy(() => import('src/pages/app/survey-blocks'));
-const SurveyQuestionsPage = lazy(() => import('src/pages/app/survey-questions'));
+const SurveyBlockQuestionsPage = lazy(() => import('src/pages/app/survey-block-questions'));
 const SurveyResultsPage = lazy(() => import('src/pages/app/survey-results'));
 const KioskEntryPage = lazy(() => import('src/pages/app/survey-kiosk-entry'));
 const KioskAnswerPage = lazy(() => import('src/pages/app/survey-kiosk-answer'));
@@ -44,14 +43,6 @@ export const dashboardRoutes = [
         ),
       },
       {
-        path: 'surveys/tests',
-        element: (
-          <PermissionGuard page="tests" action="read">
-            <SurveyTestsPage />
-          </PermissionGuard>
-        ),
-      },
-      {
         path: 'surveys/tests/:testId/blocks',
         element: (
           <PermissionGuard page="tests" action="read">
@@ -60,10 +51,10 @@ export const dashboardRoutes = [
         ),
       },
       {
-        path: 'surveys/blocks/:blockId/questions',
+        path: 'surveys/tests/:testId/blocks/:blockId',
         element: (
-          <PermissionGuard page="questions" action="read">
-            <SurveyQuestionsPage />
+          <PermissionGuard page="tests" action="read">
+            <SurveyBlockQuestionsPage />
           </PermissionGuard>
         ),
       },
