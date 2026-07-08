@@ -1,5 +1,5 @@
 {
-  "appName": "Lokomotiv decor",
+  "appName": "Decor Center",
   "navigation": {
     "management": "Boshqaruv",
     "employees": "Xodimlar",
@@ -74,7 +74,7 @@
   },
   "auth": {
     "title": "Tizimga kirish",
-    "subtitle": "Lokomotiv decor: bilim nazorati va tibbiy ko'rik tizimi",
+    "subtitle": "Decor Center: bilim nazorati va tibbiy ko'rik tizimi",
     "username": "Login",
     "password": "Parol",
     "rememberMe": "Meni eslab qol",
