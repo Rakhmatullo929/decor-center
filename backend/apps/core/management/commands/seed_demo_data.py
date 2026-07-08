@@ -5,7 +5,9 @@ adds only what is missing. Run `seed_initial_data` (specialties + accounts) firs
 
 Hire dates are stored relative to "today" so the after-hire scheduling (30/90 days) has
 live candidates. Employees are created without a face photo — enrol photos in the admin
-to enable the Face-ID kiosk.
+to enable the Face-ID kiosk. Each demo employee gets a deterministic placeholder phone
+(+99890000XXXX) so the kiosk SMS-OTP step works out of the box (the mock sender just logs
+the code — which is 0000 by default — so no real SMS is sent).
 """
 import datetime
 
@@ -89,23 +91,34 @@ class Command(BaseCommand):
         today = timezone.localdate()
 
         emp_created = 0
-        for full_name, specialty_name, days, experience in EMPLOYEES:
+        phone_backfilled = 0
+        for index, (full_name, specialty_name, days, experience) in enumerate(EMPLOYEES):
+            # Deterministic placeholder phone (E.164). Real SMS is never sent under the
+            # mock sender; the kiosk code stays 0000 until Eskiz is wired up.
+            phone = f"+99890000{index:04d}"
             specialty = Specialty.objects.filter(name=specialty_name).first()
             if specialty is None:
                 specialty, _ = Specialty.objects.get_or_create(name=specialty_name)
-            _, created = Employee.objects.get_or_create(
+            employee, created = Employee.objects.get_or_create(
                 full_name=full_name,
                 defaults={
                     "specialty": specialty,
                     "photo": "",
+                    "phone": phone,
                     "hire_date": today - datetime.timedelta(days=days),
                     "work_experience": experience,
                 },
             )
             emp_created += int(created)
+            # Backfill employees seeded before the phone field existed.
+            if not created and not employee.phone:
+                employee.phone = phone
+                employee.save(update_fields=["phone"])
+                phone_backfilled += 1
         self.stdout.write(
             self.style.SUCCESS(
-                f"Employees: {emp_created} created, {len(EMPLOYEES) - emp_created} existed."
+                f"Employees: {emp_created} created, {len(EMPLOYEES) - emp_created} existed, "
+                f"{phone_backfilled} phone(s) backfilled."
             )
         )
 
