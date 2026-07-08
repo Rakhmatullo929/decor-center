@@ -4,6 +4,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import environ
+from corsheaders.defaults import default_headers as cors_default_headers
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # backend/
 
@@ -51,6 +52,11 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# Allow the kiosk device token header (X-Kiosk-Token) through CORS preflight, on top of
+# the standard set — the public /scan flow sends it on due/start/submit. Without this the
+# browser blocks the request after a 200 preflight ("check your connection" on the client).
+CORS_ALLOW_HEADERS = (*cors_default_headers, "x-kiosk-token")
 
 ROOT_URLCONF = "config.urls"
 
