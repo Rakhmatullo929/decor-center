@@ -26,17 +26,12 @@ const MOCK_ADMIN_PERMISSIONS = [
   'employees:write',
   'specialties:read',
   'specialties:write',
-  'instructions:read',
-  'instructions:write',
+  'tests:read',
+  'tests:write',
   'questions:read',
   'questions:write',
-  'testing:write',
   'results:read',
   'results:detail',
-  'medical:read',
-  'medical:detail',
-  'medical:write',
-  'medical_edit:write',
 ];
 
 export function buildMockAuthUser(username: string): DecorUser {
