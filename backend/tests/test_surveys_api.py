@@ -97,51 +97,127 @@ def test_due_lists_scheduled_surveys():
 
 # --- start ------------------------------------------------------------------
 
-def test_start_returns_blocks_and_questions(survey_with_questions, face_image):
+def _start(client, survey, emp):
+    return client.post(
+        f"{SESSIONS}start/", {"employee": emp.id, "test": survey.id}, format="json"
+    )
+
+
+def test_start_returns_blocks_and_questions(survey_with_questions):
     survey, q_single, q_text = survey_with_questions
     emp = EmployeeFactory()
-    face_image.seek(0)
-    resp = kiosk_client(emp.id).post(
-        f"{SESSIONS}start/",
-        {"employee": emp.id, "test": survey.id, "face_image": face_image},
-        format="multipart",
-    )
+    resp = _start(kiosk_client(emp.id), survey, emp)
     assert resp.status_code == 201, resp.data
     assert resp.data["test"]["id"] == survey.id
     questions = resp.data["blocks"][0]["questions"]
     assert {q["id"] for q in questions} == {q_single.id, q_text.id}
-    assert resp.data["session"]["face_verified"] is True
+    assert resp.data["session"]["status"] == "in_progress"
 
 
-def test_start_face_failure_403(survey_with_questions, face_image_fail):
+def test_start_does_not_require_a_camera_frame(survey_with_questions):
+    """Face-ID happens once at kiosk entry (identify + OTP); starting an individual
+    test relies on the JWT session and never asks for another frame."""
+    survey, _, _ = survey_with_questions
+    emp = EmployeeFactory(face_embedding=None)  # no reference photo at all
+    resp = _start(kiosk_client(emp.id), survey, emp)
+    assert resp.status_code == 201, resp.data
+
+
+def test_start_is_idempotent_over_api(survey_with_questions):
+    """Calling start twice for the same (employee, test) resumes the same session —
+    no duplicate SurveySession, second call returns 200 instead of 201."""
     survey, _, _ = survey_with_questions
     emp = EmployeeFactory()
-    face_image_fail.seek(0)
-    resp = kiosk_client(emp.id).post(
-        f"{SESSIONS}start/",
-        {"employee": emp.id, "test": survey.id, "face_image": face_image_fail},
-        format="multipart",
+    client = kiosk_client(emp.id)
+    first = _start(client, survey, emp)
+    second = _start(client, survey, emp)
+    assert first.status_code == 201
+    assert second.status_code == 200
+    assert second.data["session"]["id"] == first.data["session"]["id"]
+    assert SurveySession.objects.filter(employee=emp, test=survey).count() == 1
+
+
+# --- answer (autosave) -------------------------------------------------------
+
+def test_answer_autosaves_without_completing(survey_with_questions):
+    survey, q_single, _ = survey_with_questions
+    emp = EmployeeFactory()
+    client = kiosk_client(emp.id)
+    session_id = _start(client, survey, emp).data["session"]["id"]
+
+    resp = client.post(
+        f"{SESSIONS}{session_id}/answer/",
+        {"question": q_single.id, "selectedOptionIds": ["a"]},
+        format="json",
+    )
+    assert resp.status_code == 200, resp.data
+    assert Answer.objects.get(session_id=session_id, question=q_single).selected_option_ids == ["a"]
+    assert SurveySession.objects.get(pk=session_id).completed_at is None
+
+
+def test_answer_rejects_employee_mismatch(survey_with_questions):
+    survey, q_single, _ = survey_with_questions
+    emp = EmployeeFactory()
+    other = EmployeeFactory()
+    session_id = _start(kiosk_client(emp.id), survey, emp).data["session"]["id"]
+    resp = kiosk_client(other.id).post(
+        f"{SESSIONS}{session_id}/answer/",
+        {"question": q_single.id, "selectedOptionIds": ["a"]},
+        format="json",
     )
     assert resp.status_code == 403
-    assert SurveySession.objects.count() == 0
+
+
+# --- in-progress --------------------------------------------------------------
+
+def test_in_progress_lists_only_own_unfinished_sessions(survey_with_questions):
+    survey, _, _ = survey_with_questions
+    emp = EmployeeFactory()
+    other = EmployeeFactory()
+    client = kiosk_client(emp.id)
+    started = _start(client, survey, emp).data["session"]["id"]
+    _start(kiosk_client(other.id), survey, other)
+
+    resp = client.get(f"{SESSIONS}in-progress/?employee={emp.id}")
+    assert resp.status_code == 200, resp.data
+    assert [s["id"] for s in resp.data] == [started]
+
+
+# --- retrieve (resume) -------------------------------------------------------
+
+def test_retrieve_own_session_includes_blocks_for_resume(survey_with_questions):
+    survey, q_single, q_text = survey_with_questions
+    emp = EmployeeFactory()
+    client = kiosk_client(emp.id)
+    session_id = _start(client, survey, emp).data["session"]["id"]
+    client.post(
+        f"{SESSIONS}{session_id}/answer/",
+        {"question": q_single.id, "selectedOptionIds": ["a"]},
+        format="json",
+    )
+
+    resp = client.get(f"{SESSIONS}{session_id}/")
+    assert resp.status_code == 200, resp.data
+    assert {q["id"] for q in resp.data["blocks"][0]["questions"]} == {q_single.id, q_text.id}
+    assert {a["question"] for a in resp.data["answers"]} == {q_single.id, q_text.id}
+
+
+def test_retrieve_other_employees_session_is_forbidden(survey_with_questions):
+    survey, _, _ = survey_with_questions
+    emp = EmployeeFactory()
+    other = EmployeeFactory()
+    session_id = _start(kiosk_client(emp.id), survey, emp).data["session"]["id"]
+    resp = kiosk_client(other.id).get(f"{SESSIONS}{session_id}/")
+    assert resp.status_code == 403
 
 
 # --- submit -----------------------------------------------------------------
 
-def _start(client, survey, emp, face_image):
-    face_image.seek(0)
-    return client.post(
-        f"{SESSIONS}start/",
-        {"employee": emp.id, "test": survey.id, "face_image": face_image},
-        format="multipart",
-    )
-
-
-def test_submit_persists_answers(survey_with_questions, face_image):
+def test_submit_persists_answers(survey_with_questions):
     survey, q_single, q_text = survey_with_questions
     emp = EmployeeFactory()
     client = kiosk_client(emp.id)
-    start = _start(client, survey, emp, face_image)
+    start = _start(client, survey, emp)
     session_id = start.data["session"]["id"]
     resp = client.post(
         f"{SESSIONS}{session_id}/submit/",
@@ -153,6 +229,7 @@ def test_submit_persists_answers(survey_with_questions, face_image):
     )
     assert resp.status_code == 200, resp.data
     assert resp.data["completed_at"] is not None
+    assert resp.data["status"] == "completed"
     assert Answer.objects.get(session=session_id, question=q_single).selected_option_ids == ["a"]
     assert Answer.objects.get(session=session_id, question=q_text).text_value == "Nice"
 

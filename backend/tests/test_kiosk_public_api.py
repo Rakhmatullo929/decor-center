@@ -96,14 +96,16 @@ def test_due_requires_employee_login(api_client):
 
 
 @pytest.mark.django_db
-def test_start_primary_verifies_face(api_client, face_image):
+def test_start_after_face_entry_marks_face_verified(api_client):
+    """Face-ID happens once at entry (identify + OTP, not fallback) — start just
+    inherits that, with no further camera frame."""
     emp = EmployeeFactory(phone="+998901234567")
     q = QuestionFactory()
     test = q.block.test
-    resp = _verify(api_client, emp.id).post(
+    resp = _verify(api_client, emp.id, fallback=False).post(
         "/api/v1/survey-sessions/start/",
-        {"employee": emp.id, "test": test.id, "face_image": face_image},
-        format="multipart",
+        {"employee": emp.id, "test": test.id},
+        format="json",
     )
     assert resp.status_code == 201, resp.content
     assert resp.data["session"]["face_verified"] is True
@@ -117,19 +119,20 @@ def test_start_fallback_without_face_succeeds(api_client):
     resp = _verify(api_client, emp.id, fallback=True).post(
         "/api/v1/survey-sessions/start/",
         {"employee": emp.id, "test": test.id},
-        format="multipart",
+        format="json",
     )
     assert resp.status_code == 201, resp.content
+    assert resp.data["session"]["face_verified"] is False
 
 
 @pytest.mark.django_db
-def test_start_rejects_employee_mismatch(api_client, face_image):
+def test_start_rejects_employee_mismatch(api_client):
     emp = EmployeeFactory(phone="+998901234567")
     other = EmployeeFactory(phone="+998900000000")
     q = QuestionFactory()
     resp = _verify(api_client, other.id).post(
         "/api/v1/survey-sessions/start/",
-        {"employee": emp.id, "test": q.block.test.id, "face_image": face_image},
-        format="multipart",
+        {"employee": emp.id, "test": q.block.test.id},
+        format="json",
     )
     assert resp.status_code == 403

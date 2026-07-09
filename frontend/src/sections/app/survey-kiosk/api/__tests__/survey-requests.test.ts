@@ -52,23 +52,36 @@ describe('survey-kiosk requests', () => {
     expect(isPublic).toBeFalsy();
   });
 
-  it('startSurvey posts employee/test/face_image, bearer-authed (not public)', async () => {
-    const file = new File(['x'], 'f.jpg', { type: 'image/jpeg' });
-    await requests.startSurvey({ employee: 2, test: 5, faceImage: file });
+  it('startSurvey posts employee/test as JSON, bearer-authed (not public) — no camera frame', async () => {
+    await requests.startSurvey({ employee: 2, test: 5 });
     const [call, isPublic] = (request as jest.Mock).mock.calls[0];
     expect(call.url).toBe(API_ENDPOINTS.surveys.start);
-    const fd = call.data as FormData;
-    expect(fd.get('employee')).toBe('2');
-    expect(fd.get('test')).toBe('5');
-    expect(fd.get('face_image')).toBe(file);
+    expect(call.data).toEqual({ employee: 2, test: 5 });
     expect(isPublic).toBeFalsy();
   });
 
-  it('startSurvey omits face_image on the manual fallback', async () => {
-    await requests.startSurvey({ employee: 2, test: 5 });
-    const [call] = (request as jest.Mock).mock.calls[0];
-    const fd = call.data as FormData;
-    expect(fd.get('face_image')).toBeNull();
+  it('fetchInProgressSessions passes the employee param, bearer-authed', async () => {
+    await requests.fetchInProgressSessions(2);
+    const [call, isPublic] = (request as jest.Mock).mock.calls[0];
+    expect(call.url).toBe(API_ENDPOINTS.surveys.inProgress);
+    expect(call.params).toEqual({ employee: 2 });
+    expect(isPublic).toBeFalsy();
+  });
+
+  it('fetchSessionDetail GETs the session by id, bearer-authed', async () => {
+    await requests.fetchSessionDetail(7);
+    const [call, isPublic] = (request as jest.Mock).mock.calls[0];
+    expect(call.url).toBe(API_ENDPOINTS.surveys.session(7));
+    expect(call.method).toBe('GET');
+    expect(isPublic).toBeFalsy();
+  });
+
+  it('autosaveAnswer posts one answer item, bearer-authed', async () => {
+    await requests.autosaveAnswer(7, { question: 1, selectedOptionIds: ['a'] });
+    const [call, isPublic] = (request as jest.Mock).mock.calls[0];
+    expect(call.url).toBe(API_ENDPOINTS.surveys.answer(7));
+    expect(call.data).toEqual({ question: 1, selectedOptionIds: ['a'] });
+    expect(isPublic).toBeFalsy();
   });
 
   it('submitSurvey posts JSON answers, bearer-authed (not public)', async () => {

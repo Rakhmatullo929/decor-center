@@ -6,7 +6,7 @@ const ScanPage = lazy(() => import('src/pages/public/scan'));
 const ScanManualPage = lazy(() => import('src/pages/public/scan-manual'));
 const ScanConfirmPage = lazy(() => import('src/pages/public/scan-confirm'));
 const ScanOtpPage = lazy(() => import('src/pages/public/scan-otp'));
-const ScanAnswerPage = lazy(() => import('src/pages/public/scan-answer'));
+const SurveyPage = lazy(() => import('src/pages/public/survey'));
 
 export const publicRoutes = [
   {
@@ -17,7 +17,11 @@ export const publicRoutes = [
       { path: 'manual', element: <ScanManualPage /> },
       { path: 'confirm/:employeeId', element: <ScanConfirmPage /> },
       { path: 'otp/:employeeId', element: <ScanOtpPage /> },
-      { path: 'answer', element: <ScanAnswerPage /> },
     ],
+  },
+  {
+    path: 'survey/:sessionId',
+    element: <KioskLayout />,
+    children: [{ index: true, element: <SurveyPage /> }],
   },
 ];

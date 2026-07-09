@@ -23,8 +23,8 @@ export default function FaceIdView() {
   }, [loading, signedIn]);
 
   const handleIdentified = useCallback(
-    (employee: KioskEmployee, faceBlob: Blob) => {
-      setEmployee(employee, { fallback: false, faceBlob });
+    (employee: KioskEmployee) => {
+      setEmployee(employee, { fallback: false });
       navigate(paths.scanConfirm(employee.id));
     },
     [setEmployee, navigate]

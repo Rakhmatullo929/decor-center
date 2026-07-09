@@ -23,10 +23,12 @@ from apps.integrations.registry import get_face_recognition_service
 from .filters import SurveySessionFilter
 from .models import Answer, Question, QuestionBlock, SurveySession, Test  # noqa: F401
 from .otp import OtpError, PhoneNotSetError, request_otp, verify_otp
-from .permissions import IsSurveyEmployee
+from .permissions import IsAdminOrOwnSurveySession, IsSurveyEmployee
 from .scheduling import due_surveys
 from .serializers import (
     AdminFillSerializer,
+    AnswerItemSerializer,
+    AnswerReadSerializer,
     KioskIdentifiedEmployeeSerializer,
     QuestionBlockPublicSerializer,
     QuestionBlockSerializer,
@@ -43,6 +45,8 @@ from .services import (
     SurveyFlowError,
     admin_fill,
     apply_order,
+    autosave_answer,
+    in_progress_sessions,
     order_matches_objects,
     start_survey_session,
     submit_survey_session,
@@ -239,8 +243,10 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_permissions(self):
         if self.action in ("identify", "request_otp", "verify_otp", "employees_lookup"):
             return [AllowAny()]
-        if self.action in ("due", "start", "submit"):
+        if self.action in ("due", "start", "submit", "answer", "in_progress"):
             return [IsSurveyEmployee()]
+        if self.action == "retrieve":
+            return [IsAdminOrOwnSurveySession()]
         return [IsAdmin()]
 
     def get_throttles(self):
@@ -253,7 +259,9 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         if self.action == "retrieve":
-            queryset = queryset.prefetch_related("answers__question")
+            queryset = queryset.prefetch_related(
+                "answers__question", "test__blocks__questions"
+            )
         return queryset
 
     @extend_schema(
@@ -362,7 +370,9 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
     @extend_schema(request=StartSurveySerializer)
     @action(detail=False, methods=["post"])
     def start(self, request):
-        """Face-ID gate (or OTP-only fallback) + session creation with a frozen question set."""
+        """Idempotently start (or resume) a test — Face-ID was already verified once at
+        kiosk entry (identify + OTP), so this relies on the employee's JWT session rather
+        than a fresh camera compare for every test."""
         serializer = StartSurveySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         employee = serializer.validated_data["employee"]
@@ -370,24 +380,11 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
             raise PermissionDenied({"detail": "Employee mismatch.", "code": "kiosk_mismatch"})
         fallback = bool(getattr(request, "kiosk_fallback", False))
 
-        face_image = serializer.validated_data.get("face_image")
-        face_bytes = None
-        if face_image is not None:
-            face_image.seek(0)
-            face_bytes = face_image.read()
-        if not fallback and face_bytes is None:
-            raise ValidationError({"face_image": ["This field is required."]})
-
         survey = serializer.validated_data["test"]
         try:
-            session, _questions = start_survey_session(
-                employee=employee,
-                test=survey,
-                face_image_bytes=face_bytes,
-                require_face_match=not fallback,
+            session, _questions, reused = start_survey_session(
+                employee=employee, test=survey, entry_face_verified=not fallback,
             )
-        except FaceVerificationError as exc:
-            raise PermissionDenied({"detail": str(exc), "code": "face_verify_failed"}) from exc
         except SurveyFlowError as exc:
             raise ValidationError({"detail": str(exc)}) from exc
 
@@ -398,8 +395,40 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
                 "test": {"id": survey.id, "title": survey.title},
                 "blocks": QuestionBlockPublicSerializer(blocks, many=True).data,
             },
-            status=status.HTTP_201_CREATED,
+            status=status.HTTP_200_OK if reused else status.HTTP_201_CREATED,
         )
+
+    @extend_schema(request=AnswerItemSerializer, responses=AnswerReadSerializer)
+    @action(detail=True, methods=["post"])
+    def answer(self, request, pk=None):
+        """Autosave a single answer as the employee fills in the one-page form, without
+        completing the session — see `submit` for the final full-batch write."""
+        session = self.get_object()
+        if session.employee_id != getattr(request, "kiosk_employee_id", None):
+            raise PermissionDenied({"detail": "Employee mismatch.", "code": "kiosk_mismatch"})
+        serializer = AnswerItemSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            row = autosave_answer(session=session, item=serializer.validated_data)
+        except SurveyFlowError as exc:
+            raise ValidationError({"detail": str(exc)}) from exc
+        return Response(AnswerReadSerializer(row).data)
+
+    @extend_schema(responses={200: SurveySessionSerializer(many=True)})
+    @action(detail=False, methods=["get"], url_path="in-progress")
+    def in_progress(self, request):
+        """The employee's own unfinished (not completed, not abandoned) sessions —
+        powers the cabinet's "continue" list, distinct from `due` (not-yet-started tests)."""
+        employee_id = request.query_params.get("employee")
+        if not employee_id:
+            raise ValidationError({"employee": ["This query parameter is required."]})
+        if str(employee_id) != str(getattr(request, "kiosk_employee_id", None)):
+            raise PermissionDenied({"detail": "Employee mismatch.", "code": "kiosk_mismatch"})
+        employee = Employee.objects.filter(pk=employee_id, is_active=True).first()
+        if employee is None:
+            return Response({"detail": "Employee not found."}, status=status.HTTP_404_NOT_FOUND)
+        sessions = in_progress_sessions(employee)
+        return Response(SurveySessionSerializer(sessions, many=True).data)
 
     @extend_schema(request=SubmitSerializer, responses=SurveySessionSerializer)
     @action(detail=True, methods=["post"])

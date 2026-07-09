@@ -25,3 +25,21 @@ class IsSurveyEmployee(BasePermission):
         request.kiosk_employee_id = employee.id
         request.kiosk_fallback = bool(request.auth.get("kiosk_fallback", False)) if request.auth else False
         return True
+
+
+class IsAdminOrOwnSurveySession(BasePermission):
+    """Admins may retrieve any SurveySession; an employee may retrieve only their own —
+    needed so the resumable /survey/:sessionId route can GET its own session detail."""
+
+    message = {"detail": "Employee login required.", "code": "employee_unverified"}
+
+    def has_permission(self, request, view):
+        user = request.user
+        if user and user.is_authenticated and user.role == Roles.ADMIN:
+            return True
+        return IsSurveyEmployee().has_permission(request, view)
+
+    def has_object_permission(self, request, view, obj):
+        if request.user.role == Roles.ADMIN:
+            return True
+        return obj.employee_id == getattr(request, "kiosk_employee_id", None)

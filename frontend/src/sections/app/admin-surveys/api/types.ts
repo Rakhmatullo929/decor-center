@@ -143,3 +143,22 @@ export type SurveyResults = {
 
 export type ResultsParams = { test: number };
 export type ResultsExportParams = { test: number };
+
+export type SurveySessionStatus = 'in_progress' | 'completed' | 'abandoned';
+
+/** Matches `SurveySessionSerializer` — one employee's attempt at one test, admin view. */
+export type SurveySessionAdmin = {
+  id: number;
+  employee: number;
+  employeeName: string;
+  test: number;
+  testTitle: string;
+  createdBy: number | null;
+  faceVerified: boolean;
+  modelVersion: string;
+  startedAt: string;
+  completedAt: string | null;
+  status: SurveySessionStatus;
+};
+
+export type SurveySessionListParams = { test: number };

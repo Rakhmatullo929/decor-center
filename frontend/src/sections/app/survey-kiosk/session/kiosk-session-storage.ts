@@ -1,4 +1,4 @@
-import type { KioskEmployee, StartSurveyResponse } from '../api/types';
+import type { KioskEmployee } from '../api/types';
 
 const STORAGE_KEY = 'kiosk.session.v1';
 
@@ -8,7 +8,6 @@ export type StoredKioskSession = {
   otpPhoneMasked: string;
   /** True once verify-otp has logged the employee in for real (see AuthProvider). */
   verified: boolean;
-  start: StartSurveyResponse | null;
 };
 
 /** Reads the persisted kiosk session. Returns null on first visit, corrupt data, or a private-mode/quota failure. */

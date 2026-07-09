@@ -1,6 +1,7 @@
 import { request, API_ENDPOINTS } from 'src/utils/axios';
 
 import type {
+  AutosaveAnswerPayload,
   EmployeeLookupItem,
   IdentifyEmployeePayload,
   IdentifyEmployeeResponse,
@@ -8,7 +9,9 @@ import type {
   StartSurveyPayload,
   StartSurveyResponse,
   SubmitSurveyPayload,
+  SurveyAnswer,
   SurveySession,
+  SurveySessionDetail,
   Test,
   VerifyOtpResponse,
 } from './types';
@@ -60,18 +63,39 @@ export function fetchDueSurveys(employeeId: number) {
   });
 }
 
-/** Start a session — employee JWT gated. face_image omitted on the manual fallback. */
+/** Start (or resume) a session — employee JWT gated. Face-ID was already verified once
+ * at kiosk entry, so no camera frame is sent here. */
 export function startSurvey(payload: StartSurveyPayload) {
-  const formData = new FormData();
-  formData.append('employee', String(payload.employee));
-  formData.append('test', String(payload.test));
-  if (payload.faceImage) {
-    formData.append('face_image', payload.faceImage);
-  }
   return request<StartSurveyResponse>({
     method: 'POST',
     url: API_ENDPOINTS.surveys.start,
-    data: formData,
+    data: { employee: payload.employee, test: payload.test },
+  });
+}
+
+/** The employee's own unfinished sessions — powers the cabinet's "continue" list. */
+export function fetchInProgressSessions(employeeId: number) {
+  return request<SurveySession[]>({
+    method: 'GET',
+    url: API_ENDPOINTS.surveys.inProgress,
+    params: { employee: employeeId },
+  });
+}
+
+/** Full state for resuming `/survey/:sessionId` — blocks + already-saved answers. */
+export function fetchSessionDetail(sessionId: number | string) {
+  return request<SurveySessionDetail>({
+    method: 'GET',
+    url: API_ENDPOINTS.surveys.session(sessionId),
+  });
+}
+
+/** Autosave one answer as the employee fills in the form — does not complete the session. */
+export function autosaveAnswer(sessionId: number | string, item: AutosaveAnswerPayload) {
+  return request<SurveyAnswer>({
+    method: 'POST',
+    url: API_ENDPOINTS.surveys.answer(sessionId),
+    data: item,
   });
 }
 

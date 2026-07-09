@@ -36,19 +36,20 @@
     "due": {
       "title": "Mavjud so‘rovlar",
       "subtitle": "Xodim: {{name}}",
+      "continueTitle": "Davom ettirish",
       "empty": "Mavjud so‘rovlar yo‘q"
     },
-    "rescan": {
-      "title": "Shaxsni tasdiqlang",
-      "instruction": "So‘rovni boshlashdan oldin yana bir bor kameraga qarang",
-      "capture": "Suratga olish",
-      "capturing": "Saqlanmoqda...",
-      "cameraDenied": "Kameraga ruxsat berilmadi. Brauzer sozlamalarida ruxsat bering.",
-      "cameraUnavailable": "Kamera topilmadi yoki ishga tushmadi."
-    },
     "questions": {
-      "progress": "Savol {{current}} / {{total}}",
       "textPlaceholder": "Javobingizni kiriting..."
+    },
+    "form": {
+      "textPlaceholder": "Javobingizni kiriting...",
+      "signatureLabel": "Imzo (F.I.Sh.)",
+      "dateLabel": "Sana",
+      "required": "Majburiy savol",
+      "saving": "Saqlanmoqda...",
+      "saved": "Saqlandi",
+      "saveFailed": "Saqlab bo‘lmadi"
     },
     "thankYou": {
       "title": "Rahmat!",
