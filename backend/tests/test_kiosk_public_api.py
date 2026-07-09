@@ -1,13 +1,23 @@
 import pytest
 
-from apps.surveys.kiosk_token import issue_kiosk_token
 from apps.surveys.models import OtpChallenge
 
 from .factories import EmployeeFactory, QuestionFactory
 
 
-def _kiosk(api_client, employee_id, fallback=False):
-    api_client.credentials(HTTP_X_KIOSK_TOKEN=issue_kiosk_token(employee_id, fallback=fallback))
+def _verify(api_client, employee_id, fallback=False):
+    """Run the real request-otp + verify-otp round trip and bearer-auth the client
+    with the returned access token, as /scan does after a successful scan."""
+    api_client.post(
+        "/api/v1/survey-sessions/request-otp/", {"employee": employee_id}, format="json"
+    )
+    resp = api_client.post(
+        "/api/v1/survey-sessions/verify-otp/",
+        {"employee": employee_id, "code": "0000", "fallback": fallback},
+        format="json",
+    )
+    assert resp.status_code == 200, resp.data
+    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {resp.data['access']}")
     return api_client
 
 
@@ -62,7 +72,9 @@ def test_verify_otp_wrong_then_right(api_client):
         {"employee": emp.id, "code": "0000"}, format="json",
     )
     assert ok.status_code == 200
-    assert ok.data["kiosk_token"]
+    assert ok.data["access"] and ok.data["refresh"]
+    assert ok.data["user"]["role"] == "employee"
+    assert ok.data["user"]["username"] == f"employee-{emp.id}"
 
 
 @pytest.mark.django_db
@@ -75,9 +87,9 @@ def test_employees_lookup_requires_query(api_client):
 
 
 @pytest.mark.django_db
-def test_due_requires_kiosk_token(api_client):
+def test_due_requires_employee_login(api_client):
     emp = EmployeeFactory(phone="+998901234567")
-    # no kiosk token → rejected (401 unauthorized, since a JWT authenticator is present)
+    # no employee JWT → rejected (401 unauthenticated, since a JWT authenticator is present)
     assert api_client.get(
         f"/api/v1/survey-sessions/due/?employee={emp.id}"
     ).status_code in (401, 403)
@@ -88,7 +100,7 @@ def test_start_primary_verifies_face(api_client, face_image):
     emp = EmployeeFactory(phone="+998901234567")
     q = QuestionFactory()
     test = q.block.test
-    resp = _kiosk(api_client, emp.id).post(
+    resp = _verify(api_client, emp.id).post(
         "/api/v1/survey-sessions/start/",
         {"employee": emp.id, "test": test.id, "face_image": face_image},
         format="multipart",
@@ -102,7 +114,7 @@ def test_start_fallback_without_face_succeeds(api_client):
     emp = EmployeeFactory(phone="+998901234567")
     q = QuestionFactory()
     test = q.block.test
-    resp = _kiosk(api_client, emp.id, fallback=True).post(
+    resp = _verify(api_client, emp.id, fallback=True).post(
         "/api/v1/survey-sessions/start/",
         {"employee": emp.id, "test": test.id},
         format="multipart",
@@ -115,7 +127,7 @@ def test_start_rejects_employee_mismatch(api_client, face_image):
     emp = EmployeeFactory(phone="+998901234567")
     other = EmployeeFactory(phone="+998900000000")
     q = QuestionFactory()
-    resp = _kiosk(api_client, other.id).post(
+    resp = _verify(api_client, other.id).post(
         "/api/v1/survey-sessions/start/",
         {"employee": emp.id, "test": q.block.test.id, "face_image": face_image},
         format="multipart",

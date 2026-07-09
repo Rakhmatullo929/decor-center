@@ -6,7 +6,8 @@ export type StoredKioskSession = {
   employee: KioskEmployee | null;
   fallback: boolean;
   otpPhoneMasked: string;
-  kioskToken: string | null;
+  /** True once verify-otp has logged the employee in for real (see AuthProvider). */
+  verified: boolean;
   start: StartSurveyResponse | null;
 };
 

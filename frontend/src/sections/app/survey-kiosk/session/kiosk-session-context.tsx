@@ -1,5 +1,6 @@
 import { createContext, useCallback, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useAuthContext } from 'src/auth/hooks';
 import type { KioskEmployee, StartSurveyResponse } from '../api/types';
 import {
   clearKioskSession,
@@ -14,7 +15,7 @@ const EMPTY_STATE: KioskSessionState = {
   employee: null,
   fallback: false,
   otpPhoneMasked: '',
-  kioskToken: null,
+  verified: false,
   start: null,
 };
 
@@ -26,7 +27,8 @@ export type KioskSessionContextValue = {
   /** Attach a freshly captured frame without touching employee/token state (see rescan-dialog.tsx). */
   setFaceBlob: (blob: Blob | null) => void;
   setOtpRequested: (phoneMasked: string) => void;
-  setVerified: (kioskToken: string) => void;
+  /** verify-otp already logged the employee in via AuthProvider.syncSessionFromApiResponse — just flip the flag. */
+  setVerified: () => void;
   setStarted: (start: StartSurveyResponse) => void;
   reset: () => void;
 };
@@ -36,6 +38,7 @@ export const KioskSessionContext = createContext<KioskSessionContextValue | null
 export function KioskSessionProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<KioskSessionState>(() => readKioskSession() ?? EMPTY_STATE);
   const [faceBlob, setFaceBlob] = useState<Blob | null>(null);
+  const { logout } = useAuthContext();
 
   const persist = useCallback((next: KioskSessionState) => {
     setSession(next);
@@ -52,7 +55,7 @@ export function KioskSessionProvider({ children }: { children: ReactNode }) {
 
   const setOtpRequested = useCallback<KioskSessionContextValue['setOtpRequested']>(
     (otpPhoneMasked) => setSession((prev) => {
-      const next = { ...prev, otpPhoneMasked, kioskToken: null, start: null };
+      const next = { ...prev, otpPhoneMasked, verified: false, start: null };
       writeKioskSession(next);
       return next;
     }),
@@ -60,8 +63,8 @@ export function KioskSessionProvider({ children }: { children: ReactNode }) {
   );
 
   const setVerified = useCallback<KioskSessionContextValue['setVerified']>(
-    (kioskToken) => setSession((prev) => {
-      const next = { ...prev, kioskToken, start: null };
+    () => setSession((prev) => {
+      const next = { ...prev, verified: true, start: null };
       writeKioskSession(next);
       return next;
     }),
@@ -81,7 +84,10 @@ export function KioskSessionProvider({ children }: { children: ReactNode }) {
     clearKioskSession();
     setSession(EMPTY_STATE);
     setFaceBlob(null);
-  }, []);
+    // The kiosk cycles through many employees on one shared device — the previous
+    // employee's JWT session (minted by verify-otp) must never leak into the next.
+    logout().catch(() => {});
+  }, [logout]);
 
   const value = useMemo<KioskSessionContextValue>(
     () => ({ session, faceBlob, setEmployee, setFaceBlob, setOtpRequested, setVerified, setStarted, reset }),

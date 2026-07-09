@@ -13,8 +13,6 @@ import type {
   VerifyOtpResponse,
 } from './types';
 
-const kioskHeaders = (token: string) => ({ 'X-Kiosk-Token': token });
-
 /** 1:N face search — public, no session created. */
 export function identifyEmployee(payload: IdentifyEmployeePayload) {
   const formData = new FormData();
@@ -33,7 +31,7 @@ export function requestOtp(employeeId: number) {
   );
 }
 
-/** Verify the code; returns a short-lived kiosk token. Public. */
+/** Verify the code; logs the employee in for real (access/refresh + user). Public. */
 export function verifyOtp(params: { employeeId: number; code: string; fallback: boolean }) {
   return request<VerifyOtpResponse>(
     {
@@ -53,47 +51,35 @@ export function employeesLookup(q: string) {
   );
 }
 
-/** Surveys currently due — kiosk-token gated. */
-export function fetchDueSurveys(employeeId: number, kioskToken: string) {
-  return request<Test[]>(
-    {
-      method: 'GET',
-      url: API_ENDPOINTS.surveys.due,
-      params: { employee: employeeId },
-      headers: kioskHeaders(kioskToken),
-    },
-    true
-  );
+/** Surveys currently due — requires the employee JWT from verify-otp (bearer, auto-attached). */
+export function fetchDueSurveys(employeeId: number) {
+  return request<Test[]>({
+    method: 'GET',
+    url: API_ENDPOINTS.surveys.due,
+    params: { employee: employeeId },
+  });
 }
 
-/** Start a session — kiosk-token gated. face_image omitted on the manual fallback. */
-export function startSurvey(payload: StartSurveyPayload, kioskToken: string) {
+/** Start a session — employee JWT gated. face_image omitted on the manual fallback. */
+export function startSurvey(payload: StartSurveyPayload) {
   const formData = new FormData();
   formData.append('employee', String(payload.employee));
   formData.append('test', String(payload.test));
   if (payload.faceImage) {
     formData.append('face_image', payload.faceImage);
   }
-  return request<StartSurveyResponse>(
-    {
-      method: 'POST',
-      url: API_ENDPOINTS.surveys.start,
-      data: formData,
-      headers: kioskHeaders(kioskToken),
-    },
-    true
-  );
+  return request<StartSurveyResponse>({
+    method: 'POST',
+    url: API_ENDPOINTS.surveys.start,
+    data: formData,
+  });
 }
 
-/** Persist answers + complete — kiosk-token gated. */
-export function submitSurvey(sessionId: number, payload: SubmitSurveyPayload, kioskToken: string) {
-  return request<SurveySession>(
-    {
-      method: 'POST',
-      url: API_ENDPOINTS.surveys.submit(sessionId),
-      data: payload,
-      headers: kioskHeaders(kioskToken),
-    },
-    true
-  );
+/** Persist answers + complete — employee JWT gated. */
+export function submitSurvey(sessionId: number, payload: SubmitSurveyPayload) {
+  return request<SurveySession>({
+    method: 'POST',
+    url: API_ENDPOINTS.surveys.submit(sessionId),
+    data: payload,
+  });
 }

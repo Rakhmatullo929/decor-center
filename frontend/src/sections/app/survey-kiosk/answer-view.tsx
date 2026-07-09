@@ -17,7 +17,7 @@ export default function KioskAnswerView() {
   const { enqueueSnackbar } = useSnackbar();
   const { session, reset } = useKioskSession();
 
-  const { start, kioskToken } = session;
+  const { start, verified } = session;
   const employeeName = start?.session.employeeName ?? '';
 
   const [answers, setAnswers] = useState<Record<number, KioskAnswer>>({});
@@ -35,20 +35,20 @@ export default function KioskAnswerView() {
   }, []);
 
   const handleSubmit = useCallback(() => {
-    if (!start || !kioskToken || submitMutation.isPending) return;
+    if (!start || !verified || submitMutation.isPending) return;
     const items: SubmitAnswerItem[] = questions.map((q) => {
       const a = answers[q.id];
       if (q.type === 'textarea') return { question: q.id, textValue: a?.textValue ?? '' };
       return { question: q.id, selectedOptionIds: a?.selectedOptionIds ?? [] };
     });
     submitMutation.mutate(
-      { sessionId: start.session.id, payload: { answers: items }, kioskToken },
+      { sessionId: start.session.id, payload: { answers: items } },
       {
         onSuccess: () => setDone(true),
         onError: (err) => enqueueSnackbar(errorReader(err), { variant: 'error' }),
       }
     );
-  }, [start, kioskToken, questions, answers, submitMutation, enqueueSnackbar]);
+  }, [start, verified, questions, answers, submitMutation, enqueueSnackbar]);
 
   const finish = useCallback(() => {
     reset();
@@ -62,7 +62,7 @@ export default function KioskAnswerView() {
     return () => clearTimeout(timer);
   }, [done, finish]);
 
-  if (!start || !kioskToken) {
+  if (!start || !verified) {
     return <Navigate to={paths.scan} replace />;
   }
 

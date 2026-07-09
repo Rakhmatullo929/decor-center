@@ -48,26 +48,24 @@ export function useEmployeesLookupQuery(q: string) {
   });
 }
 
-export function useDueSurveysQuery(employeeId: number | null, kioskToken: string | null) {
+export function useDueSurveysQuery(employeeId: number | null, verified: boolean) {
   return useFetch<Test[]>(
     ['kiosk', 'due', employeeId],
-    () => fetchDueSurveys(employeeId as number, kioskToken as string),
-    { enabled: employeeId !== null && !!kioskToken }
+    () => fetchDueSurveys(employeeId as number),
+    { enabled: employeeId !== null && verified }
   );
 }
 
 export function useStartSurveyMutation() {
-  return useMutate<StartSurveyResponse, { payload: StartSurveyPayload; kioskToken: string }>(
-    ({ payload, kioskToken }) => startSurvey(payload, kioskToken),
+  return useMutate<StartSurveyResponse, { payload: StartSurveyPayload }>(
+    ({ payload }) => startSurvey(payload),
     { skipGlobalErrorNotification: true }
   );
 }
 
 export function useSubmitSurveyMutation() {
-  return useMutate<
-    SurveySession,
-    { sessionId: number; payload: SubmitSurveyPayload; kioskToken: string }
-  >(({ sessionId, payload, kioskToken }) => submitSurvey(sessionId, payload, kioskToken), {
-    skipGlobalErrorNotification: true,
-  });
+  return useMutate<SurveySession, { sessionId: number; payload: SubmitSurveyPayload }>(
+    ({ sessionId, payload }) => submitSurvey(sessionId, payload),
+    { skipGlobalErrorNotification: true }
+  );
 }

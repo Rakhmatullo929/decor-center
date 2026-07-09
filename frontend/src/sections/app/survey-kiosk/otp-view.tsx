@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
+import { useAuthContext } from 'src/auth/hooks';
 import { paths } from 'src/routes/paths';
 import { errorReader } from 'src/utils/error-reader';
 import { useVerifyOtpMutation } from './api/use-survey-kiosk-api';
@@ -11,6 +12,7 @@ export default function OtpView() {
   const navigate = useNavigate();
   const { employeeId } = useParams<{ employeeId: string }>();
   const { session, setVerified } = useKioskSession();
+  const { syncSessionFromApiResponse } = useAuthContext();
   const verifyOtpMutation = useVerifyOtpMutation();
   const [otpError, setOtpError] = useState<string | null>(null);
 
@@ -24,14 +26,17 @@ export default function OtpView() {
         { employeeId: employee.id, code, fallback: session.fallback },
         {
           onSuccess: (data) => {
-            setVerified(data.kioskToken);
+            // rememberMe: false — a shared kiosk device must never persist an employee's
+            // login past this tab (see kiosk-session-context.tsx's reset()).
+            syncSessionFromApiResponse(data, false);
+            setVerified();
             navigate(paths.scanDue(employee.id));
           },
           onError: (err) => setOtpError(errorReader(err)),
         }
       );
     },
-    [employee, session.fallback, verifyOtpMutation, setVerified, navigate]
+    [employee, session.fallback, verifyOtpMutation, syncSessionFromApiResponse, setVerified, navigate]
   );
 
   if (!isMatch || !employee) {

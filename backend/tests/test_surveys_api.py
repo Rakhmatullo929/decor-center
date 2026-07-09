@@ -3,7 +3,9 @@ import datetime
 import pytest
 from rest_framework.test import APIClient
 
-from apps.surveys.kiosk_token import issue_kiosk_token
+from apps.accounts.tokens import issue_token_pair
+from apps.employees.models import Employee
+from apps.employees.services import get_or_create_employee_user
 from apps.surveys.models import Answer, Question, SurveySession
 
 from .factories import (
@@ -20,9 +22,11 @@ TESTS = "/api/v1/tests/"
 
 
 def kiosk_client(employee_id, *, fallback=False):
-    """A client carrying a valid kiosk token (post-OTP) for the given employee."""
+    """A client authenticated as the given employee, as verify-otp would leave it post-OTP."""
+    user = get_or_create_employee_user(Employee.objects.get(pk=employee_id))
+    tokens = issue_token_pair(user, extra_claims={"kiosk_fallback": fallback})
     client = APIClient()
-    client.credentials(HTTP_X_KIOSK_TOKEN=issue_kiosk_token(employee_id, fallback=fallback))
+    client.credentials(HTTP_AUTHORIZATION=f"Bearer {tokens['access']}")
     return client
 
 

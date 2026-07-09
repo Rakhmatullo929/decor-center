@@ -34,6 +34,18 @@ class Employee(TimeStampedModel):
     # Employee phone for kiosk SMS OTP (E.164, e.g. +998901234567). Nullable for
     # already-imported employees; required by the admin form via the serializer.
     phone = models.CharField(max_length=20, blank=True, default="")
+    # Login account provisioned on first successful kiosk OTP verify (see
+    # apps.employees.services.get_or_create_employee_user). Lets /scan hand the
+    # employee a real JWT session instead of the old opaque kiosk token, so /auth/me
+    # (and a future employee cabinet) resolve to this Employee.
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        editable=False,
+        on_delete=models.SET_NULL,
+        related_name="employee_profile",
+    )
 
     class Meta:
         ordering = ["full_name"]

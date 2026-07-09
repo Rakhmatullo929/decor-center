@@ -1,3 +1,5 @@
+import type { TokenPairResponse } from 'src/auth/api/types';
+
 import type { Employee } from '../../employees/api/types';
 import type { QuestionType, Test } from '../../admin-surveys/api/types';
 
@@ -44,7 +46,8 @@ export type KioskEmployee = {
 };
 
 export type RequestOtpResponse = { phoneMasked: string };
-export type VerifyOtpResponse = { kioskToken: string };
+/** verify-otp logs the employee in for real (see apps.accounts.tokens.issue_token_pair). */
+export type VerifyOtpResponse = TokenPairResponse;
 export type EmployeeLookupItem = { id: number; fullName: string };
 
 export type IdentifyEmployeePayload = { faceImage: File };

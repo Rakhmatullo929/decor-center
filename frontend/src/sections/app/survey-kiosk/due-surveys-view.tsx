@@ -19,15 +19,15 @@ export default function DueSurveysView() {
 
   const { employee } = session;
   const isMatch = !!employee && String(employee.id) === employeeId;
-  const dueQuery = useDueSurveysQuery(employee?.id ?? null, session.kioskToken);
+  const dueQuery = useDueSurveysQuery(employee?.id ?? null, session.verified);
 
-  // The employee is already authenticated (kioskToken from OTP) — browsing/refreshing this
+  // The employee is already authenticated (JWT from OTP) — browsing/refreshing this
   // list never needs the camera. A face frame is only required at the moment of actually
   // starting a specific survey (backend liveness check, unless fallback=true), so that's the
   // one place a missing frame (e.g. lost to a refresh) is handled — via the rescan dialog below.
   const startSurveyWith = useCallback(
     (test: Test, blob: Blob | null) => {
-      if (!employee || !session.kioskToken || startMutation.isPending) return;
+      if (!employee || !session.verified || startMutation.isPending) return;
       startMutation.mutate(
         {
           payload: {
@@ -35,7 +35,6 @@ export default function DueSurveysView() {
             test: test.id,
             faceImage: blob ? new File([blob], 'frame.jpg', { type: 'image/jpeg' }) : undefined,
           },
-          kioskToken: session.kioskToken,
         },
         {
           onSuccess: (data) => {
@@ -46,7 +45,7 @@ export default function DueSurveysView() {
         }
       );
     },
-    [employee, session.kioskToken, startMutation, setStarted, navigate, enqueueSnackbar]
+    [employee, session.verified, startMutation, setStarted, navigate, enqueueSnackbar]
   );
 
   const handlePick = useCallback(
@@ -73,7 +72,7 @@ export default function DueSurveysView() {
   if (!isMatch || !employee) {
     return <Navigate to={paths.scan} replace />;
   }
-  if (!session.kioskToken) {
+  if (!session.verified) {
     return (
       <Navigate
         to={session.otpPhoneMasked ? paths.scanOtp(employee.id) : paths.scanConfirm(employee.id)}

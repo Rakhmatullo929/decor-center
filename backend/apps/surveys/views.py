@@ -13,15 +13,17 @@ from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 
 from apps.accounts.permissions import IsAdmin
+from apps.accounts.serializers import MeSerializer
+from apps.accounts.tokens import issue_token_pair
 from apps.core.excel import xlsx_response
 from apps.employees.models import Employee
+from apps.employees.services import get_or_create_employee_user
 from apps.integrations.registry import get_face_recognition_service
 
 from .filters import SurveySessionFilter
-from .kiosk_token import issue_kiosk_token
 from .models import Answer, Question, QuestionBlock, SurveySession, Test  # noqa: F401
 from .otp import OtpError, PhoneNotSetError, request_otp, verify_otp
-from .permissions import IsKioskVerified
+from .permissions import IsSurveyEmployee
 from .scheduling import due_surveys
 from .serializers import (
     AdminFillSerializer,
@@ -238,7 +240,7 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action in ("identify", "request_otp", "verify_otp", "employees_lookup"):
             return [AllowAny()]
         if self.action in ("due", "start", "submit"):
-            return [IsKioskVerified()]
+            return [IsSurveyEmployee()]
         return [IsAdmin()]
 
     def get_throttles(self):
@@ -314,7 +316,7 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
         "fallback": {"type": "boolean"}}, "required": ["employee", "code"]}})
     @action(detail=False, methods=["post"], url_path="verify-otp")
     def verify_otp(self, request):
-        """Verify the SMS code; on success mint a short-lived kiosk token."""
+        """Verify the SMS code; on success log the employee in with a real JWT session."""
         employee = self._active_employee(request.data.get("employee"))
         try:
             verify_otp(employee, str(request.data.get("code") or ""))
@@ -323,8 +325,11 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
                 {"detail": "Code verification failed.", "code": str(exc)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        token = issue_kiosk_token(employee.id, fallback=bool(request.data.get("fallback")))
-        return Response({"kiosk_token": token})
+        user = get_or_create_employee_user(employee)
+        tokens = issue_token_pair(
+            user, extra_claims={"kiosk_fallback": bool(request.data.get("fallback"))}
+        )
+        return Response({**tokens, "user": MeSerializer(user).data})
 
     @action(detail=False, methods=["get"], url_path="employees-lookup")
     def employees_lookup(self, request):
