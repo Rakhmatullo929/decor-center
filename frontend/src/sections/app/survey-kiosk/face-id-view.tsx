@@ -1,8 +1,9 @@
 import { useCallback, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { paths } from 'src/routes/paths';
+import { LanguagePopover } from 'src/layouts/_common';
 import type { KioskEmployee } from './api/types';
-import { FaceIdStep } from './components';
+import { FaceIdStep, SurveyPanel } from './components';
 import { useEmployeeAuth } from './session/use-employee-auth';
 import { useKioskSession } from './session/use-kiosk-session';
 
@@ -33,10 +34,12 @@ export default function FaceIdView() {
   if (signedIn) return <Navigate to={paths.employee} replace />;
 
   return (
-    <FaceIdStep
-      onIdentified={handleIdentified}
-      onBack={() => navigate(paths.scan)}
-      onManualFallback={() => navigate(paths.scanManual)}
-    />
+    <SurveyPanel action={<LanguagePopover />}>
+      <FaceIdStep
+        onIdentified={handleIdentified}
+        onBack={() => navigate(paths.scan)}
+        onManualFallback={() => navigate(paths.scanManual)}
+      />
+    </SurveyPanel>
   );
 }

@@ -78,7 +78,7 @@ export default function QuestionStep({ questions, answers, onAnswer, onSubmit, i
   };
 
   return (
-    <Stack spacing={4} sx={{ maxWidth: 740, mx: 'auto', width: 1 }}>
+    <Stack spacing={3}>
       {/* Progress */}
       <Stack spacing={1.5}>
         <Stack direction="row" alignItems="center" justifyContent="space-between">

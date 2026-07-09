@@ -28,7 +28,7 @@ export default function ManualPickStep({ onPick, onBack }: Props) {
   const items = query.data ?? [];
 
   return (
-    <Stack spacing={3} sx={{ px: { xs: 3, md: 5 }, py: { xs: 4, md: 6 } }}>
+    <Stack spacing={3}>
       <Typography variant="h4" textAlign="center">
         {tx('survey.kiosk.manual.title')}
       </Typography>
@@ -46,16 +46,16 @@ export default function ManualPickStep({ onPick, onBack }: Props) {
             <CircularProgress size={24} />
           </Stack>
         )}
-        <List>
+        <List disablePadding>
           {items.map((item) => (
-            <ListItemButton key={item.id} onClick={() => onPick(item)}>
+            <ListItemButton key={item.id} onClick={() => onPick(item)} sx={{ borderRadius: 1 }}>
               <ListItemText primary={item.fullName} />
             </ListItemButton>
           ))}
         </List>
       </Box>
 
-      <Button variant="outlined" color="inherit" onClick={onBack}>
+      <Button fullWidth variant="outlined" color="inherit" onClick={onBack}>
         {tx('survey.kiosk.manual.backToCamera')}
       </Button>
     </Stack>

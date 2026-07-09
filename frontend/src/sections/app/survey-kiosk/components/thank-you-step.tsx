@@ -12,7 +12,7 @@ export default function ThankYouStep({ employeeName, onFinish }: Props) {
   const { tx } = useLocales();
 
   return (
-    <Stack spacing={4} alignItems="center" textAlign="center" sx={{ py: { xs: 6, md: 10 } }}>
+    <Stack spacing={3} alignItems="center" textAlign="center">
       <m.div
         initial={{ scale: 0, rotate: -30 }}
         animate={{ scale: 1, rotate: 0 }}
@@ -20,8 +20,8 @@ export default function ThankYouStep({ employeeName, onFinish }: Props) {
       >
         <Box
           sx={{
-            width: 100,
-            height: 100,
+            width: 88,
+            height: 88,
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
@@ -30,23 +30,23 @@ export default function ThankYouStep({ employeeName, onFinish }: Props) {
             color: 'success.main',
           }}
         >
-          <Iconify icon="solar:check-circle-bold-duotone" width={64} />
+          <Iconify icon="solar:check-circle-bold-duotone" width={56} />
         </Box>
       </m.div>
 
-      <Stack spacing={1}>
-        <Typography variant="h3">{tx('survey.kiosk.thankYou.title')}</Typography>
-        <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+      <Stack spacing={0.5}>
+        <Typography variant="h4">{tx('survey.kiosk.thankYou.title')}</Typography>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           {tx('survey.kiosk.thankYou.subtitle', { name: employeeName })}
         </Typography>
       </Stack>
 
       <Button
+        fullWidth
         variant="contained"
-        size="large"
         startIcon={<Iconify icon="solar:home-2-bold" />}
         onClick={onFinish}
-        sx={{ px: 5 }}
+        sx={{ maxWidth: 280 }}
       >
         {tx('survey.kiosk.thankYou.finish')}
       </Button>

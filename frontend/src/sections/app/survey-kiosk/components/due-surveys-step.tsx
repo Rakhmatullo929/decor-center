@@ -22,7 +22,7 @@ export default function DueSurveysStep({ tests, isLoading, employeeName, onPick,
   const { tx } = useLocales();
 
   return (
-    <Stack spacing={3} sx={{ px: { xs: 3, md: 6 }, py: { xs: 4, md: 6 }, maxWidth: 720, mx: 'auto', width: 1 }}>
+    <Stack spacing={3}>
       <Stack spacing={0.5}>
         <Typography variant="overline" sx={{ color: 'text.secondary' }}>
           {tx('survey.kiosk.due.subtitle', { name: employeeName })}

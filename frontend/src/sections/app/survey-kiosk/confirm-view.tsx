@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import Box from '@mui/material/Box';
 import { useSnackbar } from 'src/components/snackbar';
 import { paths } from 'src/routes/paths';
 import { errorReader } from 'src/utils/error-reader';
+import { LanguagePopover } from 'src/layouts/_common';
 import { useRequestOtpMutation } from './api/use-survey-kiosk-api';
 import { ConfirmStep, SurveyPanel } from './components';
 import { useEmployeeAuth } from './session/use-employee-auth';
@@ -40,15 +40,13 @@ export default function ConfirmView() {
   }
 
   return (
-    <SurveyPanel>
-      <Box sx={{ minHeight: 480 }}>
-        <ConfirmStep
-          employee={employee}
-          isSending={requestOtpMutation.isPending}
-          onSendCode={handleSendCode}
-          onRescan={() => navigate(paths.scan)}
-        />
-      </Box>
+    <SurveyPanel action={<LanguagePopover />}>
+      <ConfirmStep
+        employee={employee}
+        isSending={requestOtpMutation.isPending}
+        onSendCode={handleSendCode}
+        onRescan={() => navigate(paths.scan)}
+      />
     </SurveyPanel>
   );
 }

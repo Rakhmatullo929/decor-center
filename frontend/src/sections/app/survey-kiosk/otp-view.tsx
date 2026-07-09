@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import Box from '@mui/material/Box';
 import { useAuthContext } from 'src/auth/hooks';
 import { paths } from 'src/routes/paths';
 import { errorReader } from 'src/utils/error-reader';
+import { LanguagePopover } from 'src/layouts/_common';
 import { useVerifyOtpMutation } from './api/use-survey-kiosk-api';
 import { OtpStep, SurveyPanel } from './components';
 import { useEmployeeAuth } from './session/use-employee-auth';
@@ -55,16 +55,14 @@ export default function OtpView() {
   }
 
   return (
-    <SurveyPanel>
-      <Box sx={{ minHeight: 480 }}>
-        <OtpStep
-          phoneMasked={session.otpPhoneMasked}
-          isVerifying={verifyOtpMutation.isPending}
-          errorText={otpError}
-          onVerify={handleVerify}
-          onBack={() => navigate(paths.scan)}
-        />
-      </Box>
+    <SurveyPanel action={<LanguagePopover />}>
+      <OtpStep
+        phoneMasked={session.otpPhoneMasked}
+        isVerifying={verifyOtpMutation.isPending}
+        errorText={otpError}
+        onVerify={handleVerify}
+        onBack={() => navigate(paths.scan)}
+      />
     </SurveyPanel>
   );
 }

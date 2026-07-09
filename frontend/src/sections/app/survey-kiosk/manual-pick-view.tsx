@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import Box from '@mui/material/Box';
 import { useSnackbar } from 'src/components/snackbar';
 import { paths } from 'src/routes/paths';
 import { errorReader } from 'src/utils/error-reader';
+import { LanguagePopover } from 'src/layouts/_common';
 import type { EmployeeLookupItem } from './api/types';
 import { useRequestOtpMutation } from './api/use-survey-kiosk-api';
 import { ManualPickStep, SurveyPanel } from './components';
@@ -38,10 +38,8 @@ export default function ManualPickView() {
   if (signedIn) return <Navigate to={paths.employee} replace />;
 
   return (
-    <SurveyPanel>
-      <Box sx={{ minHeight: 480 }}>
-        <ManualPickStep onPick={handlePick} onBack={() => navigate(paths.scan)} />
-      </Box>
+    <SurveyPanel action={<LanguagePopover />} maxWidth={480}>
+      <ManualPickStep onPick={handlePick} onBack={() => navigate(paths.scan)} />
     </SurveyPanel>
   );
 }

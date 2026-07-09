@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import Box from '@mui/material/Box';
 import { useSnackbar } from 'src/components/snackbar';
 import { paths } from 'src/routes/paths';
 import { errorReader } from 'src/utils/error-reader';
@@ -67,20 +66,18 @@ export default function KioskAnswerView() {
   }
 
   return (
-    <SurveyPanel>
-      <Box sx={{ px: { xs: 3, md: 6 }, py: { xs: 4, md: 6 } }}>
-        {done ? (
-          <ThankYouStep employeeName={employeeName} onFinish={finish} />
-        ) : (
-          <QuestionStep
-            questions={questions}
-            answers={answers}
-            onAnswer={handleAnswer}
-            onSubmit={handleSubmit}
-            isSubmitting={submitMutation.isPending}
-          />
-        )}
-      </Box>
+    <SurveyPanel maxWidth={640}>
+      {done ? (
+        <ThankYouStep employeeName={employeeName} onFinish={finish} />
+      ) : (
+        <QuestionStep
+          questions={questions}
+          answers={answers}
+          onAnswer={handleAnswer}
+          onSubmit={handleSubmit}
+          isSubmitting={submitMutation.isPending}
+        />
+      )}
     </SurveyPanel>
   );
 }

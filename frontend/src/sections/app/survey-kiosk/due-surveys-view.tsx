@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import Box from '@mui/material/Box';
 import { useSnackbar } from 'src/components/snackbar';
 import { paths } from 'src/routes/paths';
 import { errorReader } from 'src/utils/error-reader';
@@ -84,16 +83,14 @@ export default function DueSurveysView() {
   }
 
   return (
-    <SurveyPanel action={<EmployeeTopbar />}>
-      <Box sx={{ minHeight: 480 }}>
-        <DueSurveysStep
-          tests={dueQuery.data ?? []}
-          isLoading={dueQuery.isPending}
-          employeeName={employeeName}
-          onPick={handlePick}
-          onBack={handleLeave}
-        />
-      </Box>
+    <SurveyPanel action={<EmployeeTopbar />} maxWidth={640}>
+      <DueSurveysStep
+        tests={dueQuery.data ?? []}
+        isLoading={dueQuery.isPending}
+        employeeName={employeeName}
+        onPick={handlePick}
+        onBack={handleLeave}
+      />
       <RescanDialog
         open={!!pendingTest}
         onCaptured={handleRescanCaptured}

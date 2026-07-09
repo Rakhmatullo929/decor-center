@@ -6,7 +6,5 @@ export { default as DueSurveysStep } from './due-surveys-step';
 export { default as RescanDialog } from './rescan-dialog';
 export { default as QuestionStep, type KioskAnswer } from './question-step';
 export { default as ThankYouStep } from './thank-you-step';
-export { default as ThreeBg } from './three-bg';
-export { default as CursorGlow } from './cursor-glow';
 export { default as SurveyPanel } from './survey-panel';
 export { default as EmployeeTopbar } from './employee-topbar';
