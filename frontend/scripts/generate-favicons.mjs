@@ -8,7 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const publicDir = resolve(__dirname, '../public');
 const faviconDir = resolve(publicDir, 'favicon');
 
-// Source: the NOK flame icon SVG
+// Source: the Decor Center "D" mark SVG
 const svgPath = resolve(faviconDir, 'favicon.svg');
 const svgBuffer = readFileSync(svgPath);
 
@@ -22,7 +22,7 @@ async function generatePng(size) {
 async function main() {
   mkdirSync(faviconDir, { recursive: true });
 
-  console.log('Generating favicon PNGs from NOK SVG...');
+  console.log('Generating favicon PNGs from Decor Center SVG...');
 
   const [p16, p32, p48, p180, p192, p512] = await Promise.all([
     generatePng(16),
@@ -45,7 +45,7 @@ async function main() {
   writeFileSync(resolve(faviconDir, 'favicon.ico'), ico);
   console.log('  ✓ favicon.ico written (16×16, 32×32, 48×48)');
 
-  console.log('Done. All favicon assets updated with NOK branding.');
+  console.log('Done. All favicon assets updated with Decor Center branding.');
 }
 
 main().catch((err) => { console.error(err); process.exit(1); });

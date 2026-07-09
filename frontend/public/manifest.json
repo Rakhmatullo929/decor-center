@@ -1,9 +1,9 @@
 {
-  "name": "NOK",
-  "short_name": "NOK",
+  "name": "Decor Center",
+  "short_name": "Decor Center",
   "display": "standalone",
   "start_url": "/",
-  "theme_color": "#004b87",
+  "theme_color": "#00A76F",
   "background_color": "#ffffff",
   "icons": [
     {

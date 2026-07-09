@@ -64,7 +64,7 @@ export default function Footer() {
                 mx: { xs: 'auto', md: 'unset' },
               }}
             >
-              NOK — business management platform for modern enterprises.
+              Decor Center — business management platform for modern enterprises.
             </Typography>
 
             <Stack
