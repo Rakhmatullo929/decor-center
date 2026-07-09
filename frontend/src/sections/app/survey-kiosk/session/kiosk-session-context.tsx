@@ -23,6 +23,8 @@ export type KioskSessionContextValue = {
   /** Captured camera frame, kept in memory only — never written to storage (see face-id-view.tsx). */
   faceBlob: Blob | null;
   setEmployee: (employee: KioskEmployee, opts?: { fallback?: boolean; faceBlob?: Blob | null }) => void;
+  /** Attach a freshly captured frame without touching employee/token state (see rescan-dialog.tsx). */
+  setFaceBlob: (blob: Blob | null) => void;
   setOtpRequested: (phoneMasked: string) => void;
   setVerified: (kioskToken: string) => void;
   setStarted: (start: StartSurveyResponse) => void;
@@ -82,8 +84,8 @@ export function KioskSessionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<KioskSessionContextValue>(
-    () => ({ session, faceBlob, setEmployee, setOtpRequested, setVerified, setStarted, reset }),
-    [session, faceBlob, setEmployee, setOtpRequested, setVerified, setStarted, reset]
+    () => ({ session, faceBlob, setEmployee, setFaceBlob, setOtpRequested, setVerified, setStarted, reset }),
+    [session, faceBlob, setEmployee, setFaceBlob, setOtpRequested, setVerified, setStarted, reset]
   );
 
   return <KioskSessionContext.Provider value={value}>{children}</KioskSessionContext.Provider>;

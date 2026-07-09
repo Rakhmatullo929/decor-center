@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import { useSnackbar } from 'src/components/snackbar';
@@ -6,29 +6,34 @@ import { paths } from 'src/routes/paths';
 import { errorReader } from 'src/utils/error-reader';
 import type { Test } from '../admin-surveys/api/types';
 import { useDueSurveysQuery, useStartSurveyMutation } from './api/use-survey-kiosk-api';
-import { DueSurveysStep, SurveyPanel } from './components';
+import { DueSurveysStep, RescanDialog, SurveyPanel } from './components';
 import { useKioskSession } from './session/use-kiosk-session';
 
 export default function DueSurveysView() {
   const navigate = useNavigate();
   const { employeeId } = useParams<{ employeeId: string }>();
   const { enqueueSnackbar } = useSnackbar();
-  const { session, faceBlob, setStarted } = useKioskSession();
+  const { session, faceBlob, setFaceBlob, setStarted } = useKioskSession();
   const startMutation = useStartSurveyMutation();
+  const [pendingTest, setPendingTest] = useState<Test | null>(null);
 
   const { employee } = session;
   const isMatch = !!employee && String(employee.id) === employeeId;
   const dueQuery = useDueSurveysQuery(employee?.id ?? null, session.kioskToken);
 
-  const handlePick = useCallback(
-    (test: Test) => {
+  // The employee is already authenticated (kioskToken from OTP) — browsing/refreshing this
+  // list never needs the camera. A face frame is only required at the moment of actually
+  // starting a specific survey (backend liveness check, unless fallback=true), so that's the
+  // one place a missing frame (e.g. lost to a refresh) is handled — via the rescan dialog below.
+  const startSurveyWith = useCallback(
+    (test: Test, blob: Blob | null) => {
       if (!employee || !session.kioskToken || startMutation.isPending) return;
       startMutation.mutate(
         {
           payload: {
             employee: employee.id,
             test: test.id,
-            faceImage: faceBlob ? new File([faceBlob], 'frame.jpg', { type: 'image/jpeg' }) : undefined,
+            faceImage: blob ? new File([blob], 'frame.jpg', { type: 'image/jpeg' }) : undefined,
           },
           kioskToken: session.kioskToken,
         },
@@ -41,7 +46,28 @@ export default function DueSurveysView() {
         }
       );
     },
-    [employee, session.kioskToken, faceBlob, startMutation, setStarted, navigate, enqueueSnackbar]
+    [employee, session.kioskToken, startMutation, setStarted, navigate, enqueueSnackbar]
+  );
+
+  const handlePick = useCallback(
+    (test: Test) => {
+      if (!session.fallback && !faceBlob) {
+        setPendingTest(test);
+        return;
+      }
+      startSurveyWith(test, faceBlob);
+    },
+    [session.fallback, faceBlob, startSurveyWith]
+  );
+
+  const handleRescanCaptured = useCallback(
+    (blob: Blob) => {
+      setFaceBlob(blob);
+      const test = pendingTest;
+      setPendingTest(null);
+      if (test) startSurveyWith(test, blob);
+    },
+    [pendingTest, setFaceBlob, startSurveyWith]
   );
 
   if (!isMatch || !employee) {
@@ -67,6 +93,11 @@ export default function DueSurveysView() {
           onBack={() => navigate(paths.scan)}
         />
       </Box>
+      <RescanDialog
+        open={!!pendingTest}
+        onCaptured={handleRescanCaptured}
+        onCancel={() => setPendingTest(null)}
+      />
     </SurveyPanel>
   );
 }

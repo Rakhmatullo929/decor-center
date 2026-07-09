@@ -38,6 +38,14 @@
       "subtitle": "Xodim: {{name}}",
       "empty": "Mavjud so‘rovlar yo‘q"
     },
+    "rescan": {
+      "title": "Shaxsni tasdiqlang",
+      "instruction": "So‘rovni boshlashdan oldin yana bir bor kameraga qarang",
+      "capture": "Suratga olish",
+      "capturing": "Saqlanmoqda...",
+      "cameraDenied": "Kameraga ruxsat berilmadi. Brauzer sozlamalarida ruxsat bering.",
+      "cameraUnavailable": "Kamera topilmadi yoki ishga tushmadi."
+    },
     "questions": {
       "progress": "Savol {{current}} / {{total}}",
       "textPlaceholder": "Javobingizni kiriting..."
