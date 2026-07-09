@@ -1,14 +1,14 @@
 import { Helmet } from 'react-helmet-async';
 
-import FaceIdView from 'src/sections/app/survey-kiosk/face-id-view';
+import DueSurveysView from 'src/sections/app/survey-kiosk/due-surveys-view';
 
-export default function ScanPage() {
+export default function ScanDuePage() {
   return (
     <>
       <Helmet>
         <title>Decor Center — Survey Kiosk</title>
       </Helmet>
-      <FaceIdView />
+      <DueSurveysView />
     </>
   );
 }

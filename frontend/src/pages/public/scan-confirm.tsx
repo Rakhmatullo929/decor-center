@@ -1,14 +1,14 @@
 import { Helmet } from 'react-helmet-async';
 
-import FaceIdView from 'src/sections/app/survey-kiosk/face-id-view';
+import ConfirmView from 'src/sections/app/survey-kiosk/confirm-view';
 
-export default function ScanPage() {
+export default function ScanConfirmPage() {
   return (
     <>
       <Helmet>
         <title>Decor Center — Survey Kiosk</title>
       </Helmet>
-      <FaceIdView />
+      <ConfirmView />
     </>
   );
 }

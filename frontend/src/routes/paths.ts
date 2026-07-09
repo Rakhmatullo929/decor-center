@@ -1,8 +1,13 @@
 export const paths = {
   login: '/login',
   home: '/home',
-  /** Public, login-free survey kiosk (camera-first face + SMS OTP). */
+  /** Public, login-free survey kiosk (camera-first face + SMS OTP). Each step is its own route. */
   scan: '/scan',
+  scanManual: '/scan/manual',
+  scanConfirm: (employeeId: number | string) => `/scan/confirm/${employeeId}`,
+  scanOtp: (employeeId: number | string) => `/scan/otp/${employeeId}`,
+  scanDue: (employeeId: number | string) => `/scan/due/${employeeId}`,
+  scanAnswer: '/scan/answer',
 
   page403: '/403',
   page404: '/404',

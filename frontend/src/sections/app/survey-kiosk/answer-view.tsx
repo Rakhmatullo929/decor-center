@@ -1,24 +1,24 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import { useSnackbar } from 'src/components/snackbar';
 import { paths } from 'src/routes/paths';
 import { errorReader } from 'src/utils/error-reader';
-import type { StartSurveyResponse, SubmitAnswerItem, SurveyQuestion } from './api/types';
+import type { SubmitAnswerItem, SurveyQuestion } from './api/types';
 import { useSubmitSurveyMutation } from './api/use-survey-kiosk-api';
 import { QuestionStep, SurveyPanel, ThankYouStep, type KioskAnswer } from './components';
+import { useKioskSession } from './session/use-kiosk-session';
 
 /** After finishing, the kiosk auto-returns to the camera for the next employee. */
 const AUTO_RETURN_MS = 6000;
 
 export default function KioskAnswerView() {
   const navigate = useNavigate();
-  const { state } = useLocation();
   const { enqueueSnackbar } = useSnackbar();
+  const { session, reset } = useKioskSession();
 
-  const start = state?.start as StartSurveyResponse | undefined;
-  const employeeName = (state?.employeeName as string | undefined) ?? '';
-  const kioskToken = state?.kioskToken as string | undefined;
+  const { start, kioskToken } = session;
+  const employeeName = start?.session.employeeName ?? '';
 
   const [answers, setAnswers] = useState<Record<number, KioskAnswer>>({});
   const [done, setDone] = useState(false);
@@ -50,12 +50,17 @@ export default function KioskAnswerView() {
     );
   }, [start, kioskToken, questions, answers, submitMutation, enqueueSnackbar]);
 
+  const finish = useCallback(() => {
+    reset();
+    navigate(paths.scan, { replace: true });
+  }, [reset, navigate]);
+
   // Kiosk loop: once the thank-you screen shows, return to the scanner automatically.
   useEffect(() => {
     if (!done) return undefined;
-    const timer = setTimeout(() => navigate(paths.scan, { replace: true }), AUTO_RETURN_MS);
+    const timer = setTimeout(finish, AUTO_RETURN_MS);
     return () => clearTimeout(timer);
-  }, [done, navigate]);
+  }, [done, finish]);
 
   if (!start || !kioskToken) {
     return <Navigate to={paths.scan} replace />;
@@ -65,10 +70,7 @@ export default function KioskAnswerView() {
     <SurveyPanel>
       <Box sx={{ px: { xs: 3, md: 6 }, py: { xs: 4, md: 6 } }}>
         {done ? (
-          <ThankYouStep
-            employeeName={employeeName}
-            onFinish={() => navigate(paths.scan, { replace: true })}
-          />
+          <ThankYouStep employeeName={employeeName} onFinish={finish} />
         ) : (
           <QuestionStep
             questions={questions}

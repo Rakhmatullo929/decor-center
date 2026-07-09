@@ -9,13 +9,14 @@ import type { Employee, EmployeeListParams, EmployeeUpsertPayload } from './type
  */
 export function buildEmployeeBody(payload: Partial<EmployeeUpsertPayload>): FormData | object {
   if (!payload.photo) {
-    const { fullName, specialty, isActive, hireDate, workExperience } = payload;
+    const { fullName, specialty, isActive, hireDate, workExperience, phone } = payload;
     return {
       ...(fullName !== undefined ? { fullName } : {}),
       ...(specialty !== undefined ? { specialty } : {}),
       ...(isActive !== undefined ? { isActive } : {}),
       ...(hireDate !== undefined ? { hireDate } : {}),
       ...(workExperience !== undefined ? { workExperience } : {}),
+      ...(phone !== undefined ? { phone } : {}),
     };
   }
 
@@ -27,6 +28,7 @@ export function buildEmployeeBody(payload: Partial<EmployeeUpsertPayload>): Form
     formData.append('hire_date', payload.hireDate);
   if (payload.workExperience !== undefined && payload.workExperience !== null)
     formData.append('work_experience', String(payload.workExperience));
+  if (payload.phone !== undefined && payload.phone !== null) formData.append('phone', payload.phone);
   formData.append('photo', payload.photo);
   return formData;
 }
