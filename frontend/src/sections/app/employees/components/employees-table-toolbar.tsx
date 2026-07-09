@@ -1,4 +1,5 @@
 // @mui
+import Button from '@mui/material/Button';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
@@ -33,14 +34,28 @@ export default function EmployeesTableToolbar({
 }: Props) {
   const { tx } = useLocales();
 
+  const hasFilters = !!search || !!specialty || !!status;
+
+  const handleReset = () => {
+    onSearch('');
+    onSpecialty('');
+    onStatus('');
+  };
+
   return (
-    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ p: 2.5 }}>
+    <Stack
+      direction={{ xs: 'column', sm: 'row' }}
+      alignItems={{ xs: 'stretch', sm: 'center' }}
+      spacing={2}
+      sx={{ p: 2.5 }}
+    >
       <TextField
         value={search}
         onChange={(event) => onSearch(event.target.value)}
         placeholder={tx('employees.searchPlaceholder')}
         size="small"
-        sx={{ width: { xs: 1, sm: 320 } }}
+        fullWidth
+        sx={{ maxWidth: { sm: 280 } }}
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
@@ -56,7 +71,7 @@ export default function EmployeesTableToolbar({
         label={tx('employees.filters.specialty')}
         value={specialty}
         onChange={(event) => onSpecialty(event.target.value)}
-        sx={{ width: { xs: 1, sm: 240 } }}
+        sx={{ width: { xs: 1, sm: 220 }, flexShrink: 0 }}
       >
         <MenuItem value="">{tx('common.labels.all')}</MenuItem>
         {specialtyOptions.map((option) => (
@@ -72,12 +87,24 @@ export default function EmployeesTableToolbar({
         label={tx('employees.filters.status')}
         value={status}
         onChange={(event) => onStatus(event.target.value)}
-        sx={{ width: { xs: 1, sm: 180 } }}
+        sx={{ width: { xs: 1, sm: 160 }, flexShrink: 0 }}
       >
         <MenuItem value="">{tx('common.labels.all')}</MenuItem>
         <MenuItem value="true">{tx('common.status.active')}</MenuItem>
         <MenuItem value="false">{tx('common.status.inactive')}</MenuItem>
       </TextField>
+
+      {hasFilters && (
+        <Button
+          color="inherit"
+          size="small"
+          onClick={handleReset}
+          startIcon={<Iconify icon="solar:restart-bold" />}
+          sx={{ flexShrink: 0, alignSelf: { xs: 'flex-start', sm: 'center' } }}
+        >
+          {tx('common.actions.reset')}
+        </Button>
+      )}
     </Stack>
   );
 }

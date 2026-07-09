@@ -265,7 +265,10 @@ export default function EmployeeUpsertDialog({ open, onClose, employee, onSaved 
               <>
                 <Divider />
 
-                <Stack spacing={2}>
+                <Stack
+                  spacing={2}
+                  sx={{ p: 2, borderRadius: 1.5, bgcolor: 'background.neutral' }}
+                >
                   <Stack direction="row" alignItems="center" justifyContent="space-between">
                     <Typography variant="subtitle1">{tx('employees.actions.managePhotos')}</Typography>
                     <Typography variant="caption" color="text.secondary">

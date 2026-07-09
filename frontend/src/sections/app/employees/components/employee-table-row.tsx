@@ -39,27 +39,43 @@ export default function EmployeeTableRow({
     <>
       <TableRow hover>
         <TableCell>
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar src={row.photo ?? undefined} alt={row.fullName} />
-            <Typography variant="subtitle2" noWrap>
-              {row.fullName}
-            </Typography>
+          <Stack direction="row" alignItems="center" spacing={1.5}>
+            <Avatar src={row.photo ?? undefined} alt={row.fullName} sx={{ width: 40, height: 40 }}>
+              {row.fullName.charAt(0).toUpperCase()}
+            </Avatar>
+            <Stack spacing={0.25} sx={{ minWidth: 0 }}>
+              <Typography variant="subtitle2" noWrap>
+                {row.fullName}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" noWrap>
+                {row.phone}
+              </Typography>
+            </Stack>
           </Stack>
         </TableCell>
 
-        <TableCell>{row.specialtyName}</TableCell>
+        <TableCell>
+          <Typography variant="body2" color="text.secondary">
+            {row.specialtyName}
+          </Typography>
+        </TableCell>
 
-        <TableCell>{row.hireDate ? fDate(row.hireDate) : '—'}</TableCell>
-
-        <TableCell>{row.workExperience ?? '—'}</TableCell>
+        <TableCell>
+          <Stack spacing={0.25}>
+            <Typography variant="body2">{row.workExperience ?? '—'}</Typography>
+            {!!row.hireDate && (
+              <Typography variant="caption" color="text.secondary">
+                {fDate(row.hireDate)}
+              </Typography>
+            )}
+          </Stack>
+        </TableCell>
 
         <TableCell>
           <Label color={row.isActive ? 'success' : 'default'}>
             {tx(row.isActive ? 'common.status.active' : 'common.status.inactive')}
           </Label>
         </TableCell>
-
-        <TableCell>{fDate(row.createdAt)}</TableCell>
 
         {canWrite && (
           <TableCell align="right">

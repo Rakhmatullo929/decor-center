@@ -5,10 +5,8 @@
   "table": {
     "fullName": "Ф.И.О.",
     "specialty": "Специальность",
-    "hireDate": "Работает с",
     "workExperience": "Стаж",
-    "status": "Статус",
-    "created": "Добавлен"
+    "status": "Статус"
   },
   "filters": {
     "specialty": "Специальность",

@@ -5,10 +5,8 @@
   "table": {
     "fullName": "F.I.Sh.",
     "specialty": "Mutaxassislik",
-    "hireDate": "Ishga kirgan",
     "workExperience": "Tajriba",
-    "status": "Holat",
-    "created": "Qo'shilgan"
+    "status": "Holat"
   },
   "filters": {
     "specialty": "Mutaxassislik",
