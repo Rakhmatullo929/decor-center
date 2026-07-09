@@ -102,5 +102,22 @@
     "sessionCount": "Jami o‘tishlar: {{count}}",
     "noAnswers": "Javoblar yo‘q",
     "toasts": { "exported": "Eksport tayyor" }
+  },
+  "sessions": {
+    "title": "So‘rov o‘tishlari",
+    "selectTest": "So‘rovni tanlang",
+    "pickTestPrompt": "Kim boshlagani, jarayonda ekani, tugatgani yoki ulgurmaganini ko‘rish uchun so‘rovni tanlang",
+    "empty": "Bu so‘rovni hali hech kim boshlamagan",
+    "table": {
+      "employee": "Xodim",
+      "status": "Holat",
+      "startedAt": "Boshladi",
+      "completedAt": "Tugatdi"
+    },
+    "status": {
+      "in_progress": "Jarayonda",
+      "completed": "Tugatdi",
+      "abandoned": "Ulgurmadi"
+    }
   }
 }

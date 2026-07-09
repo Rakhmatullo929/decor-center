@@ -1,8 +1,15 @@
 export const paths = {
   login: '/login',
   home: '/home',
-  /** Public, login-free survey kiosk (camera-first face + SMS OTP). */
+  /** Public, login-free survey kiosk (camera-first face + SMS OTP). Each step is its own route. */
   scan: '/scan',
+  scanManual: '/scan/manual',
+  scanConfirm: (employeeId: number | string) => `/scan/confirm/${employeeId}`,
+  scanOtp: (employeeId: number | string) => `/scan/otp/${employeeId}`,
+  /** Employee's personal cabinet after face+OTP login. No :id — identity comes from the JWT (/me). */
+  employee: '/employee',
+  /** Session-scoped, resumable: reloads state from the backend on open, not just local state. */
+  survey: (sessionId: number | string) => `/survey/${sessionId}`,
 
   page403: '/403',
   page404: '/404',
@@ -24,6 +31,7 @@ export const paths = {
       block: (testId: number | string, blockId: number | string) =>
         `/surveys/tests/${testId}/blocks/${blockId}`,
       results: '/surveys/results',
+      sessions: '/surveys/sessions',
     },
     kiosk: {
       root: '/kiosk',

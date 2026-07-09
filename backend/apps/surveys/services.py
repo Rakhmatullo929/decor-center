@@ -1,6 +1,7 @@
 """Survey session domain logic: Face-ID gate, answer persistence. No scoring."""
 import logging
 from dataclasses import dataclass
+from datetime import timedelta
 
 from django.conf import settings as django_settings
 from django.db import transaction
@@ -117,65 +118,100 @@ def _presented_questions(test: Test) -> list[Question]:
     )
 
 
-def start_survey_session(
-    *, employee: Employee, test: Test, face_image_bytes: bytes | None,
-    require_face_match: bool = True,
-) -> tuple[SurveySession, list[Question]]:
-    """Verify Face-ID (unless fallback), then create a session and freeze the questions.
+def _live_session_cutoff():
+    threshold_hours = django_settings.DECOR["SURVEY_SESSION_ABANDONED_AFTER_HOURS"]
+    return timezone.now() - timedelta(hours=threshold_hours)
 
-    require_face_match=False (manual/OTP fallback): the face is not a hard gate — OTP
-    is the authenticator. A capture, if provided, is still compared and logged.
-    """
-    service = get_face_recognition_service()
 
-    if require_face_match:
-        if not employee.face_embedding:
-            raise SurveyFlowError(
-                "Employee has no reference photo embedding. Contact the administrator."
-            )
-        matched, score = service.compare(employee.face_embedding, face_image_bytes)
-        FaceVerificationLog.objects.create(
-            employee=employee, stage=FaceVerificationLog.Stage.START,
-            success=matched, similarity_score=score,
+def _live_session(employee: Employee, test: Test) -> SurveySession | None:
+    """The employee's own not-completed, not-abandoned SurveySession for this test, if any."""
+    return (
+        SurveySession.objects.filter(
+            employee=employee,
+            test=test,
+            completed_at__isnull=True,
+            started_at__gte=_live_session_cutoff(),
         )
-        if not matched:
-            raise FaceVerificationError(
-                "Face-ID check failed: face does not match or not detected."
-            )
-        face_verified = True
-    else:
-        matched = False
-        if employee.face_embedding and face_image_bytes:
-            matched, score = service.compare(employee.face_embedding, face_image_bytes)
-            FaceVerificationLog.objects.create(
-                employee=employee, stage=FaceVerificationLog.Stage.START,
-                success=matched, similarity_score=score, reason="fallback",
-            )
-        face_verified = matched
+        .order_by("-started_at")
+        .first()
+    )
 
+
+def in_progress_sessions(employee: Employee):
+    """All of the employee's own live (not completed, not abandoned) sessions —
+    powers the cabinet's "continue" list."""
+    return (
+        SurveySession.objects.filter(
+            employee=employee, completed_at__isnull=True, started_at__gte=_live_session_cutoff()
+        )
+        .select_related("test")
+        .order_by("-started_at")
+    )
+
+
+def start_survey_session(
+    *, employee: Employee, test: Test, entry_face_verified: bool,
+) -> tuple[SurveySession, list[Question], bool]:
+    """Return the employee's live (in-progress, not abandoned) session for this test if
+    one exists — otherwise create a new one and freeze the questions.
+
+    Face-ID is verified once, at kiosk entry (identify + OTP) — starting an individual
+    test relies on that already-established JWT session, not a fresh camera compare.
+    `entry_face_verified` just records whether entry itself was face-based (vs OTP
+    fallback), for the admin-facing audit trail.
+    """
+    existing = _live_session(employee, test)
+    if existing is not None:
+        questions = [
+            answer.question
+            for answer in existing.answers.select_related("question").order_by(
+                "question__block__order", "question__order", "question__id"
+            )
+        ]
+        return existing, questions, True
+
+    service = get_face_recognition_service()
     questions = _presented_questions(test)
     with transaction.atomic():
         session = SurveySession.objects.create(
             employee=employee,
             test=test,
-            face_verified=face_verified,
+            face_verified=entry_face_verified,
             face_embedding=employee.face_embedding,
             model_version=backend_model_version(service),
         )
         Answer.objects.bulk_create(
             [Answer(session=session, question=question) for question in questions]
         )
-    return session, questions
+    return session, questions, False
 
 
 def _apply_answer(row: Answer, item: dict) -> None:
     """Write one polymorphic answer payload onto a frozen Answer row (no correctness)."""
-    if row.question.type == Question.Type.TEXTAREA:
+    if row.question.type == Question.Type.SECTION_HEADER:
+        return
+    if row.question.type in Question.TEXT_ANSWER_TYPES:
         row.text_value = item.get("textValue", "")
         row.selected_option_ids = []
     else:
         row.selected_option_ids = item.get("selectedOptionIds", [])
         row.text_value = ""
+
+
+def autosave_answer(*, session: SurveySession, item: dict) -> Answer:
+    """Upsert a single answer without touching completed_at — used for incremental saves
+    while the employee is filling in the one-page form (see submit_survey_session for the
+    final full-batch write)."""
+    if session.completed_at is not None:
+        raise SurveyFlowError("This survey session is already completed.")
+
+    row = session.answers.select_related("question").filter(question_id=item["question"]).first()
+    if row is None:
+        raise SurveyFlowError("Answer must reference a question presented in this session.")
+
+    _apply_answer(row, item)
+    row.save(update_fields=["selected_option_ids", "text_value", "updated_at"])
+    return row
 
 
 def submit_survey_session(

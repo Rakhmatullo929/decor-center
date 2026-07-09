@@ -232,7 +232,8 @@ def test_is_required_and_mind_dive_flags_roundtrip(admin_client):
 def test_kiosk_start_returns_flat_text(face_image):
     from rest_framework.test import APIClient
 
-    from apps.surveys.kiosk_token import issue_kiosk_token
+    from apps.accounts.tokens import issue_token_pair
+    from apps.employees.services import get_or_create_employee_user
 
     survey = TestFactory()
     block = QuestionBlockFactory(test=survey, title="Блок")
@@ -245,7 +246,8 @@ def test_kiosk_start_returns_flat_text(face_image):
     emp = EmployeeFactory()
     face_image.seek(0)
     client = APIClient()
-    client.credentials(HTTP_X_KIOSK_TOKEN=issue_kiosk_token(emp.id))
+    tokens = issue_token_pair(get_or_create_employee_user(emp))
+    client.credentials(HTTP_AUTHORIZATION=f"Bearer {tokens['access']}")
     resp = client.post(
         "/api/v1/survey-sessions/start/",
         {"employee": emp.id, "test": survey.id, "face_image": face_image},

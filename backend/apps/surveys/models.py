@@ -1,4 +1,8 @@
+from datetime import timedelta
+
+from django.conf import settings as django_settings
 from django.db import models
+from django.utils import timezone
 
 from apps.core.models import TimeStampedModel
 
@@ -85,6 +89,17 @@ class Question(TimeStampedModel):
         }
     )
     SCALE_TYPES = frozenset({Type.NPS, Type.SCALE5})
+    # Types whose answer is written to Answer.text_value rather than selected_option_ids.
+    TEXT_ANSWER_TYPES = frozenset(
+        {
+            Type.SHORT_TEXT,
+            Type.TEXTAREA,
+            Type.NPS,
+            Type.SCALE5,
+            Type.FORM_FIELD,
+            Type.SIGNATURE_DATE,
+        }
+    )
 
     block = models.ForeignKey(
         QuestionBlock, on_delete=models.CASCADE, related_name="questions"
@@ -110,6 +125,11 @@ class Question(TimeStampedModel):
 class SurveySession(TimeStampedModel):
     """One survey run by an employee. Face-ID gated (except admin-conducted). No scoring."""
 
+    class Status(models.TextChoices):
+        IN_PROGRESS = "in_progress", "In progress"
+        COMPLETED = "completed", "Completed"
+        ABANDONED = "abandoned", "Abandoned"
+
     test = models.ForeignKey(Test, on_delete=models.PROTECT, related_name="sessions")
     employee = models.ForeignKey(
         "employees.Employee", on_delete=models.PROTECT, related_name="survey_sessions"
@@ -134,6 +154,20 @@ class SurveySession(TimeStampedModel):
 
     def __str__(self):
         return f"{self.employee_id} — {self.test_id} ({self.started_at:%Y-%m-%d %H:%M})"
+
+    @property
+    def status(self) -> str:
+        if self.completed_at is not None:
+            return self.Status.COMPLETED
+        threshold_hours = django_settings.DECOR["SURVEY_SESSION_ABANDONED_AFTER_HOURS"]
+        if timezone.now() - self.started_at > timedelta(hours=threshold_hours):
+            return self.Status.ABANDONED
+        return self.Status.IN_PROGRESS
+
+    @property
+    def is_live(self) -> bool:
+        """Not completed and not abandoned — the set a resume/idempotent-start should see."""
+        return self.status == self.Status.IN_PROGRESS
 
 
 class Answer(TimeStampedModel):

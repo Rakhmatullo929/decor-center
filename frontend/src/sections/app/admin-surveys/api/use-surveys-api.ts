@@ -9,6 +9,7 @@ import {
   fetchQuestionBlocks,
   fetchQuestions,
   fetchSurveyResults,
+  fetchSurveySessions,
   fetchTest,
   fetchTests,
   moveQuestion,
@@ -28,6 +29,8 @@ import type {
   ResultsExportParams,
   ResultsParams,
   SurveyResults,
+  SurveySessionAdmin,
+  SurveySessionListParams,
   Test,
 } from './types';
 
@@ -102,6 +105,14 @@ export function useMoveQuestionMutation() {
 }
 
 // ── Results ────────────────────────────────────────────────────────────
+export function useSurveySessionsQuery(params: SurveySessionListParams | null) {
+  return useFetch<SurveySessionAdmin[]>(
+    ['surveys', 'sessions', params],
+    () => fetchSurveySessions(params as SurveySessionListParams),
+    { enabled: params !== null }
+  );
+}
+
 export function useSurveyResultsQuery(params: ResultsParams | null) {
   return useFetch<SurveyResults>(
     ['surveys', 'results', params],

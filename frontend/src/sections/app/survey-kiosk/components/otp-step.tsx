@@ -20,11 +20,13 @@ export default function OtpStep({ phoneMasked, isVerifying, errorText, onVerify,
   const canSubmit = code.trim().length >= 4 && !isVerifying;
 
   return (
-    <Stack spacing={3} alignItems="center" textAlign="center" sx={{ py: { xs: 5, md: 8 } }}>
-      <Typography variant="h4">{tx('survey.kiosk.otp.title')}</Typography>
-      <Typography variant="body2" color="text.secondary">
-        {tx('survey.kiosk.otp.sentTo', { phone: phoneMasked })}
-      </Typography>
+    <Stack spacing={3} alignItems="center" textAlign="center">
+      <Stack spacing={0.5} alignItems="center">
+        <Typography variant="h4">{tx('survey.kiosk.otp.title')}</Typography>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          {tx('survey.kiosk.otp.sentTo', { phone: phoneMasked })}
+        </Typography>
+      </Stack>
 
       <TextField
         value={code}
@@ -33,19 +35,19 @@ export default function OtpStep({ phoneMasked, isVerifying, errorText, onVerify,
         inputProps={{
           inputMode: 'numeric',
           'aria-label': tx('survey.kiosk.otp.title'),
-          style: { fontSize: 32, letterSpacing: 12, textAlign: 'center' },
+          style: { fontSize: 28, letterSpacing: 12, textAlign: 'center' },
         }}
         error={!!errorText}
         helperText={errorText ?? ' '}
-        sx={{ width: 220 }}
+        sx={{ width: 1, maxWidth: 220 }}
         autoFocus
       />
 
-      <Stack direction="row" spacing={2}>
-        <Button variant="outlined" color="inherit" size="large" onClick={onBack} disabled={isVerifying}>
+      <Stack direction="row" spacing={2} sx={{ width: 1 }}>
+        <Button fullWidth variant="outlined" color="inherit" onClick={onBack} disabled={isVerifying}>
           {tx('common.actions.back')}
         </Button>
-        <Button variant="contained" size="large" disabled={!canSubmit} onClick={() => onVerify(code)}>
+        <Button fullWidth variant="contained" disabled={!canSubmit} onClick={() => onVerify(code)}>
           {tx('survey.kiosk.otp.verify')}
         </Button>
       </Stack>

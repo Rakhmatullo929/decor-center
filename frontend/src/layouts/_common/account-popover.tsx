@@ -27,7 +27,14 @@ const OPTIONS: { label: string; linkTo: string }[] = [];
 
 // ----------------------------------------------------------------------
 
-export default function AccountPopover() {
+type Props = {
+  /** Where logout lands the user. Defaults to the admin login page; the employee
+   * cabinet passes `paths.scan` instead, since employees sign back in via face+OTP,
+   * never a username/password form. */
+  logoutRedirectTo?: string;
+};
+
+export default function AccountPopover({ logoutRedirectTo = paths.login }: Props) {
   const router = useRouter();
   const { tx } = useLocales();
 
@@ -43,7 +50,7 @@ export default function AccountPopover() {
     try {
       await logoutMutation.mutateAsync();
       popover.onClose();
-      router.replace(paths.login);
+      router.replace(logoutRedirectTo);
     } catch (error) {
       console.error(error);
       enqueueSnackbar(tx('common.toasts.logoutFailed'), { variant: 'error' });

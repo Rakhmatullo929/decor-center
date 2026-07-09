@@ -1,8 +1,11 @@
 import { useFetch, useMutate } from 'src/hooks/api';
 
 import {
+  autosaveAnswer,
   employeesLookup,
   fetchDueSurveys,
+  fetchInProgressSessions,
+  fetchSessionDetail,
   identifyEmployee,
   requestOtp,
   startSurvey,
@@ -10,6 +13,7 @@ import {
   verifyOtp,
 } from './survey-requests';
 import type {
+  AutosaveAnswerPayload,
   EmployeeLookupItem,
   IdentifyEmployeePayload,
   IdentifyEmployeeResponse,
@@ -17,7 +21,9 @@ import type {
   StartSurveyPayload,
   StartSurveyResponse,
   SubmitSurveyPayload,
+  SurveyAnswer,
   SurveySession,
+  SurveySessionDetail,
   Test,
   VerifyOtpResponse,
 } from './types';
@@ -48,26 +54,51 @@ export function useEmployeesLookupQuery(q: string) {
   });
 }
 
-export function useDueSurveysQuery(employeeId: number | null, kioskToken: string | null) {
+export function useDueSurveysQuery(employeeId: number | null, verified: boolean) {
   return useFetch<Test[]>(
     ['kiosk', 'due', employeeId],
-    () => fetchDueSurveys(employeeId as number, kioskToken as string),
-    { enabled: employeeId !== null && !!kioskToken }
+    () => fetchDueSurveys(employeeId as number),
+    { enabled: employeeId !== null && verified }
   );
 }
 
 export function useStartSurveyMutation() {
-  return useMutate<StartSurveyResponse, { payload: StartSurveyPayload; kioskToken: string }>(
-    ({ payload, kioskToken }) => startSurvey(payload, kioskToken),
+  return useMutate<StartSurveyResponse, { payload: StartSurveyPayload }>(
+    ({ payload }) => startSurvey(payload),
     { skipGlobalErrorNotification: true }
   );
 }
 
-export function useSubmitSurveyMutation() {
+/** The employee's own unfinished sessions — powers the cabinet's "continue" section. */
+export function useInProgressSessionsQuery(employeeId: number | null) {
+  return useFetch<SurveySession[]>(
+    ['kiosk', 'in-progress', employeeId],
+    () => fetchInProgressSessions(employeeId as number),
+    { enabled: employeeId !== null }
+  );
+}
+
+/** Full state for `/survey/:sessionId` — loads from the backend, not just local state. */
+export function useSessionDetailQuery(sessionId: number | string | undefined) {
+  return useFetch<SurveySessionDetail>(
+    ['kiosk', 'session', sessionId],
+    () => fetchSessionDetail(sessionId as number | string),
+    { enabled: sessionId !== undefined, retry: false }
+  );
+}
+
+export function useAutosaveAnswerMutation() {
   return useMutate<
-    SurveySession,
-    { sessionId: number; payload: SubmitSurveyPayload; kioskToken: string }
-  >(({ sessionId, payload, kioskToken }) => submitSurvey(sessionId, payload, kioskToken), {
+    SurveyAnswer,
+    { sessionId: number | string; item: AutosaveAnswerPayload }
+  >(({ sessionId, item }) => autosaveAnswer(sessionId, item), {
     skipGlobalErrorNotification: true,
   });
+}
+
+export function useSubmitSurveyMutation() {
+  return useMutate<SurveySession, { sessionId: number; payload: SubmitSurveyPayload }>(
+    ({ sessionId, payload }) => submitSurvey(sessionId, payload),
+    { skipGlobalErrorNotification: true }
+  );
 }

@@ -1,24 +1,27 @@
-import { Suspense, lazy } from 'react';
-import { LoadingScreen } from 'src/components/loading-screen';
+import { lazy } from 'react';
+
+import KioskLayout from 'src/sections/app/survey-kiosk/kiosk-layout';
 
 const ScanPage = lazy(() => import('src/pages/public/scan'));
-const ScanAnswerPage = lazy(() => import('src/pages/public/scan-answer'));
+const ScanManualPage = lazy(() => import('src/pages/public/scan-manual'));
+const ScanConfirmPage = lazy(() => import('src/pages/public/scan-confirm'));
+const ScanOtpPage = lazy(() => import('src/pages/public/scan-otp'));
+const SurveyPage = lazy(() => import('src/pages/public/survey'));
 
 export const publicRoutes = [
   {
     path: 'scan',
-    element: (
-      <Suspense fallback={<LoadingScreen />}>
-        <ScanPage />
-      </Suspense>
-    ),
+    element: <KioskLayout />,
+    children: [
+      { index: true, element: <ScanPage /> },
+      { path: 'manual', element: <ScanManualPage /> },
+      { path: 'confirm/:employeeId', element: <ScanConfirmPage /> },
+      { path: 'otp/:employeeId', element: <ScanOtpPage /> },
+    ],
   },
   {
-    path: 'scan/answer',
-    element: (
-      <Suspense fallback={<LoadingScreen />}>
-        <ScanAnswerPage />
-      </Suspense>
-    ),
+    path: 'survey/:sessionId',
+    element: <KioskLayout />,
+    children: [{ index: true, element: <SurveyPage /> }],
   },
 ];

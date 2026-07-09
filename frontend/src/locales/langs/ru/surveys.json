@@ -102,5 +102,22 @@
     "sessionCount": "Всего прохождений: {{count}}",
     "noAnswers": "Нет ответов",
     "toasts": { "exported": "Экспорт готов" }
+  },
+  "sessions": {
+    "title": "Прохождения опросов",
+    "selectTest": "Выберите опрос",
+    "pickTestPrompt": "Выберите опрос, чтобы увидеть, кто начал, в процессе, завершил или не успел",
+    "empty": "Ещё никто не начал этот опрос",
+    "table": {
+      "employee": "Сотрудник",
+      "status": "Статус",
+      "startedAt": "Начал",
+      "completedAt": "Завершил"
+    },
+    "status": {
+      "in_progress": "В процессе",
+      "completed": "Завершил",
+      "abandoned": "Не успел"
+    }
   }
 }

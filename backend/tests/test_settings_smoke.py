@@ -30,12 +30,12 @@ def test_decor_dict_has_only_face_and_kiosk_keys():
         "ANTI_SPOOFING_THRESHOLD",
         "FACE_WARMUP_ON_STARTUP",
         "REVERIFY_ON_SUBMIT",
+        "SURVEY_SESSION_ABANDONED_AFTER_HOURS",
         # Kiosk SMS OTP
         "SMS_BACKEND",
         "KIOSK_OTP_STATIC_CODE",
         "KIOSK_OTP_TTL_SECONDS",
         "KIOSK_OTP_MAX_ATTEMPTS",
-        "KIOSK_TOKEN_TTL",
     }
     # scoring / TTS / testgen knobs are gone
     for gone in ("QUESTIONS_PER_TEST", "PASS_THRESHOLD", "TESTGEN_LANGUAGE",

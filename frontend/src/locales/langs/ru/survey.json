@@ -36,11 +36,20 @@
     "due": {
       "title": "Доступные опросы",
       "subtitle": "Сотрудник: {{name}}",
+      "continueTitle": "Продолжить",
       "empty": "Нет доступных опросов"
     },
     "questions": {
-      "progress": "Вопрос {{current}} / {{total}}",
       "textPlaceholder": "Введите ваш ответ..."
+    },
+    "form": {
+      "textPlaceholder": "Введите ваш ответ...",
+      "signatureLabel": "Подпись (Ф.И.О.)",
+      "dateLabel": "Дата",
+      "required": "Обязательный вопрос",
+      "saving": "Сохранение...",
+      "saved": "Сохранено",
+      "saveFailed": "Не удалось сохранить"
     },
     "thankYou": {
       "title": "Спасибо!",

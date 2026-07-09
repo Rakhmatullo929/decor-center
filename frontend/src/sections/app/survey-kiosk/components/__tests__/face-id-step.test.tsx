@@ -12,13 +12,16 @@ jest.mock('src/utils/camera', () => ({
   blobToBase64: jest.fn().mockResolvedValue('data:image/jpeg;base64,x'),
 }));
 
-const identified = { id: 3, fullName: 'Ivan', specialtyName: 'Fitter', photo: null };
-const identifyMutate = jest.fn((_vars, opts) => opts.onSuccess({ employee: identified }));
-jest.mock('../../api/use-survey-kiosk-api', () => ({
-  useIdentifyEmployeeMutation: () => ({ mutate: identifyMutate, isPending: false }),
+// error-reader.ts pulls in axios (ESM, untransformed by jest) — mock it like the other
+// tests that exercise components importing it (employee-upsert-dialog.test.tsx, view.test.tsx).
+jest.mock('src/utils/error-reader', () => ({
+  errorReader: () => 'mock-error',
 }));
-jest.mock('src/auth/api', () => ({
-  useLogoutMutation: () => ({ mutateAsync: jest.fn(), isPending: false }),
+
+const mockIdentified = { id: 3, fullName: 'Ivan', specialtyName: 'Fitter', photo: null };
+const mockIdentifyMutate = jest.fn((_vars, opts) => opts.onSuccess({ employee: mockIdentified }));
+jest.mock('../../api/use-survey-kiosk-api', () => ({
+  useIdentifyEmployeeMutation: () => ({ mutate: mockIdentifyMutate, isPending: false }),
 }));
 
 beforeAll(() => {
@@ -34,9 +37,9 @@ describe('kiosk FaceIdStep', () => {
     render(<FaceIdStep onIdentified={onIdentified} onBack={jest.fn()} />);
 
     fireEvent.click(screen.getByText('survey.kiosk.faceId.scan'));
-    await waitFor(() => expect(identifyMutate).toHaveBeenCalled());
+    await waitFor(() => expect(mockIdentifyMutate).toHaveBeenCalled());
 
     fireEvent.click(screen.getByText('survey.kiosk.faceId.continue'));
-    expect(onIdentified).toHaveBeenCalledWith(identified, expect.any(Blob));
+    expect(onIdentified).toHaveBeenCalledWith(mockIdentified, expect.any(Blob));
   });
 });

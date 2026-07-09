@@ -35,6 +35,10 @@ services:
       # Override BACKEND_HOST_PORT if 8000 is taken, e.g. BACKEND_HOST_PORT=8010.
       - "${BACKEND_HOST_PORT:-8000}:8000"
     volumes:
+      # Bind-mount the source so edits on the host are picked up by Django's autoreloader
+      # without rebuilding the image. Safe to shadow /app entirely — pip installs packages
+      # into the image's system site-packages, not under /app.
+      - ./backend:/app
       # Persist uploaded media (employee photos / face samples) across container
       # rebuilds and restarts — otherwise enrolled faces are wiped on every `up`.
       - media:/app/media
@@ -48,9 +52,19 @@ services:
       # The browser runs on the host, so it reaches the backend via localhost.
       # Point this at the backend's published host port (BACKEND_HOST_PORT).
       REACT_APP_HOST_API: ${REACT_APP_HOST_API:-http://localhost:8000}
+      # Docker Desktop's bind-mount file events (macOS/Windows) don't always reach
+      # inotify reliably — force CRA's watcher to poll so edits always trigger a reload.
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
     ports:
       # Override FRONTEND_HOST_PORT if 3000 is taken, e.g. FRONTEND_HOST_PORT=3010.
       - "${FRONTEND_HOST_PORT:-3000}:3000"
+    volumes:
+      # Bind-mount the source so edits on the host are picked up by the CRA dev server
+      # without rebuilding the image. Anonymous volume for node_modules keeps the image's
+      # installed (Linux-built) packages from being shadowed by the host tree.
+      - ./frontend:/app
+      - /app/node_modules
     # CRA dev server exits without an attached stdin/tty
     stdin_open: true
     tty: true

@@ -58,13 +58,16 @@ function decamelizeRequestBody(data: unknown): unknown {
 }
 
 function camelizeResponseData(data: unknown): unknown {
-  if (data == null || typeof data !== 'object' || Array.isArray(data)) {
+  if (data == null || typeof data !== 'object') {
     return data;
   }
   if (typeof Blob !== 'undefined' && data instanceof Blob) {
     return data;
   }
-  return humps.camelizeKeys(data as Record<string, unknown>);
+  // humps.camelizeKeys recurses into arrays too — a raw top-level array response
+  // (e.g. `due/`, `in-progress/`) must be converted just like an object response,
+  // otherwise every snake_case field in it silently leaks through untransformed.
+  return humps.camelizeKeys(data as Record<string, unknown> | unknown[]);
 }
 
 /**

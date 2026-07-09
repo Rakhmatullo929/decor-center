@@ -17,7 +17,7 @@ describe('DueSurveysStep', () => {
     const onPick = jest.fn();
     render(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      <DueSurveysStep tests={tests as any} isLoading={false} employeeName="Ivan" onPick={onPick} onBack={jest.fn()} />
+      <DueSurveysStep tests={tests as any} isLoading={false} employeeName="Ivan" onPick={onPick} />
     );
     expect(screen.getByText('Onboarding 30d')).toBeInTheDocument();
     fireEvent.click(screen.getByText('Monthly Pulse'));
@@ -26,7 +26,7 @@ describe('DueSurveysStep', () => {
 
   it('shows the empty state when nothing is due', () => {
     render(
-      <DueSurveysStep tests={[]} isLoading={false} employeeName="Ivan" onPick={jest.fn()} onBack={jest.fn()} />
+      <DueSurveysStep tests={[]} isLoading={false} employeeName="Ivan" onPick={jest.fn()} />
     );
     expect(screen.getByText('survey.kiosk.due.empty')).toBeInTheDocument();
   });

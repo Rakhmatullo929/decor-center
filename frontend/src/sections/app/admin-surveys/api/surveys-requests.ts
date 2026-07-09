@@ -12,6 +12,8 @@ import type {
   ResultsExportParams,
   ResultsParams,
   SurveyResults,
+  SurveySessionAdmin,
+  SurveySessionListParams,
   Test,
   TestListParams,
 } from './types';
@@ -93,6 +95,29 @@ export function moveQuestion(payload: MoveQuestionPayload) {
     url: API_ENDPOINTS.surveys.moveQuestion,
     data: payload,
   });
+}
+
+// ── Sessions (who started/is in progress/completed/abandoned a test) ────
+// DefaultPagination caps page_size at 100 server-side, so a single request can silently
+// truncate once a test has more sessions than that — loop pages until all are fetched.
+export async function fetchSurveySessions(
+  params: SurveySessionListParams
+): Promise<SurveySessionAdmin[]> {
+  const pageSize = 100;
+  let page = 1;
+  const all: SurveySessionAdmin[] = [];
+  for (;;) {
+    // eslint-disable-next-line no-await-in-loop
+    const result = await request<Pagination<SurveySessionAdmin>>({
+      method: 'GET',
+      url: API_ENDPOINTS.surveys.sessions,
+      params: { ...params, page, pageSize, ordering: '-started_at' },
+    });
+    all.push(...result.results);
+    if (!result.next || all.length >= result.count) break;
+    page += 1;
+  }
+  return all;
 }
 
 // ── Results ────────────────────────────────────────────────────────────

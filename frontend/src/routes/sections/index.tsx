@@ -3,6 +3,7 @@ import { paths } from 'src/routes/paths';
 import { mainRoutes } from './main';
 import { authRoutes } from './auth';
 import { publicRoutes } from './public';
+import { employeeRoutes } from './employee';
 import { dashboardRoutes } from './dashboard';
 
 export default function Router() {
@@ -12,6 +13,7 @@ export default function Router() {
       element: <Navigate to={paths.login} replace />,
     },
     ...publicRoutes,
+    ...employeeRoutes,
     ...authRoutes,
     ...dashboardRoutes,
     ...mainRoutes,

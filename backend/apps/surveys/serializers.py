@@ -134,7 +134,6 @@ class StartSurveySerializer(serializers.Serializer):
     test = serializers.PrimaryKeyRelatedField(
         queryset=Test.objects.filter(is_active=True)
     )
-    face_image = serializers.ImageField(required=False)
 
 
 class AnswerItemSerializer(serializers.Serializer):
@@ -179,6 +178,7 @@ class AnswerReadSerializer(serializers.ModelSerializer):
 class SurveySessionSerializer(serializers.ModelSerializer):
     employee_name = serializers.CharField(source="employee.full_name", read_only=True)
     test_title = serializers.CharField(source="test.title", read_only=True)
+    status = serializers.ReadOnlyField()
 
     class Meta:
         model = SurveySession
@@ -193,16 +193,22 @@ class SurveySessionSerializer(serializers.ModelSerializer):
             "model_version",
             "started_at",
             "completed_at",
+            "status",
         ]
         read_only_fields = fields
 
 
 class SurveySessionDetailSerializer(SurveySessionSerializer):
     answers = AnswerReadSerializer(many=True, read_only=True)
+    blocks = serializers.SerializerMethodField()
 
     class Meta(SurveySessionSerializer.Meta):
-        fields = SurveySessionSerializer.Meta.fields + ["answers"]
+        fields = SurveySessionSerializer.Meta.fields + ["answers", "blocks"]
         read_only_fields = fields
+
+    def get_blocks(self, obj):
+        blocks = obj.test.blocks.prefetch_related("questions")
+        return QuestionBlockPublicSerializer(blocks, many=True).data
 
 
 class KioskIdentifiedEmployeeSerializer(serializers.ModelSerializer):

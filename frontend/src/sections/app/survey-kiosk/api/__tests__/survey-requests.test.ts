@@ -9,8 +9,6 @@ jest.mock('src/utils/axios', () => ({
 // eslint-disable-next-line import/first, @typescript-eslint/no-var-requires
 const { request } = require('src/utils/axios');
 
-const TOKEN = 'kiosk-token-abc';
-
 describe('survey-kiosk requests', () => {
   beforeEach(() => (request as jest.Mock).mockClear());
 
@@ -46,47 +44,56 @@ describe('survey-kiosk requests', () => {
     expect(call.params).toEqual({ q: 'iv' });
   });
 
-  it('fetchDueSurveys passes employee param + kiosk token header', async () => {
-    await requests.fetchDueSurveys(9, TOKEN);
-    const [call] = (request as jest.Mock).mock.calls[0];
+  it('fetchDueSurveys passes the employee param, bearer-authed (not public)', async () => {
+    await requests.fetchDueSurveys(9);
+    const [call, isPublic] = (request as jest.Mock).mock.calls[0];
     expect(call.url).toBe(API_ENDPOINTS.surveys.due);
     expect(call.params).toEqual({ employee: 9 });
-    expect(call.headers).toEqual({ 'X-Kiosk-Token': TOKEN });
+    expect(isPublic).toBeFalsy();
   });
 
-  it('startSurvey posts employee/test/face_image + kiosk token header', async () => {
-    const file = new File(['x'], 'f.jpg', { type: 'image/jpeg' });
-    await requests.startSurvey({ employee: 2, test: 5, faceImage: file }, TOKEN);
-    const [call] = (request as jest.Mock).mock.calls[0];
+  it('startSurvey posts employee/test as JSON, bearer-authed (not public) — no camera frame', async () => {
+    await requests.startSurvey({ employee: 2, test: 5 });
+    const [call, isPublic] = (request as jest.Mock).mock.calls[0];
     expect(call.url).toBe(API_ENDPOINTS.surveys.start);
-    const fd = call.data as FormData;
-    expect(fd.get('employee')).toBe('2');
-    expect(fd.get('test')).toBe('5');
-    expect(fd.get('face_image')).toBe(file);
-    expect(call.headers).toEqual({ 'X-Kiosk-Token': TOKEN });
+    expect(call.data).toEqual({ employee: 2, test: 5 });
+    expect(isPublic).toBeFalsy();
   });
 
-  it('startSurvey omits face_image on the manual fallback', async () => {
-    await requests.startSurvey({ employee: 2, test: 5 }, TOKEN);
-    const [call] = (request as jest.Mock).mock.calls[0];
-    const fd = call.data as FormData;
-    expect(fd.get('face_image')).toBeNull();
+  it('fetchInProgressSessions passes the employee param, bearer-authed', async () => {
+    await requests.fetchInProgressSessions(2);
+    const [call, isPublic] = (request as jest.Mock).mock.calls[0];
+    expect(call.url).toBe(API_ENDPOINTS.surveys.inProgress);
+    expect(call.params).toEqual({ employee: 2 });
+    expect(isPublic).toBeFalsy();
   });
 
-  it('submitSurvey posts JSON answers + kiosk token header', async () => {
-    await requests.submitSurvey(
-      7,
-      {
-        answers: [
-          { question: 1, selectedOptionIds: ['a'] },
-          { question: 2, textValue: 'hi' },
-        ],
-      },
-      TOKEN
-    );
-    const [call] = (request as jest.Mock).mock.calls[0];
+  it('fetchSessionDetail GETs the session by id, bearer-authed', async () => {
+    await requests.fetchSessionDetail(7);
+    const [call, isPublic] = (request as jest.Mock).mock.calls[0];
+    expect(call.url).toBe(API_ENDPOINTS.surveys.session(7));
+    expect(call.method).toBe('GET');
+    expect(isPublic).toBeFalsy();
+  });
+
+  it('autosaveAnswer posts one answer item, bearer-authed', async () => {
+    await requests.autosaveAnswer(7, { question: 1, selectedOptionIds: ['a'] });
+    const [call, isPublic] = (request as jest.Mock).mock.calls[0];
+    expect(call.url).toBe(API_ENDPOINTS.surveys.answer(7));
+    expect(call.data).toEqual({ question: 1, selectedOptionIds: ['a'] });
+    expect(isPublic).toBeFalsy();
+  });
+
+  it('submitSurvey posts JSON answers, bearer-authed (not public)', async () => {
+    await requests.submitSurvey(7, {
+      answers: [
+        { question: 1, selectedOptionIds: ['a'] },
+        { question: 2, textValue: 'hi' },
+      ],
+    });
+    const [call, isPublic] = (request as jest.Mock).mock.calls[0];
     expect(call.url).toBe(API_ENDPOINTS.surveys.submit(7));
     expect(call.data.answers).toHaveLength(2);
-    expect(call.headers).toEqual({ 'X-Kiosk-Token': TOKEN });
+    expect(isPublic).toBeFalsy();
   });
 });

@@ -162,6 +162,11 @@ DECOR = {
     "FACE_WARMUP_ON_STARTUP": env.bool("DECOR_FACE_WARMUP_ON_STARTUP", default=False),
     # Submit-time face re-verification for surveys defaults OFF (opinion surveys, no integrity gate).
     "REVERIFY_ON_SUBMIT": env("DECOR_REVERIFY_ON_SUBMIT", default="off"),
+    # An in-progress SurveySession older than this is considered abandoned (frees the
+    # employee to start a fresh attempt instead of resuming a stale one).
+    "SURVEY_SESSION_ABANDONED_AFTER_HOURS": env.int(
+        "DECOR_SURVEY_SESSION_ABANDONED_HOURS", default=24
+    ),
     # ── Kiosk SMS OTP ──────────────────────────────────────────────────────
     "SMS_BACKEND": env(
         "DECOR_SMS_BACKEND", default="apps.integrations.mocks.MockSmsSender"
@@ -169,5 +174,4 @@ DECOR = {
     "KIOSK_OTP_STATIC_CODE": env("DECOR_KIOSK_OTP_STATIC_CODE", default="0000"),
     "KIOSK_OTP_TTL_SECONDS": env.int("DECOR_KIOSK_OTP_TTL_SECONDS", default=300),
     "KIOSK_OTP_MAX_ATTEMPTS": env.int("DECOR_KIOSK_OTP_MAX_ATTEMPTS", default=5),
-    "KIOSK_TOKEN_TTL": env.int("DECOR_KIOSK_TOKEN_TTL", default=900),
 }

@@ -1,6 +1,7 @@
 import { request, API_ENDPOINTS } from 'src/utils/axios';
 
 import type {
+  AutosaveAnswerPayload,
   EmployeeLookupItem,
   IdentifyEmployeePayload,
   IdentifyEmployeeResponse,
@@ -8,12 +9,12 @@ import type {
   StartSurveyPayload,
   StartSurveyResponse,
   SubmitSurveyPayload,
+  SurveyAnswer,
   SurveySession,
+  SurveySessionDetail,
   Test,
   VerifyOtpResponse,
 } from './types';
-
-const kioskHeaders = (token: string) => ({ 'X-Kiosk-Token': token });
 
 /** 1:N face search — public, no session created. */
 export function identifyEmployee(payload: IdentifyEmployeePayload) {
@@ -33,7 +34,7 @@ export function requestOtp(employeeId: number) {
   );
 }
 
-/** Verify the code; returns a short-lived kiosk token. Public. */
+/** Verify the code; logs the employee in for real (access/refresh + user). Public. */
 export function verifyOtp(params: { employeeId: number; code: string; fallback: boolean }) {
   return request<VerifyOtpResponse>(
     {
@@ -53,47 +54,56 @@ export function employeesLookup(q: string) {
   );
 }
 
-/** Surveys currently due — kiosk-token gated. */
-export function fetchDueSurveys(employeeId: number, kioskToken: string) {
-  return request<Test[]>(
-    {
-      method: 'GET',
-      url: API_ENDPOINTS.surveys.due,
-      params: { employee: employeeId },
-      headers: kioskHeaders(kioskToken),
-    },
-    true
-  );
+/** Surveys currently due — requires the employee JWT from verify-otp (bearer, auto-attached). */
+export function fetchDueSurveys(employeeId: number) {
+  return request<Test[]>({
+    method: 'GET',
+    url: API_ENDPOINTS.surveys.due,
+    params: { employee: employeeId },
+  });
 }
 
-/** Start a session — kiosk-token gated. face_image omitted on the manual fallback. */
-export function startSurvey(payload: StartSurveyPayload, kioskToken: string) {
-  const formData = new FormData();
-  formData.append('employee', String(payload.employee));
-  formData.append('test', String(payload.test));
-  if (payload.faceImage) {
-    formData.append('face_image', payload.faceImage);
-  }
-  return request<StartSurveyResponse>(
-    {
-      method: 'POST',
-      url: API_ENDPOINTS.surveys.start,
-      data: formData,
-      headers: kioskHeaders(kioskToken),
-    },
-    true
-  );
+/** Start (or resume) a session — employee JWT gated. Face-ID was already verified once
+ * at kiosk entry, so no camera frame is sent here. */
+export function startSurvey(payload: StartSurveyPayload) {
+  return request<StartSurveyResponse>({
+    method: 'POST',
+    url: API_ENDPOINTS.surveys.start,
+    data: { employee: payload.employee, test: payload.test },
+  });
 }
 
-/** Persist answers + complete — kiosk-token gated. */
-export function submitSurvey(sessionId: number, payload: SubmitSurveyPayload, kioskToken: string) {
-  return request<SurveySession>(
-    {
-      method: 'POST',
-      url: API_ENDPOINTS.surveys.submit(sessionId),
-      data: payload,
-      headers: kioskHeaders(kioskToken),
-    },
-    true
-  );
+/** The employee's own unfinished sessions — powers the cabinet's "continue" list. */
+export function fetchInProgressSessions(employeeId: number) {
+  return request<SurveySession[]>({
+    method: 'GET',
+    url: API_ENDPOINTS.surveys.inProgress,
+    params: { employee: employeeId },
+  });
+}
+
+/** Full state for resuming `/survey/:sessionId` — blocks + already-saved answers. */
+export function fetchSessionDetail(sessionId: number | string) {
+  return request<SurveySessionDetail>({
+    method: 'GET',
+    url: API_ENDPOINTS.surveys.session(sessionId),
+  });
+}
+
+/** Autosave one answer as the employee fills in the form — does not complete the session. */
+export function autosaveAnswer(sessionId: number | string, item: AutosaveAnswerPayload) {
+  return request<SurveyAnswer>({
+    method: 'POST',
+    url: API_ENDPOINTS.surveys.answer(sessionId),
+    data: item,
+  });
+}
+
+/** Persist answers + complete — employee JWT gated. */
+export function submitSurvey(sessionId: number, payload: SubmitSurveyPayload) {
+  return request<SurveySession>({
+    method: 'POST',
+    url: API_ENDPOINTS.surveys.submit(sessionId),
+    data: payload,
+  });
 }

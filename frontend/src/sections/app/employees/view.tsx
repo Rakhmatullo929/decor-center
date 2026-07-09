@@ -45,7 +45,7 @@ import { EmployeesTableSkeleton } from './skeleton';
 
 // ----------------------------------------------------------------------
 
-const SORTABLE_COLUMNS = ['full_name', 'hire_date', 'created_at'];
+const SORTABLE_COLUMNS = ['full_name', 'hire_date'];
 
 /** Extra list filters live in the URL next to page/search/ordering (module-level schema). */
 const FILTERS_SCHEMA = {
@@ -171,11 +171,9 @@ export default function EmployeesView() {
 
   const headLabel = [
     { id: 'full_name', label: tx('employees.table.fullName') },
-    { id: 'specialty', label: tx('employees.table.specialty'), width: 200 },
-    { id: 'hire_date', label: tx('employees.table.hireDate'), width: 140 },
-    { id: 'work_experience', label: tx('employees.table.workExperience'), width: 100 },
-    { id: 'is_active', label: tx('employees.table.status'), width: 120 },
-    { id: 'created_at', label: tx('employees.table.created'), width: 140 },
+    { id: 'specialty', label: tx('employees.table.specialty'), width: 220 },
+    { id: 'hire_date', label: tx('employees.table.workExperience'), width: 160 },
+    { id: 'is_active', label: tx('employees.table.status'), width: 130 },
     ...(canWrite ? [{ id: 'actions', label: '', width: 64, align: 'right' as const }] : []),
   ];
 

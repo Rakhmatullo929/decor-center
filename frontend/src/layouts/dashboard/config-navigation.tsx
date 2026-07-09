@@ -83,6 +83,11 @@ export function useNavData() {
             path: paths.app.surveys.results,
             icon: icon('solar:chart-square-bold-duotone'),
           },
+          {
+            title: tx('common.navigation.sessions'),
+            path: paths.app.surveys.sessions,
+            icon: icon('solar:clock-circle-bold-duotone'),
+          },
         ],
       });
     }
