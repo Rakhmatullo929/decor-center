@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
 // @mui
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -22,7 +22,12 @@ const cornerGlow = keyframes`
 
 // ----------------------------------------------------------------------
 
-export default function SurveyPanel({ children }: PropsWithChildren) {
+type Props = PropsWithChildren<{
+  /** Rendered top-right of the breadcrumb row (e.g. language switch + logout in the employee cabinet). */
+  action?: ReactNode;
+}>;
+
+export default function SurveyPanel({ children, action }: Props) {
   const { tx } = useLocales();
   const settings = useSettingsContext();
   const theme = useTheme();
@@ -41,6 +46,7 @@ export default function SurveyPanel({ children }: PropsWithChildren) {
         <CustomBreadcrumbs
           heading={tx('survey.kiosk.title')}
           links={[{ name: tx('common.appName'), href: paths.home }, { name: tx('survey.kiosk.title') }]}
+          action={action}
           sx={{ mb: { xs: 4, md: 6 } }}
         />
 

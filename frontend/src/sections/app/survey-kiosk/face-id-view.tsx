@@ -1,20 +1,25 @@
 import { useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { paths } from 'src/routes/paths';
 import type { KioskEmployee } from './api/types';
 import { FaceIdStep } from './components';
+import { useEmployeeAuth } from './session/use-employee-auth';
 import { useKioskSession } from './session/use-kiosk-session';
 
 export default function FaceIdView() {
   const navigate = useNavigate();
   const { reset, setEmployee } = useKioskSession();
+  const { loading, signedIn } = useEmployeeAuth();
 
-  // Landing on /scan by any path (auto-return, rescan, browser back, stale deep-link) always
-  // starts from a clean session so the next employee never inherits a stale token/identity.
+  // Landing on /scan by any path (auto-return, rescan, stale deep-link) always starts from
+  // a clean session so the next employee never inherits a stale token/identity. But a
+  // *signed-in* employee bouncing here via browser back/forward must NOT be logged out just
+  // by the page mounting — they're redirected straight back to /employee below instead.
   useEffect(() => {
+    if (loading || signedIn) return;
     reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loading, signedIn]);
 
   const handleIdentified = useCallback(
     (employee: KioskEmployee, faceBlob: Blob) => {
@@ -23,6 +28,9 @@ export default function FaceIdView() {
     },
     [setEmployee, navigate]
   );
+
+  if (loading) return null;
+  if (signedIn) return <Navigate to={paths.employee} replace />;
 
   return (
     <FaceIdStep

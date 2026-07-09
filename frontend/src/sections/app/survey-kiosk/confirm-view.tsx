@@ -6,6 +6,7 @@ import { paths } from 'src/routes/paths';
 import { errorReader } from 'src/utils/error-reader';
 import { useRequestOtpMutation } from './api/use-survey-kiosk-api';
 import { ConfirmStep, SurveyPanel } from './components';
+import { useEmployeeAuth } from './session/use-employee-auth';
 import { useKioskSession } from './session/use-kiosk-session';
 
 export default function ConfirmView() {
@@ -13,6 +14,7 @@ export default function ConfirmView() {
   const { employeeId } = useParams<{ employeeId: string }>();
   const { enqueueSnackbar } = useSnackbar();
   const { session, setOtpRequested } = useKioskSession();
+  const { loading, signedIn } = useEmployeeAuth();
   const requestOtpMutation = useRequestOtpMutation();
 
   const { employee } = session;
@@ -29,6 +31,10 @@ export default function ConfirmView() {
     });
   }, [employee, requestOtpMutation, setOtpRequested, navigate, enqueueSnackbar]);
 
+  // A signed-in employee (JWT already minted by verify-otp) landing here via browser
+  // back/forward must never re-see the pre-login confirm step — send them to the cabinet.
+  if (loading) return null;
+  if (signedIn) return <Navigate to={paths.employee} replace />;
   if (!isMatch || !employee) {
     return <Navigate to={paths.scan} replace />;
   }

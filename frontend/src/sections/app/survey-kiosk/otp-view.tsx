@@ -6,6 +6,7 @@ import { paths } from 'src/routes/paths';
 import { errorReader } from 'src/utils/error-reader';
 import { useVerifyOtpMutation } from './api/use-survey-kiosk-api';
 import { OtpStep, SurveyPanel } from './components';
+import { useEmployeeAuth } from './session/use-employee-auth';
 import { useKioskSession } from './session/use-kiosk-session';
 
 export default function OtpView() {
@@ -13,6 +14,7 @@ export default function OtpView() {
   const { employeeId } = useParams<{ employeeId: string }>();
   const { session, setVerified } = useKioskSession();
   const { syncSessionFromApiResponse } = useAuthContext();
+  const { loading, signedIn } = useEmployeeAuth();
   const verifyOtpMutation = useVerifyOtpMutation();
   const [otpError, setOtpError] = useState<string | null>(null);
 
@@ -30,8 +32,9 @@ export default function OtpView() {
             // login past this tab (see kiosk-session-context.tsx's reset()).
             syncSessionFromApiResponse(data, false);
             setVerified();
-            // No :employeeId in the URL — the cabinet reads identity from the JWT (/me).
-            navigate(paths.employee);
+            // replace: true — the OTP step must not stay in browser history once signed
+            // in. No :employeeId in the URL — the cabinet reads identity from the JWT (/me).
+            navigate(paths.employee, { replace: true });
           },
           onError: (err) => setOtpError(errorReader(err)),
         }
@@ -40,6 +43,10 @@ export default function OtpView() {
     [employee, session.fallback, verifyOtpMutation, syncSessionFromApiResponse, setVerified, navigate]
   );
 
+  // A signed-in employee (JWT already minted by verify-otp) landing here via browser
+  // back/forward must never re-see the pre-login OTP step — send them to the cabinet.
+  if (loading) return null;
+  if (signedIn) return <Navigate to={paths.employee} replace />;
   if (!isMatch || !employee) {
     return <Navigate to={paths.scan} replace />;
   }

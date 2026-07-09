@@ -1,30 +1,22 @@
 import { useCallback, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import { useAuthContext } from 'src/auth/hooks';
 import { useSnackbar } from 'src/components/snackbar';
 import { paths } from 'src/routes/paths';
 import { errorReader } from 'src/utils/error-reader';
-import type { DecorUser } from 'src/auth/api/types';
 import type { Test } from '../admin-surveys/api/types';
 import { useDueSurveysQuery, useStartSurveyMutation } from './api/use-survey-kiosk-api';
-import { DueSurveysStep, RescanDialog, SurveyPanel } from './components';
+import { DueSurveysStep, EmployeeTopbar, RescanDialog, SurveyPanel } from './components';
+import { useEmployeeAuth } from './session/use-employee-auth';
 import { useKioskSession } from './session/use-kiosk-session';
 
 export default function DueSurveysView() {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const { user, authenticated, loading } = useAuthContext();
-  const { session, faceBlob, setFaceBlob, setStarted } = useKioskSession();
+  const { loading, signedIn, employeeId, employeeName } = useEmployeeAuth();
+  const { session, faceBlob, setFaceBlob, setStarted, reset } = useKioskSession();
   const startMutation = useStartSurveyMutation();
   const [pendingTest, setPendingTest] = useState<Test | null>(null);
-
-  // Identity comes solely from the authenticated JWT (issued by verify-otp) via /me —
-  // never from the URL or the pre-login kiosk session — so a shared/bookmarked link
-  // can never show or submit surveys for the wrong employee.
-  const employee = user && (user as DecorUser).role === 'employee' ? (user as DecorUser) : null;
-  const employeeId = employee?.employeeId ?? null;
-  const employeeName = employee?.firstName || employee?.username || '';
 
   const dueQuery = useDueSurveysQuery(employeeId, employeeId !== null);
 
@@ -76,22 +68,30 @@ export default function DueSurveysView() {
     [pendingTest, setFaceBlob, startSurveyWith]
   );
 
+  // "Back" here means leaving the cabinet for the next person on a shared kiosk — it must
+  // sign the employee out first (like the AccountPopover logout / answer-view finish()),
+  // otherwise the /scan guard would just bounce straight back to /employee.
+  const handleLeave = useCallback(() => {
+    reset();
+    navigate(paths.scan);
+  }, [reset, navigate]);
+
   // Wait for AuthProvider.initialize() to resolve /me before deciding — otherwise a
   // page refresh would bounce a still-valid employee session back to /scan.
   if (loading) return null;
-  if (!authenticated || !employee || employeeId === null) {
+  if (!signedIn || employeeId === null) {
     return <Navigate to={paths.scan} replace />;
   }
 
   return (
-    <SurveyPanel>
+    <SurveyPanel action={<EmployeeTopbar />}>
       <Box sx={{ minHeight: 480 }}>
         <DueSurveysStep
           tests={dueQuery.data ?? []}
           isLoading={dueQuery.isPending}
           employeeName={employeeName}
           onPick={handlePick}
-          onBack={() => navigate(paths.scan)}
+          onBack={handleLeave}
         />
       </Box>
       <RescanDialog
