@@ -10,6 +10,10 @@ export type DecorUser = {
   lastName?: string;
   /** `"<page>:<action>"` keys derived from the role server-side. */
   permissions: string[];
+  /** Linked `Employee.id` for `role: 'employee'` accounts, null for admins. */
+  employeeId: number | null;
+  /** Employee's phone (E.164), null for admins. */
+  phone: string | null;
 };
 
 /** Login response from `DecorTokenObtainPairSerializer`. */

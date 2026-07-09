@@ -30,7 +30,8 @@ export default function OtpView() {
             // login past this tab (see kiosk-session-context.tsx's reset()).
             syncSessionFromApiResponse(data, false);
             setVerified();
-            navigate(paths.scanDue(employee.id));
+            // No :employeeId in the URL — the cabinet reads identity from the JWT (/me).
+            navigate(paths.employee);
           },
           onError: (err) => setOtpError(errorReader(err)),
         }

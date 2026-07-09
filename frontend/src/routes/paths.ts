@@ -6,8 +6,9 @@ export const paths = {
   scanManual: '/scan/manual',
   scanConfirm: (employeeId: number | string) => `/scan/confirm/${employeeId}`,
   scanOtp: (employeeId: number | string) => `/scan/otp/${employeeId}`,
-  scanDue: (employeeId: number | string) => `/scan/due/${employeeId}`,
   scanAnswer: '/scan/answer',
+  /** Employee's personal cabinet after face+OTP login. No :id — identity comes from the JWT (/me). */
+  employee: '/employee',
 
   page403: '/403',
   page404: '/404',

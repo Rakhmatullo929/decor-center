@@ -42,5 +42,7 @@ export function buildMockAuthUser(username: string): DecorUser {
     firstName: 'Mock',
     lastName: 'Admin',
     permissions: MOCK_ADMIN_PERMISSIONS,
+    employeeId: null,
+    phone: null,
   };
 }
