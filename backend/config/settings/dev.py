@@ -18,10 +18,18 @@ REST_FRAMEWORK = {
     ],
 }
 
+# Dev-only: allow any local origin so the frontend works on whichever host port
+# it lands on (3000, 3010, 5173, ...). Auth is JWT via the Authorization header
+# (no cookies/credentials), so the server may safely reflect `*`. Consistent with
+# the wide-open ALLOWED_HOSTS = ["*"] above. Never enable this in prod.
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Kept for reference / explicit allow-list if CORS_ALLOW_ALL_ORIGINS is disabled.
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:3000",
+    "http://localhost:3010",
     "http://localhost:8080",
     "http://127.0.0.1:8080",
 ]
