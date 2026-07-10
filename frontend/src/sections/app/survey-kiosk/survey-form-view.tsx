@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useSnackbar } from 'src/components/snackbar';
 import { LoadingScreen } from 'src/components/loading-screen';
@@ -7,6 +7,12 @@ import { errorReader } from 'src/utils/error-reader';
 import type { KioskAnswer, SubmitAnswerItem, SurveyQuestion } from './api/types';
 import { useSessionDetailQuery, useSubmitSurveyMutation } from './api/use-survey-kiosk-api';
 import { SurveyForm, SurveyPanel, ThankYouStep } from './components';
+import {
+  clearAnswerDraft,
+  loadAnswerDraft,
+  pruneExpiredDrafts,
+  saveAnswerDraft,
+} from './session/answer-draft';
 import { useAnswerAutosave } from './session/use-answer-autosave';
 import { useEmployeeAuth } from './session/use-employee-auth';
 import { useKioskSession } from './session/use-kiosk-session';
@@ -22,38 +28,79 @@ export default function SurveyFormView() {
   const { reset } = useKioskSession();
 
   const sessionQuery = useSessionDetailQuery(sessionId);
-  const { saveAnswer, statusByQuestion } = useAnswerAutosave(sessionId ?? '');
+  const { saveAnswer, flushPending, statusByQuestion } = useAnswerAutosave(sessionId ?? '');
   const submitMutation = useSubmitSurveyMutation();
 
   const [answers, setAnswers] = useState<Record<number, KioskAnswer>>({});
+  const answersRef = useRef<Record<number, KioskAnswer>>({});
   const [seeded, setSeeded] = useState(false);
   const [justSubmitted, setJustSubmitted] = useState(false);
 
-  // Seed local form state from the backend once (not on every refetch), so autosaves
-  // that land while the user keeps typing don't clobber their in-flight edits.
+  // Seed local form state from the backend once (not on every refetch). A short-lived local draft
+  // (localStorage) is overlaid on top so a refresh restores the last keystrokes an autosave debounce
+  // had not yet sent. The draft never overwrites an existing server answer and expired ones are
+  // swept, so it can't revert data edited elsewhere or fill up a shared kiosk's storage.
   useEffect(() => {
     if (seeded || !sessionQuery.data) return;
-    const seededAnswers: Record<number, KioskAnswer> = {};
+    pruneExpiredDrafts();
+    const serverAnswers: Record<number, KioskAnswer> = {};
     sessionQuery.data.answers.forEach((a) => {
-      seededAnswers[a.question] = { selectedOptionIds: a.selectedOptionIds, textValue: a.textValue };
+      serverAnswers[a.question] = { selectedOptionIds: a.selectedOptionIds, textValue: a.textValue };
     });
-    setAnswers(seededAnswers);
+    // A completed session is read-only history — drop any stale local draft, never resurrect it.
+    const completed = sessionQuery.data.status === 'completed';
+    if (sessionId && completed) clearAnswerDraft(sessionId);
+    const draft = sessionId && !completed ? loadAnswerDraft(sessionId) : {};
+    const merged = { ...serverAnswers, ...draft };
+    answersRef.current = merged;
+    setAnswers(merged);
     setSeeded(true);
-  }, [seeded, sessionQuery.data]);
+    // Recover to the backend only answers the server is missing entirely (e.g. text typed right
+    // before a refresh). Existing server answers are left untouched, so a stale draft can never
+    // overwrite a value edited elsewhere; any remaining divergence reconciles on submit.
+    if (sessionId && !completed) {
+      Object.entries(draft).forEach(([id, ans]) => {
+        const questionId = Number(id);
+        if (serverAnswers[questionId] === undefined) {
+          saveAnswer(
+            questionId,
+            {
+              question: questionId,
+              selectedOptionIds: ans.selectedOptionIds,
+              textValue: ans.textValue,
+            },
+            { immediate: true }
+          );
+        }
+      });
+    }
+  }, [seeded, sessionQuery.data, sessionId, saveAnswer]);
+
+  // Mirror the latest answers into a ref so handleAnswer can compute + persist synchronously.
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
 
   const handleAnswer = useCallback(
     (item: SubmitAnswerItem, opts?: { immediate?: boolean }) => {
-      setAnswers((prev) => ({
-        ...prev,
+      const next = {
+        ...answersRef.current,
         [item.question]: { selectedOptionIds: item.selectedOptionIds, textValue: item.textValue },
-      }));
-      if (sessionId) saveAnswer(item.question, item, opts);
+      };
+      answersRef.current = next;
+      setAnswers(next);
+      if (sessionId) {
+        // Synchronous local backup on every input — even a single character survives a refresh.
+        saveAnswerDraft(sessionId, next);
+        saveAnswer(item.question, item, opts);
+      }
     },
     [sessionId, saveAnswer]
   );
 
   const handleSubmit = useCallback(() => {
     if (!sessionQuery.data || submitMutation.isPending) return;
+    flushPending(); // push any pending debounced text before the final full-set submit
     const questions: SurveyQuestion[] = sessionQuery.data.blocks.flatMap((b) => b.questions);
     const items: SubmitAnswerItem[] = questions
       .filter((q) => q.type !== 'section_header')
@@ -68,11 +115,14 @@ export default function SurveyFormView() {
     submitMutation.mutate(
       { sessionId: sessionQuery.data.id, payload: { answers: items } },
       {
-        onSuccess: () => setJustSubmitted(true),
+        onSuccess: () => {
+          if (sessionId) clearAnswerDraft(sessionId);
+          setJustSubmitted(true);
+        },
         onError: (err) => enqueueSnackbar(errorReader(err), { variant: 'error' }),
       }
     );
-  }, [sessionQuery.data, answers, submitMutation, enqueueSnackbar]);
+  }, [sessionQuery.data, answers, submitMutation, enqueueSnackbar, flushPending, sessionId]);
 
   const finish = useCallback(() => {
     reset();
@@ -101,7 +151,7 @@ export default function SurveyFormView() {
   }
 
   return (
-    <SurveyPanel maxWidth={760}>
+    <SurveyPanel maxWidth={940}>
       {done ? (
         <ThankYouStep employeeName={sessionQuery.data.employeeName} onFinish={finish} />
       ) : (
