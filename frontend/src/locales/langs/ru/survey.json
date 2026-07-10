@@ -47,6 +47,9 @@
       "signatureLabel": "Подпись (Ф.И.О.)",
       "dateLabel": "Дата",
       "required": "Обязательный вопрос",
+      "stepOf": "Раздел {{current}} из {{total}}",
+      "sections": "Разделы",
+      "sectionsProgress": "Пройдено {{done}} из {{total}}",
       "saving": "Сохранение...",
       "saved": "Сохранено",
       "saveFailed": "Не удалось сохранить"

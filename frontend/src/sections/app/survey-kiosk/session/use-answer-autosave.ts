@@ -4,38 +4,54 @@ import { useAutosaveAnswerMutation } from '../api/use-survey-kiosk-api';
 
 export type AutosaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
-const DEBOUNCE_MS = 600;
+const DEBOUNCE_MS = 400;
 
 /**
- * Debounces text-type answers (~600ms) and saves choice-type answers immediately, so
- * progress survives a closed tab without a request per keystroke. The final `submit`
- * still sends the full answer set as a safety net if an autosave call silently failed.
+ * Saves choice-type answers immediately and coalesces rapid text edits with a short (~400ms)
+ * debounce, so the backend gets every answer without a request per keystroke. When the page is
+ * hidden or unloaded (refresh / tab close) any pending text save is flushed — best-effort, since
+ * a request started during unload may be dropped by the browser. The guaranteed "never lose a
+ * keystroke" path is the synchronous localStorage draft (see answer-draft); the final `submit`
+ * also re-sends the full answer set. This hook only handles backend persistence + status.
  */
 export function useAnswerAutosave(sessionId: number | string) {
-  const mutation = useAutosaveAnswerMutation();
+  const { mutate } = useAutosaveAnswerMutation();
   const timers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
+  const pending = useRef<Record<number, AutosaveAnswerPayload>>({});
+  const mounted = useRef(true);
   const [statusByQuestion, setStatusByQuestion] = useState<Record<number, AutosaveStatus>>({});
 
-  useEffect(() => {
-    const timersAtMount = timers.current;
-    return () => {
-      Object.values(timersAtMount).forEach(clearTimeout);
-    };
+  useEffect(() => () => {
+    mounted.current = false;
+  }, []);
+
+  // React Query still invokes a mutate call's callbacks after this hook unmounts (e.g. an autosave
+  // resolving while the kiosk is already returning to the scanner) — guard so we never set state then.
+  const setStatus = useCallback((questionId: number, status: AutosaveStatus) => {
+    if (mounted.current) setStatusByQuestion((prev) => ({ ...prev, [questionId]: status }));
   }, []);
 
   const flush = useCallback(
     (questionId: number, item: AutosaveAnswerPayload) => {
-      setStatusByQuestion((prev) => ({ ...prev, [questionId]: 'saving' }));
-      mutation.mutate(
+      clearTimeout(timers.current[questionId]);
+      delete timers.current[questionId];
+      delete pending.current[questionId];
+      setStatus(questionId, 'saving');
+      mutate(
         { sessionId, item },
         {
-          onSuccess: () => setStatusByQuestion((prev) => ({ ...prev, [questionId]: 'saved' })),
-          onError: () => setStatusByQuestion((prev) => ({ ...prev, [questionId]: 'error' })),
+          onSuccess: () => setStatus(questionId, 'saved'),
+          onError: () => setStatus(questionId, 'error'),
         }
       );
     },
-    [mutation, sessionId]
+    [mutate, sessionId, setStatus]
   );
+
+  /** Fire every still-pending debounced save right now (e.g. before the tab is hidden). */
+  const flushPending = useCallback(() => {
+    Object.entries(pending.current).forEach(([id, item]) => flush(Number(id), item));
+  }, [flush]);
 
   const saveAnswer = useCallback(
     (questionId: number, item: AutosaveAnswerPayload, opts?: { immediate?: boolean }) => {
@@ -44,11 +60,27 @@ export function useAnswerAutosave(sessionId: number | string) {
         flush(questionId, item);
         return;
       }
-      setStatusByQuestion((prev) => ({ ...prev, [questionId]: 'saving' }));
+      pending.current[questionId] = item;
+      setStatus(questionId, 'saving');
       timers.current[questionId] = setTimeout(() => flush(questionId, item), DEBOUNCE_MS);
     },
-    [flush]
+    [flush, setStatus]
   );
 
-  return { saveAnswer, statusByQuestion };
+  // Never lose the last keystrokes: flush pending saves when the page is hidden or unloaded.
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') flushPending();
+    };
+    const timersRef = timers.current;
+    window.addEventListener('pagehide', flushPending);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('pagehide', flushPending);
+      document.removeEventListener('visibilitychange', onVisibility);
+      Object.values(timersRef).forEach(clearTimeout);
+    };
+  }, [flushPending]);
+
+  return { saveAnswer, flushPending, statusByQuestion };
 }

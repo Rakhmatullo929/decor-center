@@ -47,6 +47,9 @@
       "signatureLabel": "Imzo (F.I.Sh.)",
       "dateLabel": "Sana",
       "required": "Majburiy savol",
+      "stepOf": "{{current}}-bo‘lim / {{total}}",
+      "sections": "Bo‘limlar",
+      "sectionsProgress": "{{done}} / {{total}} bo‘lim to‘ldirildi",
       "saving": "Saqlanmoqda...",
       "saved": "Saqlandi",
       "saveFailed": "Saqlab bo‘lmadi"
