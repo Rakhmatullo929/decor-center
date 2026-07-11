@@ -125,3 +125,44 @@ def test_progress_excludes_section_headers(survey_with_questions):
     row = next(s for s in resp.data if s["id"] == session_id)
     assert row["total_count"] == 2  # the section header is not counted
     assert row["answered_count"] == 0
+
+
+# --- expired guard on start/submit -------------------------------------------
+
+def test_start_blocked_when_expired(monkeypatch):
+    emp = EmployeeFactory()
+    survey = TestFactory(test_days_from=1, test_days_to=10, month=[7])
+    monkeypatch.setattr(
+        "django.utils.timezone.localdate", lambda: datetime.date(2026, 7, 20)
+    )
+    resp = kiosk_client(emp.id).post(
+        f"{SESSIONS}start/", {"employee": emp.id, "test": survey.id}, format="json"
+    )
+    assert resp.status_code == 409, resp.data
+    assert resp.data["code"] == "survey_expired"
+
+
+def test_start_allowed_when_open(monkeypatch):
+    emp = EmployeeFactory()
+    survey = TestFactory(test_days_from=1, test_days_to=31, month=[7])
+    monkeypatch.setattr(
+        "django.utils.timezone.localdate", lambda: datetime.date(2026, 7, 20)
+    )
+    resp = kiosk_client(emp.id).post(
+        f"{SESSIONS}start/", {"employee": emp.id, "test": survey.id}, format="json"
+    )
+    assert resp.status_code in (200, 201), resp.data
+
+
+def test_submit_blocked_when_expired(monkeypatch):
+    emp = EmployeeFactory()
+    survey = TestFactory(test_days_from=1, test_days_to=10, month=[7])
+    session = SurveySessionFactory(test=survey, employee=emp)  # started in-window earlier
+    monkeypatch.setattr(
+        "django.utils.timezone.localdate", lambda: datetime.date(2026, 7, 20)
+    )
+    resp = kiosk_client(emp.id).post(
+        f"{SESSIONS}{session.id}/submit/", {"answers": []}, format="json"
+    )
+    assert resp.status_code == 409, resp.data
+    assert resp.data["code"] == "survey_expired"
