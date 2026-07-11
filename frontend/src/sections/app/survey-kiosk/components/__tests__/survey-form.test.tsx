@@ -74,6 +74,8 @@ function Harness({ onSubmit }: { onSubmit: () => void }) {
 }
 
 const next = () => fireEvent.click(screen.getByRole('button', { name: 'common.actions.next' }));
+const submit = () =>
+  fireEvent.click(screen.getByRole('button', { name: 'common.actions.submit' }));
 
 describe('SurveyForm wizard', () => {
   it('shows one block at a time, starting on the first', () => {
@@ -83,17 +85,10 @@ describe('SurveyForm wizard', () => {
     expect(screen.queryByText('Q3')).not.toBeInTheDocument();
   });
 
-  it('blocks Next until the current block’s required question is answered', () => {
+  it('advances with Next even when the required question is unanswered (free navigation)', () => {
     render(<Harness onSubmit={jest.fn()} />);
 
-    next();
-    // Gate holds: still on block 1, block 2 not revealed.
-    expect(screen.getByText('Q1')).toBeInTheDocument();
-    expect(screen.queryByText('Q2')).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByText('Ans A'));
-    next();
-
+    next(); // no answer given — navigation is no longer gated
     expect(screen.queryByText('Q1')).not.toBeInTheDocument();
     expect(screen.getByText('Q2')).toBeInTheDocument();
   });
@@ -108,25 +103,17 @@ describe('SurveyForm wizard', () => {
     expect(screen.getByText('Q1')).toBeInTheDocument();
   });
 
-  it('gates the final Submit and only fires onSubmit once the last block is complete', () => {
-    const onSubmit = jest.fn();
-    render(<Harness onSubmit={onSubmit} />);
+  it('lets the employee open any section directly from the rail (no locks)', () => {
+    render(<Harness onSubmit={jest.fn()} />);
+    const rail = screen.getByRole('navigation');
+    const finalBtn = within(rail).getByRole('button', { name: /IV\. FINAL/ });
+    expect(finalBtn).not.toBeDisabled();
 
-    fireEvent.click(screen.getByText('Ans A')); // block 1
-    next();
-    next(); // block 2 has no required questions
+    fireEvent.click(finalBtn);
     expect(screen.getByText('Q3')).toBeInTheDocument();
-
-    const submit = () => fireEvent.click(screen.getByRole('button', { name: 'common.actions.submit' }));
-    submit();
-    expect(onSubmit).not.toHaveBeenCalled(); // Q3 still empty
-
-    fireEvent.click(screen.getByText('Ans C'));
-    submit();
-    expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 
-  it('lets the employee jump back to a completed section from the rail', () => {
+  it('lets the employee jump back to an earlier section from the rail', () => {
     render(<Harness onSubmit={jest.fn()} />);
     fireEvent.click(screen.getByText('Ans A'));
     next();
@@ -137,9 +124,34 @@ describe('SurveyForm wizard', () => {
     expect(screen.getByText('Q1')).toBeInTheDocument();
   });
 
-  it('locks sections the employee has not reached yet', () => {
-    render(<Harness onSubmit={jest.fn()} />);
+  it('submit fires only once every required question across all blocks is answered', () => {
+    const onSubmit = jest.fn();
+    render(<Harness onSubmit={onSubmit} />);
     const rail = screen.getByRole('navigation');
-    expect(within(rail).getByRole('button', { name: /IV\. FINAL/ })).toBeDisabled();
+
+    fireEvent.click(screen.getByText('Ans A')); // block 1 done
+    fireEvent.click(within(rail).getByRole('button', { name: /IV\. FINAL/ })); // jump to last block
+
+    submit();
+    expect(onSubmit).not.toHaveBeenCalled(); // Q3 still empty → stays on block 3
+    expect(screen.getByText('Q3')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Ans C'));
+    submit();
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it('submit jumps to the first block with a missing required answer', () => {
+    const onSubmit = jest.fn();
+    render(<Harness onSubmit={onSubmit} />);
+    const rail = screen.getByRole('navigation');
+
+    // Reach the last block and answer it, leaving block 1's required question empty.
+    fireEvent.click(within(rail).getByRole('button', { name: /IV\. FINAL/ }));
+    fireEvent.click(screen.getByText('Ans C'));
+
+    submit();
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByText('Q1')).toBeInTheDocument(); // jumped back to the first gap
   });
 });
