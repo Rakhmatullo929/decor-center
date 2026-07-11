@@ -179,6 +179,8 @@ class SurveySessionSerializer(serializers.ModelSerializer):
     employee_name = serializers.CharField(source="employee.full_name", read_only=True)
     test_title = serializers.CharField(source="test.title", read_only=True)
     status = serializers.ReadOnlyField()
+    answered_count = serializers.SerializerMethodField()
+    total_count = serializers.SerializerMethodField()
 
     class Meta:
         model = SurveySession
@@ -194,8 +196,33 @@ class SurveySessionSerializer(serializers.ModelSerializer):
             "started_at",
             "completed_at",
             "status",
+            "answered_count",
+            "total_count",
         ]
         read_only_fields = fields
+
+    def _progress(self, obj):
+        """(answered, total) over scorable questions (section headers excluded),
+        computed once per object from the prefetched answers."""
+        cached = getattr(obj, "_progress_cache", None)
+        if cached is not None:
+            return cached
+        scorable = [
+            a for a in obj.answers.all()
+            if a.question.type != Question.Type.SECTION_HEADER
+        ]
+        answered = sum(
+            1 for a in scorable if a.selected_option_ids or a.text_value.strip()
+        )
+        cached = (answered, len(scorable))
+        obj._progress_cache = cached
+        return cached
+
+    def get_answered_count(self, obj):
+        return self._progress(obj)[0]
+
+    def get_total_count(self, obj):
+        return self._progress(obj)[1]
 
 
 class SurveySessionDetailSerializer(SurveySessionSerializer):

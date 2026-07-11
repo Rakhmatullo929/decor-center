@@ -89,3 +89,39 @@ def test_in_progress_includes_open_window_session(monkeypatch):
     )
     resp = kiosk_client(emp.id).get(f"{SESSIONS}in-progress/?employee={emp.id}")
     assert [row["id"] for row in resp.data] == [session.id]
+
+
+# --- progress counts ---------------------------------------------------------
+
+from .test_surveys_api import _start, survey_with_questions  # noqa: E402,F401
+
+
+def test_in_progress_reports_progress_counts(survey_with_questions):
+    survey, q_single, q_text = survey_with_questions
+    emp = EmployeeFactory()
+    client = kiosk_client(emp.id)
+    session_id = _start(client, survey, emp).data["session"]["id"]
+    client.post(
+        f"{SESSIONS}{session_id}/answer/",
+        {"question": q_single.id, "selectedOptionIds": ["a"]},
+        format="json",
+    )
+    resp = client.get(f"{SESSIONS}in-progress/?employee={emp.id}")
+    row = next(s for s in resp.data if s["id"] == session_id)
+    assert row["total_count"] == 2
+    assert row["answered_count"] == 1
+
+
+def test_progress_excludes_section_headers(survey_with_questions):
+    survey, q_single, q_text = survey_with_questions
+    block = survey.blocks.first()
+    QuestionFactory(
+        block=block, type=Question.Type.SECTION_HEADER, order=5, options=[]
+    )
+    emp = EmployeeFactory()
+    client = kiosk_client(emp.id)
+    session_id = _start(client, survey, emp).data["session"]["id"]
+    resp = client.get(f"{SESSIONS}in-progress/?employee={emp.id}")
+    row = next(s for s in resp.data if s["id"] == session_id)
+    assert row["total_count"] == 2  # the section header is not counted
+    assert row["answered_count"] == 0
