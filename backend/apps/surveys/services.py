@@ -197,10 +197,10 @@ def _apply_answer(row: Answer, item: dict) -> None:
     if row.question.type == Question.Type.SECTION_HEADER:
         return
     if row.question.type in Question.TEXT_ANSWER_TYPES:
-        row.text_value = item.get("textValue", "")
+        row.text_value = item.get("text_value", "")
         row.selected_option_ids = []
     else:
-        row.selected_option_ids = item.get("selectedOptionIds", [])
+        row.selected_option_ids = item.get("selected_option_ids", [])
         row.text_value = ""
 
 

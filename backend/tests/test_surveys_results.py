@@ -27,8 +27,8 @@ def filled_survey(admin_client):
                 "employee": emp.id,
                 "test": survey.id,
                 "answers": [
-                    {"question": q_single.id, "selectedOptionIds": [choice]},
-                    {"question": q_text.id, "textValue": comment},
+                    {"question": q_single.id, "selected_option_ids": [choice]},
+                    {"question": q_text.id, "text_value": comment},
                 ],
             },
             format="json",

@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from apps.surveys.models import Question, SurveySession
+from apps.surveys.models import Answer, Question, SurveySession
 from apps.surveys.scheduling import due_surveys, is_expired
 
 from .factories import (
@@ -91,9 +91,52 @@ def test_in_progress_includes_open_window_session(monkeypatch):
     assert [row["id"] for row in resp.data] == [session.id]
 
 
-# --- progress counts ---------------------------------------------------------
+# --- answer persistence (snake_case, as the real browser sends) --------------
 
 from .test_surveys_api import _start, survey_with_questions  # noqa: E402,F401
+
+
+def test_answer_persists_snake_case_payload(survey_with_questions):
+    """The frontend axios layer decamelizes request bodies, so the kiosk sends
+    snake_case (`selected_option_ids` / `text_value`). The /answer/ endpoint must
+    persist it. Regression: it used to expect camelCase, silently drop the value,
+    and return 200 with a blank Answer — so progress always read 0."""
+    survey, q_single, q_text = survey_with_questions
+    emp = EmployeeFactory()
+    client = kiosk_client(emp.id)
+    session_id = _start(client, survey, emp).data["session"]["id"]
+
+    resp = client.post(
+        f"{SESSIONS}{session_id}/answer/",
+        {"question": q_single.id, "selected_option_ids": ["a"]},
+        format="json",
+    )
+    assert resp.status_code == 200, resp.data
+    assert Answer.objects.get(
+        session_id=session_id, question=q_single
+    ).selected_option_ids == ["a"]
+
+
+def test_submit_persists_snake_case_answers(survey_with_questions):
+    survey, q_single, q_text = survey_with_questions
+    emp = EmployeeFactory()
+    client = kiosk_client(emp.id)
+    session_id = _start(client, survey, emp).data["session"]["id"]
+
+    resp = client.post(
+        f"{SESSIONS}{session_id}/submit/",
+        {"answers": [
+            {"question": q_single.id, "selected_option_ids": ["a"]},
+            {"question": q_text.id, "text_value": "Nice"},
+        ]},
+        format="json",
+    )
+    assert resp.status_code == 200, resp.data
+    assert Answer.objects.get(session=session_id, question=q_single).selected_option_ids == ["a"]
+    assert Answer.objects.get(session=session_id, question=q_text).text_value == "Nice"
+
+
+# --- progress counts ---------------------------------------------------------
 
 
 def test_in_progress_reports_progress_counts(survey_with_questions):
@@ -103,7 +146,7 @@ def test_in_progress_reports_progress_counts(survey_with_questions):
     session_id = _start(client, survey, emp).data["session"]["id"]
     client.post(
         f"{SESSIONS}{session_id}/answer/",
-        {"question": q_single.id, "selectedOptionIds": ["a"]},
+        {"question": q_single.id, "selected_option_ids": ["a"]},
         format="json",
     )
     resp = client.get(f"{SESSIONS}in-progress/?employee={emp.id}")

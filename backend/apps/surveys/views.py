@@ -451,7 +451,7 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
             )
         serializer = SubmitSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        face_b64 = serializer.validated_data.get("faceImage")
+        face_b64 = serializer.validated_data.get("face_image")
         face_bytes = _decode_face_image(face_b64) if face_b64 else None
 
         try:

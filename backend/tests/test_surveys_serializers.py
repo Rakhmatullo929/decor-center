@@ -69,15 +69,18 @@ def test_test_nested_blocks_read():
     assert data["blocks"][0]["questions"][0]["text"] == "Free"
 
 
-def test_submit_serializer_camel_case_fields():
+def test_submit_serializer_reads_snake_case_answer_fields():
+    # The frontend axios layer decamelizes request bodies (http-client.ts), so the
+    # kiosk sends snake_case. The serializer must read `selected_option_ids` /
+    # `text_value` — camelCase keys would be silently dropped (blank answers).
     ser = SubmitSerializer(
         data={
             "answers": [
-                {"question": 1, "selectedOptionIds": ["a"]},
-                {"question": 2, "textValue": "hello"},
+                {"question": 1, "selected_option_ids": ["a"]},
+                {"question": 2, "text_value": "hello"},
             ]
         }
     )
     assert ser.is_valid(), ser.errors
-    assert ser.validated_data["answers"][0]["selectedOptionIds"] == ["a"]
-    assert ser.validated_data["answers"][1]["textValue"] == "hello"
+    assert ser.validated_data["answers"][0]["selected_option_ids"] == ["a"]
+    assert ser.validated_data["answers"][1]["text_value"] == "hello"

@@ -147,7 +147,7 @@ def test_answer_autosaves_without_completing(survey_with_questions):
 
     resp = client.post(
         f"{SESSIONS}{session_id}/answer/",
-        {"question": q_single.id, "selectedOptionIds": ["a"]},
+        {"question": q_single.id, "selected_option_ids": ["a"]},
         format="json",
     )
     assert resp.status_code == 200, resp.data
@@ -162,7 +162,7 @@ def test_answer_rejects_employee_mismatch(survey_with_questions):
     session_id = _start(kiosk_client(emp.id), survey, emp).data["session"]["id"]
     resp = kiosk_client(other.id).post(
         f"{SESSIONS}{session_id}/answer/",
-        {"question": q_single.id, "selectedOptionIds": ["a"]},
+        {"question": q_single.id, "selected_option_ids": ["a"]},
         format="json",
     )
     assert resp.status_code == 403
@@ -192,7 +192,7 @@ def test_retrieve_own_session_includes_blocks_for_resume(survey_with_questions):
     session_id = _start(client, survey, emp).data["session"]["id"]
     client.post(
         f"{SESSIONS}{session_id}/answer/",
-        {"question": q_single.id, "selectedOptionIds": ["a"]},
+        {"question": q_single.id, "selected_option_ids": ["a"]},
         format="json",
     )
 
@@ -222,8 +222,8 @@ def test_submit_persists_answers(survey_with_questions):
     resp = client.post(
         f"{SESSIONS}{session_id}/submit/",
         {"answers": [
-            {"question": q_single.id, "selectedOptionIds": ["a"]},
-            {"question": q_text.id, "textValue": "Nice"},
+            {"question": q_single.id, "selected_option_ids": ["a"]},
+            {"question": q_text.id, "text_value": "Nice"},
         ]},
         format="json",
     )
@@ -244,7 +244,7 @@ def test_admin_fill_requires_admin(employee_client, admin_client, survey_with_qu
     payload = {
         "employee": emp.id,
         "test": survey.id,
-        "answers": [{"question": q_single.id, "selectedOptionIds": ["b"]}],
+        "answers": [{"question": q_single.id, "selected_option_ids": ["b"]}],
     }
     assert employee_client.post(f"{SESSIONS}admin-fill/", payload, format="json").status_code == 403
     resp = admin_client.post(f"{SESSIONS}admin-fill/", payload, format="json")

@@ -137,19 +137,19 @@ class StartSurveySerializer(serializers.Serializer):
 
 
 class AnswerItemSerializer(serializers.Serializer):
+    # snake_case on the wire: the frontend axios layer decamelizes every request
+    # body (http-client.ts), so the kiosk sends `selected_option_ids`/`text_value`.
     question = serializers.IntegerField()
-    selectedOptionIds = serializers.ListField(  # noqa: N815 (client contract camelCase)
+    selected_option_ids = serializers.ListField(
         child=serializers.CharField(), required=False, default=list
     )
-    textValue = serializers.CharField(  # noqa: N815
-        required=False, allow_blank=True, default=""
-    )
+    text_value = serializers.CharField(required=False, allow_blank=True, default="")
 
 
 class SubmitSerializer(serializers.Serializer):
     answers = AnswerItemSerializer(many=True, allow_empty=False)
     # Optional base64 (raw or data-URL) camera frame for submit-time re-verification.
-    faceImage = serializers.CharField(required=False, allow_blank=True)  # noqa: N815
+    face_image = serializers.CharField(required=False, allow_blank=True)
 
 
 class AdminFillSerializer(serializers.Serializer):
