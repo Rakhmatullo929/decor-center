@@ -11,6 +11,25 @@ def _last_day_of_month(year: int, month: int) -> int:
     return calendar.monthrange(year, month)[1]
 
 
+def is_expired(test: Test, today: datetime.date) -> bool:
+    """True when a periodic survey's explicit day-of-month window has already
+    passed this month, i.e. a late start/submit must be refused (read-only).
+
+    Lenient by design: after-application surveys and periodic surveys without an
+    explicit upper bound (`test_days_to is None`) never expire — there is no
+    deadline to pass. Visibility windowing (which day a survey first appears) is
+    handled separately by `due_surveys`; this governs only whether a late
+    start/submit is still allowed.
+    """
+    if test.is_after_application or test.test_days_to is None:
+        return False
+    months = test.month or ALL_MONTHS
+    if today.month not in months:
+        return False
+    hi = min(test.test_days_to, _last_day_of_month(today.year, today.month))
+    return today.day > hi
+
+
 def _completed_ever(test: Test, employee) -> bool:
     return SurveySession.objects.filter(
         test=test, employee=employee, completed_at__isnull=False
