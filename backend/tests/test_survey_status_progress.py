@@ -64,3 +64,28 @@ def test_due_still_lists_test_without_a_session():
     survey = TestFactory(is_after_application=True, after_days=1)
     result = due_surveys(emp, datetime.date(2026, 7, 1))
     assert survey in result
+
+
+# --- in-progress: expired-window exclusion -----------------------------------
+
+def test_in_progress_excludes_expired_window_session(monkeypatch):
+    emp = EmployeeFactory()
+    survey = TestFactory(test_days_from=1, test_days_to=10, month=[7])
+    SurveySessionFactory(test=survey, employee=emp)
+    monkeypatch.setattr(
+        "django.utils.timezone.localdate", lambda: datetime.date(2026, 7, 20)
+    )
+    resp = kiosk_client(emp.id).get(f"{SESSIONS}in-progress/?employee={emp.id}")
+    assert resp.status_code == 200, resp.data
+    assert resp.data == []
+
+
+def test_in_progress_includes_open_window_session(monkeypatch):
+    emp = EmployeeFactory()
+    survey = TestFactory(test_days_from=1, test_days_to=31, month=[7])
+    session = SurveySessionFactory(test=survey, employee=emp)
+    monkeypatch.setattr(
+        "django.utils.timezone.localdate", lambda: datetime.date(2026, 7, 20)
+    )
+    resp = kiosk_client(emp.id).get(f"{SESSIONS}in-progress/?employee={emp.id}")
+    assert [row["id"] for row in resp.data] == [session.id]

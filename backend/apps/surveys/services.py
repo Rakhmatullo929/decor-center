@@ -13,6 +13,7 @@ from apps.integrations.base import NoFaceDetectedError
 from apps.integrations.registry import get_face_recognition_service
 
 from .models import Answer, FaceVerificationLog, Question, SurveySession, Test
+from .scheduling import is_expired
 
 logger = logging.getLogger(__name__)
 
@@ -137,16 +138,21 @@ def _live_session(employee: Employee, test: Test) -> SurveySession | None:
     )
 
 
-def in_progress_sessions(employee: Employee):
-    """All of the employee's own live (not completed, not abandoned) sessions —
-    powers the cabinet's "continue" list."""
-    return (
+def in_progress_sessions(employee: Employee, today=None):
+    """The employee's live (not completed, not abandoned) sessions whose survey
+    window is still open — powers the cabinet's "continue" list. Sessions whose
+    window has closed are omitted (expired surveys are read-only). Answers are
+    prefetched so the serializer can report progress without an N+1."""
+    today = today or timezone.localdate()
+    sessions = (
         SurveySession.objects.filter(
             employee=employee, completed_at__isnull=True, started_at__gte=_live_session_cutoff()
         )
         .select_related("test")
+        .prefetch_related("answers__question")
         .order_by("-started_at")
     )
+    return [s for s in sessions if not is_expired(s.test, today)]
 
 
 def start_survey_session(
