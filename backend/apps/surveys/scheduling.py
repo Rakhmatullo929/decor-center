@@ -2,6 +2,9 @@
 import calendar
 import datetime
 
+from django.conf import settings as django_settings
+from django.utils import timezone
+
 from .models import SurveySession, Test
 
 ALL_MONTHS = list(range(1, 13))
@@ -58,11 +61,28 @@ def due_surveys(employee, today: datetime.date) -> list[Test]:
     days = None if hire is None else (today - hire).days
     result: list[Test] = []
 
+    # Surveys with a live (not completed, not abandoned) session belong in the
+    # "continue"/in-progress list, not "due" — excluding them here removes the
+    # duplicate-row bug. Cutoff mirrors services._live_session_cutoff (kept inline
+    # so scheduling stays independent of the service layer).
+    live_cutoff = timezone.now() - datetime.timedelta(
+        hours=django_settings.DECOR["SURVEY_SESSION_ABANDONED_AFTER_HOURS"]
+    )
+    live_test_ids = set(
+        SurveySession.objects.filter(
+            employee=employee, completed_at__isnull=True, started_at__gte=live_cutoff
+        ).values_list("test_id", flat=True)
+    )
+
     for test in Test.objects.filter(is_active=True, is_admin_conducted=False):
         if test.is_after_application:
             if days is None or test.after_days is None:
                 continue
-            if days >= test.after_days and not _completed_ever(test, employee):
+            if (
+                days >= test.after_days
+                and test.id not in live_test_ids
+                and not _completed_ever(test, employee)
+            ):
                 result.append(test)
         else:
             months = test.month or ALL_MONTHS
@@ -76,6 +96,8 @@ def due_surveys(employee, today: datetime.date) -> list[Test]:
             if not (lo <= today.day <= hi):
                 continue
             window_start = datetime.date(today.year, today.month, lo)
-            if not _completed_since(test, employee, window_start):
+            if test.id not in live_test_ids and not _completed_since(
+                test, employee, window_start
+            ):
                 result.append(test)
     return result
