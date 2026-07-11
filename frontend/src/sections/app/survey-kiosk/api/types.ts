@@ -38,6 +38,9 @@ export type SurveySession = {
   startedAt: string;
   completedAt: string | null;
   status: SurveySessionStatus;
+  /** Answered / total scorable questions (section headers excluded). */
+  answeredCount: number;
+  totalCount: number;
   /** True only when DECOR_REVERIFY_ON_SUBMIT is on (default off for surveys). */
   requiresSubmitReverify?: boolean;
 };

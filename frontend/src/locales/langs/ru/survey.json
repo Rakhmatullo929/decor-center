@@ -37,7 +37,9 @@
       "title": "Доступные опросы",
       "subtitle": "Сотрудник: {{name}}",
       "continueTitle": "Продолжить",
-      "empty": "Нет доступных опросов"
+      "empty": "Нет доступных опросов",
+      "status": { "notStarted": "Не начат", "inProgress": "В процессе" },
+      "progress": "{{answered}} / {{total}} вопросов"
     },
     "questions": {
       "textPlaceholder": "Введите ваш ответ..."
