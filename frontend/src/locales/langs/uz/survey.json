@@ -54,7 +54,8 @@
       "sectionsProgress": "{{done}} / {{total}} bo‘lim to‘ldirildi",
       "saving": "Saqlanmoqda...",
       "saved": "Saqlandi",
-      "saveFailed": "Saqlab bo‘lmadi"
+      "saveFailed": "Saqlab bo‘lmadi",
+      "expired": "So‘rov muddati tugagan"
     },
     "thankYou": {
       "title": "Rahmat!",

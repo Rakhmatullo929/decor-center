@@ -54,7 +54,8 @@
       "sectionsProgress": "Пройдено {{done}} из {{total}}",
       "saving": "Сохранение...",
       "saved": "Сохранено",
-      "saveFailed": "Не удалось сохранить"
+      "saveFailed": "Не удалось сохранить",
+      "expired": "Срок сдачи опроса истёк"
     },
     "thankYou": {
       "title": "Спасибо!",

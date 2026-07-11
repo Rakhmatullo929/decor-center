@@ -2,8 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useSnackbar } from 'src/components/snackbar';
 import { LoadingScreen } from 'src/components/loading-screen';
+import useLocales from 'src/locales/use-locales';
 import { paths } from 'src/routes/paths';
-import { errorReader } from 'src/utils/error-reader';
+import { errorCode, errorReader } from 'src/utils/error-reader';
 import type { KioskAnswer, SubmitAnswerItem, SurveyQuestion } from './api/types';
 import { useSessionDetailQuery, useSubmitSurveyMutation } from './api/use-survey-kiosk-api';
 import { SurveyForm, SurveyPanel, ThankYouStep } from './components';
@@ -24,6 +25,7 @@ export default function SurveyFormView() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
+  const { tx } = useLocales();
   const { loading, signedIn } = useEmployeeAuth();
   const { reset } = useKioskSession();
 
@@ -119,10 +121,28 @@ export default function SurveyFormView() {
           if (sessionId) clearAnswerDraft(sessionId);
           setJustSubmitted(true);
         },
-        onError: (err) => enqueueSnackbar(errorReader(err), { variant: 'error' }),
+        onError: (err) => {
+          if (errorCode(err) === 'survey_expired') {
+            enqueueSnackbar(tx('survey.kiosk.form.expired'), { variant: 'warning' });
+            reset();
+            navigate(paths.scan, { replace: true });
+            return;
+          }
+          enqueueSnackbar(errorReader(err), { variant: 'error' });
+        },
       }
     );
-  }, [sessionQuery.data, answers, submitMutation, enqueueSnackbar, flushPending, sessionId]);
+  }, [
+    sessionQuery.data,
+    answers,
+    submitMutation,
+    enqueueSnackbar,
+    flushPending,
+    sessionId,
+    tx,
+    reset,
+    navigate,
+  ]);
 
   const finish = useCallback(() => {
     reset();

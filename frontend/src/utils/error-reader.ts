@@ -44,3 +44,17 @@ export function errorReader(error: BaseError | unknown): string {
   }
   return 'Не удалось выполнить запрос';
 }
+
+/** The DRF `code` discriminator on an error body, if any (e.g. "survey_expired"). */
+export function errorCode(error: unknown): string | null {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data;
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+      const { code } = data as Record<string, unknown>;
+      if (typeof code === 'string') {
+        return code;
+      }
+    }
+  }
+  return null;
+}
