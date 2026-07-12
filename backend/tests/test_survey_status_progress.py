@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from apps.surveys.models import Answer, Question, SurveySession
+from apps.surveys.models import Answer, Question
 from apps.surveys.scheduling import due_surveys, is_expired
 
 from .factories import (
@@ -93,7 +93,7 @@ def test_in_progress_includes_open_window_session(monkeypatch):
 
 # --- answer persistence (snake_case, as the real browser sends) --------------
 
-from .test_surveys_api import _start, survey_with_questions  # noqa: E402,F401
+from .test_surveys_api import _start  # noqa: E402
 
 
 def test_answer_persists_snake_case_payload(survey_with_questions):

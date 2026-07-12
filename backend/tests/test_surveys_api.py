@@ -6,12 +6,11 @@ from rest_framework.test import APIClient
 from apps.accounts.tokens import issue_token_pair
 from apps.employees.models import Employee
 from apps.employees.services import get_or_create_employee_user
-from apps.surveys.models import Answer, Question, SurveySession
+from apps.surveys.models import Answer, SurveySession
 
 from .factories import (
     EmployeeFactory,
     QuestionBlockFactory,
-    QuestionFactory,
     TestFactory,
 )
 
@@ -28,18 +27,6 @@ def kiosk_client(employee_id, *, fallback=False):
     client = APIClient()
     client.credentials(HTTP_AUTHORIZATION=f"Bearer {tokens['access']}")
     return client
-
-
-@pytest.fixture
-def survey_with_questions(db):
-    survey = TestFactory()
-    block = QuestionBlockFactory(test=survey, order=0)
-    q_single = QuestionFactory(
-        block=block, type=Question.Type.SINGLE, order=0,
-        options=[{"id": "a", "text": "Yes"}, {"id": "b", "text": "No"}],
-    )
-    q_text = QuestionFactory(block=block, type=Question.Type.TEXTAREA, order=1, options=[])
-    return survey, q_single, q_text
 
 
 # --- RBAC on CRUD -----------------------------------------------------------
