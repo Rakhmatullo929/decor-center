@@ -87,17 +87,17 @@ export default function SurveyForm({
   const topRef = useRef<HTMLDivElement | null>(null);
   const [invalidIds, setInvalidIds] = useState<Set<number>>(new Set());
 
-  // Resume where the employee left off; earlier sections stay reachable via the rail. Computed
-  // once from the seeded answers so a background refetch never yanks the user to another section.
+  // Resume where the employee left off; every section stays freely reachable via the rail.
+  // Computed once from the seeded answers so a background refetch never yanks the user elsewhere.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const initialStep = useMemo(() => Math.max(firstIncompleteBlockIndex(blocks, answers), 0), []);
   const [activeStep, setActiveStep] = useState(initialStep);
-  const [maxReached, setMaxReached] = useState(initialStep);
 
   const scrollToTop = useCallback(() => {
     topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
 
+  // Free navigation: jump to any section, in any order — answers autosave so nothing is lost.
   const goTo = useCallback(
     (index: number) => {
       setInvalidIds(new Set());
@@ -107,24 +107,9 @@ export default function SurveyForm({
     [scrollToTop]
   );
 
-  // Validate the section the user is leaving; on a gap, highlight it and scroll to the first one.
-  const validateActiveBlock = useCallback(() => {
-    const unanswered = blockRequiredUnanswered(blocks[activeStep], answers);
-    if (unanswered.length === 0) {
-      setInvalidIds(new Set());
-      return true;
-    }
-    setInvalidIds(new Set(unanswered.map((q) => q.id)));
-    cardRefs.current[unanswered[0].id]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return false;
-  }, [blocks, activeStep, answers]);
-
   const handleNext = useCallback(() => {
-    if (!validateActiveBlock()) return;
-    const next = Math.min(activeStep + 1, blocks.length - 1);
-    setMaxReached((prev) => Math.max(prev, next));
-    goTo(next);
-  }, [validateActiveBlock, activeStep, blocks.length, goTo]);
+    goTo(Math.min(activeStep + 1, blocks.length - 1));
+  }, [activeStep, blocks.length, goTo]);
 
   const handleBack = useCallback(() => {
     goTo(Math.max(activeStep - 1, 0));
@@ -132,22 +117,25 @@ export default function SurveyForm({
 
   const handleRailClick = useCallback(
     (index: number) => {
-      if (index === activeStep) return;
-      if (index < activeStep) {
-        goTo(index); // going back is always free
-        return;
-      }
-      if (index > maxReached) return; // future sections stay locked until reached
-      if (!validateActiveBlock()) return; // forward jumps are still gated
-      goTo(index);
+      if (index !== activeStep) goTo(index);
     },
-    [activeStep, maxReached, validateActiveBlock, goTo]
+    [activeStep, goTo]
   );
 
+  // Required questions are enforced only at submit: land on the first block that still has a
+  // gap, highlight its unanswered required questions, and hold until everything is filled.
   const handleSubmit = useCallback(() => {
-    if (!validateActiveBlock()) return;
-    onSubmit();
-  }, [validateActiveBlock, onSubmit]);
+    const firstGap = blocks.findIndex((b) => !isBlockComplete(b, answers));
+    if (firstGap === -1) {
+      setInvalidIds(new Set());
+      onSubmit();
+      return;
+    }
+    const unanswered = blockRequiredUnanswered(blocks[firstGap], answers);
+    setActiveStep(firstGap);
+    setInvalidIds(new Set(unanswered.map((q) => q.id)));
+    scrollToTop();
+  }, [blocks, answers, onSubmit, scrollToTop]);
 
   if (blocks.length === 0) {
     return <Typography variant="h4">{testTitle}</Typography>;
@@ -201,14 +189,12 @@ export default function SurveyForm({
             {blocks.map((block, index) => {
               const done = isBlockComplete(block, answers) && index !== activeStep;
               const current = index === activeStep;
-              const locked = index > maxReached;
               let chipColor = 'text.secondary';
               if (done) chipColor = 'primary.contrastText';
               else if (current) chipColor = 'primary.main';
               return (
                 <ButtonBase
                   key={block.id}
-                  disabled={locked}
                   aria-current={current ? 'step' : undefined}
                   onClick={() => handleRailClick(index)}
                   sx={{
@@ -223,12 +209,9 @@ export default function SurveyForm({
                     textAlign: 'left',
                     color: current ? 'text.primary' : 'text.secondary',
                     fontWeight: current ? 600 : 400,
-                    opacity: locked ? 0.5 : 1,
                     bgcolor: current ? (t) => alpha(t.palette.primary.main, 0.08) : 'transparent',
                     transition: (t) => t.transitions.create(['background-color', 'color']),
-                    '&:hover': !locked
-                      ? { bgcolor: (t) => alpha(t.palette.primary.main, 0.08) }
-                      : undefined,
+                    '&:hover': { bgcolor: (t) => alpha(t.palette.primary.main, 0.08) },
                   }}
                 >
                   <Box
@@ -254,14 +237,6 @@ export default function SurveyForm({
                   <Box component="span" sx={{ flexGrow: 1, typography: 'body2', lineHeight: 1.3 }}>
                     {block.title || String(index + 1)}
                   </Box>
-
-                  {locked && (
-                    <Iconify
-                      icon="eva:lock-fill"
-                      width={15}
-                      sx={{ flexShrink: 0, color: 'text.disabled' }}
-                    />
-                  )}
                 </ButtonBase>
               );
             })}

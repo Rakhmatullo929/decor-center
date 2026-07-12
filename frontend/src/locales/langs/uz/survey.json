@@ -37,7 +37,9 @@
       "title": "Mavjud so‘rovlar",
       "subtitle": "Xodim: {{name}}",
       "continueTitle": "Davom ettirish",
-      "empty": "Mavjud so‘rovlar yo‘q"
+      "empty": "Mavjud so‘rovlar yo‘q",
+      "status": { "notStarted": "Boshlanmagan", "inProgress": "Jarayonda" },
+      "progress": "{{answered}} / {{total}} savol"
     },
     "questions": {
       "textPlaceholder": "Javobingizni kiriting..."
@@ -52,7 +54,8 @@
       "sectionsProgress": "{{done}} / {{total}} bo‘lim to‘ldirildi",
       "saving": "Saqlanmoqda...",
       "saved": "Saqlandi",
-      "saveFailed": "Saqlab bo‘lmadi"
+      "saveFailed": "Saqlab bo‘lmadi",
+      "expired": "So‘rov muddati tugagan"
     },
     "thankYou": {
       "title": "Rahmat!",

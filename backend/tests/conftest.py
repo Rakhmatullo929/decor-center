@@ -6,8 +6,14 @@ from PIL import Image
 from rest_framework.test import APIClient
 
 from apps.accounts.models import Roles
+from apps.surveys.models import Question
 
-from .factories import UserFactory
+from .factories import (
+    QuestionBlockFactory,
+    QuestionFactory,
+    TestFactory,
+    UserFactory,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -59,6 +65,20 @@ def employee_client(employee_user):
     client = APIClient()
     client.force_authenticate(employee_user)
     return client
+
+
+@pytest.fixture
+def survey_with_questions(db):
+    """A survey with one single-choice and one textarea question — shared across the
+    surveys API / status-progress test modules."""
+    survey = TestFactory()
+    block = QuestionBlockFactory(test=survey, order=0)
+    q_single = QuestionFactory(
+        block=block, type=Question.Type.SINGLE, order=0,
+        options=[{"id": "a", "text": "Yes"}, {"id": "b", "text": "No"}],
+    )
+    q_text = QuestionFactory(block=block, type=Question.Type.TEXTAREA, order=1, options=[])
+    return survey, q_single, q_text
 
 
 @pytest.fixture

@@ -24,7 +24,7 @@ from .filters import SurveySessionFilter
 from .models import Answer, Question, QuestionBlock, SurveySession, Test  # noqa: F401
 from .otp import OtpError, PhoneNotSetError, request_otp, verify_otp
 from .permissions import IsAdminOrOwnSurveySession, IsSurveyEmployee
-from .scheduling import due_surveys
+from .scheduling import due_surveys, is_expired
 from .serializers import (
     AdminFillSerializer,
     AnswerItemSerializer,
@@ -381,6 +381,12 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
         fallback = bool(getattr(request, "kiosk_fallback", False))
 
         survey = serializer.validated_data["test"]
+        if is_expired(survey, timezone.localdate()):
+            return Response(
+                {"detail": "This survey's submission window has closed.",
+                 "code": "survey_expired"},
+                status=status.HTTP_409_CONFLICT,
+            )
         try:
             session, _questions, reused = start_survey_session(
                 employee=employee, test=survey, entry_face_verified=not fallback,
@@ -437,9 +443,15 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
         session = self.get_object()
         if session.employee_id != getattr(request, "kiosk_employee_id", None):
             raise PermissionDenied({"detail": "Employee mismatch.", "code": "kiosk_mismatch"})
+        if is_expired(session.test, timezone.localdate()):
+            return Response(
+                {"detail": "This survey's submission window has closed.",
+                 "code": "survey_expired"},
+                status=status.HTTP_409_CONFLICT,
+            )
         serializer = SubmitSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        face_b64 = serializer.validated_data.get("faceImage")
+        face_b64 = serializer.validated_data.get("face_image")
         face_bytes = _decode_face_image(face_b64) if face_b64 else None
 
         try:

@@ -77,7 +77,7 @@ def test_start_creates_new_session_after_previous_completed():
     first, _, _ = start_survey_session(employee=emp, test=survey, entry_face_verified=True)
     submit_survey_session(
         session=first,
-        answers=[{"question": q_single.id, "selectedOptionIds": ["a"], "textValue": ""}],
+        answers=[{"question": q_single.id, "selected_option_ids": ["a"], "text_value": ""}],
     )
     second, _, reused = start_survey_session(
         employee=emp, test=survey, entry_face_verified=True
@@ -112,8 +112,8 @@ def test_submit_persists_answers_and_completes():
     session = submit_survey_session(
         session=session,
         answers=[
-            {"question": q_single.id, "selectedOptionIds": ["a"], "textValue": ""},
-            {"question": q_text.id, "selectedOptionIds": [], "textValue": "Great"},
+            {"question": q_single.id, "selected_option_ids": ["a"], "text_value": ""},
+            {"question": q_text.id, "selected_option_ids": [], "text_value": "Great"},
         ],
     )
     assert session.completed_at is not None
@@ -130,12 +130,12 @@ def test_submit_rejects_already_completed():
     session, _, _ = start_survey_session(employee=emp, test=survey, entry_face_verified=True)
     submit_survey_session(
         session=session,
-        answers=[{"question": q_single.id, "selectedOptionIds": ["a"], "textValue": ""}],
+        answers=[{"question": q_single.id, "selected_option_ids": ["a"], "text_value": ""}],
     )
     with pytest.raises(SurveyFlowError):
         submit_survey_session(
             session=session,
-            answers=[{"question": q_single.id, "selectedOptionIds": ["b"], "textValue": ""}],
+            answers=[{"question": q_single.id, "selected_option_ids": ["b"], "text_value": ""}],
         )
 
 
@@ -147,7 +147,7 @@ def test_submit_rejects_foreign_question():
     with pytest.raises(SurveyFlowError):
         submit_survey_session(
             session=session,
-            answers=[{"question": other.id, "selectedOptionIds": ["a"], "textValue": ""}],
+            answers=[{"question": other.id, "selected_option_ids": ["a"], "text_value": ""}],
         )
 
 
@@ -156,18 +156,18 @@ def test_autosave_answer_upserts_without_completing():
     survey, q_single, q_text = _survey_with_questions()
     session, _, _ = start_survey_session(employee=emp, test=survey, entry_face_verified=True)
 
-    autosave_answer(session=session, item={"question": q_single.id, "selectedOptionIds": ["a"]})
+    autosave_answer(session=session, item={"question": q_single.id, "selected_option_ids": ["a"]})
     session.refresh_from_db()
     assert session.completed_at is None
     assert session.status == SurveySession.Status.IN_PROGRESS
     assert Answer.objects.get(session=session, question=q_single).selected_option_ids == ["a"]
 
     # Re-saving (upsert) overwrites the same row, not a new one.
-    autosave_answer(session=session, item={"question": q_single.id, "selectedOptionIds": ["b"]})
+    autosave_answer(session=session, item={"question": q_single.id, "selected_option_ids": ["b"]})
     assert Answer.objects.filter(session=session, question=q_single).count() == 1
     assert Answer.objects.get(session=session, question=q_single).selected_option_ids == ["b"]
 
-    autosave_answer(session=session, item={"question": q_text.id, "textValue": "draft"})
+    autosave_answer(session=session, item={"question": q_text.id, "text_value": "draft"})
     assert Answer.objects.get(session=session, question=q_text).text_value == "draft"
 
 
@@ -177,10 +177,10 @@ def test_autosave_answer_rejects_after_completed():
     session, _, _ = start_survey_session(employee=emp, test=survey, entry_face_verified=True)
     submit_survey_session(
         session=session,
-        answers=[{"question": q_single.id, "selectedOptionIds": ["a"], "textValue": ""}],
+        answers=[{"question": q_single.id, "selected_option_ids": ["a"], "text_value": ""}],
     )
     with pytest.raises(SurveyFlowError):
-        autosave_answer(session=session, item={"question": q_single.id, "selectedOptionIds": ["b"]})
+        autosave_answer(session=session, item={"question": q_single.id, "selected_option_ids": ["b"]})
 
 
 def test_autosave_answer_rejects_foreign_question():
@@ -189,7 +189,7 @@ def test_autosave_answer_rejects_foreign_question():
     other = QuestionFactory()
     session, _, _ = start_survey_session(employee=emp, test=survey, entry_face_verified=True)
     with pytest.raises(SurveyFlowError):
-        autosave_answer(session=session, item={"question": other.id, "selectedOptionIds": ["a"]})
+        autosave_answer(session=session, item={"question": other.id, "selected_option_ids": ["a"]})
 
 
 def test_in_progress_sessions_excludes_completed_and_abandoned(settings):
@@ -202,7 +202,7 @@ def test_in_progress_sessions_excludes_completed_and_abandoned(settings):
     completed, _, _ = start_survey_session(employee=emp, test=survey_b, entry_face_verified=True)
     submit_survey_session(
         session=completed,
-        answers=[{"question": q_single_b.id, "selectedOptionIds": ["a"], "textValue": ""}],
+        answers=[{"question": q_single_b.id, "selected_option_ids": ["a"], "text_value": ""}],
     )
     abandoned, _, _ = start_survey_session(employee=emp, test=survey_c, entry_face_verified=True)
     SurveySession.objects.filter(pk=abandoned.pk).update(
@@ -223,8 +223,8 @@ def test_admin_fill_creates_completed_session_without_face():
         test=survey,
         user=admin,
         answers=[
-            {"question": q_single.id, "selectedOptionIds": ["b"], "textValue": ""},
-            {"question": q_text.id, "selectedOptionIds": [], "textValue": "ok"},
+            {"question": q_single.id, "selected_option_ids": ["b"], "text_value": ""},
+            {"question": q_text.id, "selected_option_ids": [], "text_value": "ok"},
         ],
     )
     assert session.completed_at is not None

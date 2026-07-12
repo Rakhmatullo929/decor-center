@@ -1,8 +1,9 @@
 import { useCallback } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'src/components/snackbar';
+import useLocales from 'src/locales/use-locales';
 import { paths } from 'src/routes/paths';
-import { errorReader } from 'src/utils/error-reader';
+import { errorCode, errorReader } from 'src/utils/error-reader';
 import type { Test } from '../admin-surveys/api/types';
 import type { SurveySession } from './api/types';
 import {
@@ -16,6 +17,7 @@ import { useEmployeeAuth } from './session/use-employee-auth';
 export default function DueSurveysView() {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
+  const { tx } = useLocales();
   const { loading, signedIn, employeeId, employeeName } = useEmployeeAuth();
   const startMutation = useStartSurveyMutation();
 
@@ -31,11 +33,19 @@ export default function DueSurveysView() {
         { payload: { employee: employeeId, test: test.id } },
         {
           onSuccess: (data) => navigate(paths.survey(data.session.id)),
-          onError: (err) => enqueueSnackbar(errorReader(err), { variant: 'error' }),
+          onError: (err) => {
+            if (errorCode(err) === 'survey_expired') {
+              enqueueSnackbar(tx('survey.kiosk.form.expired'), { variant: 'warning' });
+              dueQuery.refetch();
+              inProgressQuery.refetch();
+              return;
+            }
+            enqueueSnackbar(errorReader(err), { variant: 'error' });
+          },
         }
       );
     },
-    [employeeId, startMutation, navigate, enqueueSnackbar]
+    [employeeId, startMutation, navigate, enqueueSnackbar, tx, dueQuery, inProgressQuery]
   );
 
   const handleContinue = useCallback(

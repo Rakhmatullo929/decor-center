@@ -6,12 +6,11 @@ from rest_framework.test import APIClient
 from apps.accounts.tokens import issue_token_pair
 from apps.employees.models import Employee
 from apps.employees.services import get_or_create_employee_user
-from apps.surveys.models import Answer, Question, SurveySession
+from apps.surveys.models import Answer, SurveySession
 
 from .factories import (
     EmployeeFactory,
     QuestionBlockFactory,
-    QuestionFactory,
     TestFactory,
 )
 
@@ -28,18 +27,6 @@ def kiosk_client(employee_id, *, fallback=False):
     client = APIClient()
     client.credentials(HTTP_AUTHORIZATION=f"Bearer {tokens['access']}")
     return client
-
-
-@pytest.fixture
-def survey_with_questions(db):
-    survey = TestFactory()
-    block = QuestionBlockFactory(test=survey, order=0)
-    q_single = QuestionFactory(
-        block=block, type=Question.Type.SINGLE, order=0,
-        options=[{"id": "a", "text": "Yes"}, {"id": "b", "text": "No"}],
-    )
-    q_text = QuestionFactory(block=block, type=Question.Type.TEXTAREA, order=1, options=[])
-    return survey, q_single, q_text
 
 
 # --- RBAC on CRUD -----------------------------------------------------------
@@ -147,7 +134,7 @@ def test_answer_autosaves_without_completing(survey_with_questions):
 
     resp = client.post(
         f"{SESSIONS}{session_id}/answer/",
-        {"question": q_single.id, "selectedOptionIds": ["a"]},
+        {"question": q_single.id, "selected_option_ids": ["a"]},
         format="json",
     )
     assert resp.status_code == 200, resp.data
@@ -162,7 +149,7 @@ def test_answer_rejects_employee_mismatch(survey_with_questions):
     session_id = _start(kiosk_client(emp.id), survey, emp).data["session"]["id"]
     resp = kiosk_client(other.id).post(
         f"{SESSIONS}{session_id}/answer/",
-        {"question": q_single.id, "selectedOptionIds": ["a"]},
+        {"question": q_single.id, "selected_option_ids": ["a"]},
         format="json",
     )
     assert resp.status_code == 403
@@ -192,7 +179,7 @@ def test_retrieve_own_session_includes_blocks_for_resume(survey_with_questions):
     session_id = _start(client, survey, emp).data["session"]["id"]
     client.post(
         f"{SESSIONS}{session_id}/answer/",
-        {"question": q_single.id, "selectedOptionIds": ["a"]},
+        {"question": q_single.id, "selected_option_ids": ["a"]},
         format="json",
     )
 
@@ -222,8 +209,8 @@ def test_submit_persists_answers(survey_with_questions):
     resp = client.post(
         f"{SESSIONS}{session_id}/submit/",
         {"answers": [
-            {"question": q_single.id, "selectedOptionIds": ["a"]},
-            {"question": q_text.id, "textValue": "Nice"},
+            {"question": q_single.id, "selected_option_ids": ["a"]},
+            {"question": q_text.id, "text_value": "Nice"},
         ]},
         format="json",
     )
@@ -244,7 +231,7 @@ def test_admin_fill_requires_admin(employee_client, admin_client, survey_with_qu
     payload = {
         "employee": emp.id,
         "test": survey.id,
-        "answers": [{"question": q_single.id, "selectedOptionIds": ["b"]}],
+        "answers": [{"question": q_single.id, "selected_option_ids": ["b"]}],
     }
     assert employee_client.post(f"{SESSIONS}admin-fill/", payload, format="json").status_code == 403
     resp = admin_client.post(f"{SESSIONS}admin-fill/", payload, format="json")
