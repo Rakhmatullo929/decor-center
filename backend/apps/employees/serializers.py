@@ -13,6 +13,14 @@ class SpecialtySerializer(serializers.ModelSerializer):
         read_only_fields = ["created_at"]
 
 
+class EmployeeInviteCreateSerializer(serializers.Serializer):
+    """Admin input for minting a one-time invite: only the specialty (role)."""
+
+    specialty = serializers.PrimaryKeyRelatedField(
+        queryset=Specialty.objects.filter(is_active=True)
+    )
+
+
 class EmployeeSerializer(serializers.ModelSerializer):
     specialty_name = serializers.CharField(source="specialty.name", read_only=True)
     phone = serializers.RegexField(

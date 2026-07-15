@@ -44,3 +44,29 @@ def test_is_valid_reflects_used_and_expired():
     invite.expires_at = timezone.now() - timedelta(seconds=1)
     assert invite.is_expired() is True
     assert invite.is_valid() is False
+
+
+INVITES_URL = "/api/v1/employee-invites/"
+
+
+def test_admin_creates_invite_returns_token_and_expiry(admin_client):
+    specialty = SpecialtyFactory()
+    resp = admin_client.post(INVITES_URL, {"specialty": specialty.id}, format="json")
+    assert resp.status_code == 201, resp.data
+    assert resp.data["token"]
+    assert resp.data["expires_at"]
+    # Token in the response must not be what is stored (only its hash is).
+    assert not EmployeeInvite.objects.filter(token_hash=resp.data["token"]).exists()
+    assert EmployeeInvite.objects.filter(token_hash=hash_invite_token(resp.data["token"])).exists()
+
+
+def test_non_admin_cannot_create_invite(employee_client):
+    specialty = SpecialtyFactory()
+    resp = employee_client.post(INVITES_URL, {"specialty": specialty.id}, format="json")
+    assert resp.status_code == 403
+
+
+def test_anonymous_cannot_create_invite(api_client):
+    specialty = SpecialtyFactory()
+    resp = api_client.post(INVITES_URL, {"specialty": specialty.id}, format="json")
+    assert resp.status_code in (401, 403)

@@ -1,20 +1,29 @@
 from django.db import transaction
 from django.db.models import ProtectedError
+from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 
-from apps.accounts.permissions import IsAdminOrReadOnly
+from apps.accounts.permissions import IsAdmin, IsAdminOrReadOnly
 
 from .face_enrollment import add_face_photo, recompute_centroid
-from .models import Employee, EmployeeFacePhoto, Specialty
+from .models import Employee, EmployeeFacePhoto, EmployeeInvite, Specialty
 from .serializers import (
     EmployeeFacePhotoSerializer,
+    EmployeeInviteCreateSerializer,
     EmployeeSerializer,
     SpecialtySerializer,
 )
-from .services import delete_employee_with_related
+from .services import (
+    create_employee_invite,
+    delete_employee_with_related,
+    get_invite_by_token,
+)
 
 
 class SpecialtyViewSet(viewsets.ModelViewSet):
@@ -99,3 +108,41 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             recompute_centroid(employee)
             transaction.on_commit(lambda: photo_file.delete(save=False))
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class EmployeeInviteViewSet(viewsets.GenericViewSet):
+    """One-time employee self-registration invites.
+
+    - create   POST /employee-invites/            admin only  -> {token, expires_at}
+    - validate GET  /employee-invites/validate/   public      -> {valid, reason, specialty_name}
+    - register POST /employee-invites/register/    public      -> 201 {status: "pending"}
+    """
+
+    queryset = EmployeeInvite.objects.all()
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    _THROTTLE_SCOPES = {"validate": "invite_validate", "register": "invite_register"}
+
+    def get_permissions(self):
+        if self.action in ("validate", "register"):
+            return [AllowAny()]
+        return [IsAdmin()]
+
+    def get_throttles(self):
+        scope = self._THROTTLE_SCOPES.get(self.action)
+        if scope:
+            self.throttle_scope = scope
+            return [ScopedRateThrottle()]
+        return super().get_throttles()
+
+    def create(self, request):
+        serializer = EmployeeInviteCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        invite, raw_token = create_employee_invite(
+            specialty=serializer.validated_data["specialty"],
+            created_by=request.user,
+        )
+        return Response(
+            {"token": raw_token, "expires_at": invite.expires_at},
+            status=status.HTTP_201_CREATED,
+        )
