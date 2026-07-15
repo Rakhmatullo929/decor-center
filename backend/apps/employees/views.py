@@ -159,3 +159,34 @@ class EmployeeInviteViewSet(viewsets.GenericViewSet):
         return Response(
             {"valid": True, "reason": "ok", "specialty_name": invite.specialty.name}
         )
+
+    @action(detail=False, methods=["post"])
+    def register(self, request):
+        invite = get_invite_by_token(request.data.get("token") or "")
+        if invite is None or not invite.is_valid():
+            return Response(
+                {"detail": "Invite link is invalid or already used.", "code": "invite_invalid"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        data = {
+            "full_name": request.data.get("full_name"),
+            "phone": request.data.get("phone"),
+            "specialty": invite.specialty_id,
+            "is_active": False,
+            "photo": request.FILES.get("photo"),
+        }
+        work_experience = request.data.get("work_experience")
+        if work_experience not in (None, ""):
+            data["work_experience"] = work_experience
+
+        # No request in context -> face-photo created_by resolves to None (anonymous).
+        serializer = EmployeeSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        with transaction.atomic():
+            employee = serializer.save()
+            invite.is_used = True
+            invite.used_at = timezone.now()
+            invite.employee = employee
+            invite.save(update_fields=["is_used", "used_at", "employee", "updated_at"])
+        return Response({"status": "pending"}, status=status.HTTP_201_CREATED)

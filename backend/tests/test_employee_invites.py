@@ -1,15 +1,17 @@
 import pytest
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 from datetime import timedelta
 
-from apps.employees.models import EmployeeInvite
+from apps.employees.models import Employee, EmployeeInvite
 from apps.employees.services import (
     create_employee_invite,
     get_invite_by_token,
     hash_invite_token,
 )
 
-from .factories import SpecialtyFactory
+from .conftest import png_bytes
+from .factories import EmployeeFactory, SpecialtyFactory
 
 pytestmark = pytest.mark.django_db
 
@@ -99,3 +101,102 @@ def test_validate_unknown_used_and_expired(api_client):
     invite2.expires_at = timezone.now() - timedelta(seconds=1)
     invite2.save(update_fields=["expires_at"])
     assert api_client.get(VALIDATE_URL, {"token": raw2}).data["reason"] == "expired"
+
+
+REGISTER_URL = "/api/v1/employee-invites/register/"
+
+
+def _reg_photo():
+    return SimpleUploadedFile("face.png", png_bytes(), content_type="image/png")
+
+
+def test_register_creates_inactive_employee_and_consumes_invite(api_client):
+    specialty = SpecialtyFactory()
+    invite, raw = create_employee_invite(specialty=specialty)
+
+    resp = api_client.post(
+        REGISTER_URL,
+        {
+            "token": raw,
+            "full_name": "Yangi Xodim",
+            "phone": "+998901112233",
+            "work_experience": 4,
+            "photo": _reg_photo(),
+        },
+        format="multipart",
+    )
+    assert resp.status_code == 201, resp.data
+    assert resp.data == {"status": "pending"}
+
+    employee = Employee.objects.get(full_name="Yangi Xodim")
+    assert employee.is_active is False
+    assert employee.hire_date is None
+    assert employee.specialty_id == specialty.id
+    assert employee.work_experience == 4
+    assert employee.face_embedding is not None  # seeded from the photo
+
+    invite.refresh_from_db()
+    assert invite.is_used is True
+    assert invite.used_at is not None
+    assert invite.employee_id == employee.id
+
+
+def test_register_second_use_of_same_token_is_rejected(api_client):
+    specialty = SpecialtyFactory()
+    _, raw = create_employee_invite(specialty=specialty)
+    first = api_client.post(
+        REGISTER_URL,
+        {"token": raw, "full_name": "A", "phone": "+998901112233",
+         "work_experience": 1, "photo": _reg_photo()},
+        format="multipart",
+    )
+    assert first.status_code == 201
+    second = api_client.post(
+        REGISTER_URL,
+        {"token": raw, "full_name": "B", "phone": "+998901112244",
+         "work_experience": 1, "photo": _reg_photo()},
+        format="multipart",
+    )
+    assert second.status_code == 400
+    assert second.data["code"] == "invite_invalid"
+    assert Employee.objects.filter(full_name="B").count() == 0
+
+
+def test_register_unknown_token_rejected(api_client):
+    resp = api_client.post(
+        REGISTER_URL,
+        {"token": "nope", "full_name": "X", "phone": "+998901112233",
+         "work_experience": 1, "photo": _reg_photo()},
+        format="multipart",
+    )
+    assert resp.status_code == 400
+    assert resp.data["code"] == "invite_invalid"
+
+
+def test_register_missing_photo_is_rejected(api_client):
+    specialty = SpecialtyFactory()
+    _, raw = create_employee_invite(specialty=specialty)
+    resp = api_client.post(
+        REGISTER_URL,
+        {"token": raw, "full_name": "X", "phone": "+998901112233", "work_experience": 1},
+        format="multipart",
+    )
+    assert resp.status_code == 400
+    assert not EmployeeInvite.objects.get(token_hash=hash_invite_token(raw)).is_used
+
+
+def test_inactive_self_registered_employee_is_not_identifiable(api_client, face_image):
+    # Register via invite -> inactive employee with a face embedding.
+    specialty = SpecialtyFactory()
+    _, raw = create_employee_invite(specialty=specialty)
+    api_client.post(
+        REGISTER_URL,
+        {"token": raw, "full_name": "Ghost", "phone": "+998901112233",
+         "work_experience": 1, "photo": SimpleUploadedFile("f.png", png_bytes(), content_type="image/png")},
+        format="multipart",
+    )
+    # Kiosk identify only searches active employees -> 404.
+    resp = api_client.post(
+        "/api/v1/survey-sessions/identify/", {"face_image": face_image}, format="multipart"
+    )
+    assert resp.status_code == 404

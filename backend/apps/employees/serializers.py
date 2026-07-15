@@ -49,7 +49,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     def _current_user(self):
         request = self.context.get("request")
-        return getattr(request, "user", None) if request is not None else None
+        user = getattr(request, "user", None) if request is not None else None
+        return user if (user is not None and user.is_authenticated) else None
 
     @staticmethod
     def _read_upload(photo) -> tuple[bytes, str]:
