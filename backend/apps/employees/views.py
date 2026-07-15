@@ -146,3 +146,16 @@ class EmployeeInviteViewSet(viewsets.GenericViewSet):
             {"token": raw_token, "expires_at": invite.expires_at},
             status=status.HTTP_201_CREATED,
         )
+
+    @action(detail=False, methods=["get"])
+    def validate(self, request):
+        invite = get_invite_by_token(request.query_params.get("token") or "")
+        if invite is None:
+            return Response({"valid": False, "reason": "not_found"})
+        if invite.is_used:
+            return Response({"valid": False, "reason": "used"})
+        if invite.is_expired():
+            return Response({"valid": False, "reason": "expired"})
+        return Response(
+            {"valid": True, "reason": "ok", "specialty_name": invite.specialty.name}
+        )

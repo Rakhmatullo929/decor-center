@@ -70,3 +70,32 @@ def test_anonymous_cannot_create_invite(api_client):
     specialty = SpecialtyFactory()
     resp = api_client.post(INVITES_URL, {"specialty": specialty.id}, format="json")
     assert resp.status_code in (401, 403)
+
+
+VALIDATE_URL = "/api/v1/employee-invites/validate/"
+
+
+def test_validate_public_valid_token(api_client):
+    specialty = SpecialtyFactory(name="Дизайнер")
+    _, raw = create_employee_invite(specialty=specialty)
+    resp = api_client.get(VALIDATE_URL, {"token": raw})
+    assert resp.status_code == 200
+    assert resp.data == {"valid": True, "reason": "ok", "specialty_name": "Дизайнер"}
+
+
+def test_validate_unknown_used_and_expired(api_client):
+    specialty = SpecialtyFactory()
+    assert api_client.get(VALIDATE_URL, {"token": "nope"}).data == {
+        "valid": False,
+        "reason": "not_found",
+    }
+
+    invite, raw = create_employee_invite(specialty=specialty)
+    invite.is_used = True
+    invite.save(update_fields=["is_used"])
+    assert api_client.get(VALIDATE_URL, {"token": raw}).data["reason"] == "used"
+
+    invite2, raw2 = create_employee_invite(specialty=specialty)
+    invite2.expires_at = timezone.now() - timedelta(seconds=1)
+    invite2.save(update_fields=["expires_at"])
+    assert api_client.get(VALIDATE_URL, {"token": raw2}).data["reason"] == "expired"
