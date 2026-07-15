@@ -119,6 +119,33 @@ def _presented_questions(test: Test) -> list[Question]:
     )
 
 
+def presented_blocks(session: SurveySession) -> list[dict]:
+    """The block/question tree exactly as presented to `session` at start, reconstructed
+    from its frozen Answer rows rather than the test's current (possibly since-edited)
+    definition.
+
+    A block/question added to the test after the session started has no Answer row here,
+    and autosave_answer/submit_survey_session reject anything outside that frozen set — so
+    showing it would put a question in front of the employee that can never actually be
+    saved or submitted. Reordering/renaming still shows live (blocks carry their current
+    `order`/`title`), only the *set* of questions is frozen.
+    """
+    rows = (
+        session.answers.select_related("question__block")
+        .order_by("question__block__order", "question__block_id", "question__order", "question__id")
+    )
+    blocks: dict[int, dict] = {}
+    for row in rows:
+        question = row.question
+        block = question.block
+        entry = blocks.setdefault(
+            block.id,
+            {"id": block.id, "test": block.test_id, "order": block.order, "title": block.title, "questions": []},
+        )
+        entry["questions"].append(question)
+    return list(blocks.values())
+
+
 def _live_session_cutoff():
     threshold_hours = django_settings.DECOR["SURVEY_SESSION_ABANDONED_AFTER_HOURS"]
     return timezone.now() - timedelta(hours=threshold_hours)

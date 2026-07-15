@@ -32,6 +32,7 @@ export const paths = {
         `/surveys/tests/${testId}/blocks/${blockId}`,
       results: '/surveys/results',
       sessions: '/surveys/sessions',
+      session: (sessionId: number | string) => `/surveys/sessions/${sessionId}`,
     },
     kiosk: {
       root: '/kiosk',

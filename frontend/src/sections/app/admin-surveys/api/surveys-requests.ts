@@ -13,6 +13,7 @@ import type {
   ResultsParams,
   SurveyResults,
   SurveySessionAdmin,
+  SurveySessionDetail,
   SurveySessionListParams,
   Test,
   TestListParams,
@@ -118,6 +119,13 @@ export async function fetchSurveySessions(
     page += 1;
   }
   return all;
+}
+
+export function fetchSurveySession(id: number) {
+  return request<SurveySessionDetail>({
+    method: 'GET',
+    url: API_ENDPOINTS.surveys.session(id),
+  });
 }
 
 // ── Results ────────────────────────────────────────────────────────────

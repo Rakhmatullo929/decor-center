@@ -1,7 +1,9 @@
 import base64
 import binascii
+import json
 
 from django.db import transaction
+from django.db.models import ProtectedError
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
@@ -30,7 +32,6 @@ from .serializers import (
     AnswerItemSerializer,
     AnswerReadSerializer,
     KioskIdentifiedEmployeeSerializer,
-    QuestionBlockPublicSerializer,
     QuestionBlockSerializer,
     QuestionSerializer,
     StartSurveySerializer,
@@ -38,6 +39,7 @@ from .serializers import (
     SurveySessionDetailSerializer,
     SurveySessionSerializer,
     TestSerializer,
+    presented_blocks_data,
 )
 from .services import (
     FaceCaptureRequiredError,
@@ -68,11 +70,19 @@ class TestViewSet(viewsets.ModelViewSet):
     # Full bilingual question content (text, settings, is_required, is_mind_dive) is
     # nested here via TestSerializer -> QuestionBlockSerializer -> QuestionSerializer.
     # Only the admin builder reads this; employees get survey content exclusively
-    # through SurveySessionViewSet.start's QuestionBlockPublicSerializer, so this
-    # must not be readable pre-emptively by an employee via IsAdminOrReadOnly.
+    # through SurveySessionViewSet.start's presented_blocks_data, so this must not
+    # be readable pre-emptively by an employee via IsAdminOrReadOnly.
     queryset = Test.objects.prefetch_related("blocks__questions")
     serializer_class = TestSerializer
     permission_classes = [IsAdmin]
+
+    def perform_destroy(self, instance):
+        try:
+            instance.delete()
+        except ProtectedError as exc:
+            raise ValidationError(
+                {"detail": "Нельзя удалить тест: по нему уже есть сессии сотрудников."}
+            ) from exc
 
 
 class QuestionBlockViewSet(viewsets.ModelViewSet):
@@ -80,6 +90,14 @@ class QuestionBlockViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionBlockSerializer
     permission_classes = [IsAdmin]
     filterset_fields = ["test"]
+
+    def perform_destroy(self, instance):
+        try:
+            instance.delete()
+        except ProtectedError as exc:
+            raise ValidationError(
+                {"detail": "Нельзя удалить блок: на его вопросы уже есть ответы сотрудников."}
+            ) from exc
 
     @extend_schema(
         request={
@@ -120,6 +138,14 @@ class QuestionViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionSerializer
     permission_classes = [IsAdmin]
     filterset_fields = ["block"]
+
+    def perform_destroy(self, instance):
+        try:
+            instance.delete()
+        except ProtectedError as exc:
+            raise ValidationError(
+                {"detail": "Нельзя удалить вопрос: на него уже есть ответы сотрудников."}
+            ) from exc
 
     @extend_schema(
         request={
@@ -394,12 +420,11 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
         except SurveyFlowError as exc:
             raise ValidationError({"detail": str(exc)}) from exc
 
-        blocks = QuestionBlock.objects.filter(test=survey).prefetch_related("questions")
         return Response(
             {
                 "session": SurveySessionSerializer(session).data,
                 "test": {"id": survey.id, "title": survey.title},
-                "blocks": QuestionBlockPublicSerializer(blocks, many=True).data,
+                "blocks": presented_blocks_data(session),
             },
             status=status.HTTP_200_OK if reused else status.HTTP_201_CREATED,
         )
@@ -495,7 +520,8 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, methods=["get"])
     def results(self, request):
-        """Aggregate completed answers for a survey (option counts + textarea list)."""
+        """Aggregate completed answers for a survey, shaped per question type — see
+        _aggregate_results."""
         survey = self._require_test(request)
         return Response(_aggregate_results(survey))
 
@@ -512,9 +538,13 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
         rows = []
         for block in aggregate["blocks"]:
             for question in block["questions"]:
-                if question["type"] == Question.Type.TEXTAREA:
+                if "textValues" in question:
                     for text in question["textValues"]:
-                        rows.append([block["title"], question["text"], "textarea", text, ""])
+                        rows.append([block["title"], question["text"], question["type"], text, ""])
+                elif "scale" in question:
+                    counts = sorted(question["scale"]["counts"].items(), key=lambda kv: int(kv[0]))
+                    for value, count in counts:
+                        rows.append([block["title"], question["text"], question["type"], value, count])
                 else:
                     for option in question["options"]:
                         rows.append(
@@ -544,28 +574,76 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
         return survey
 
 
+#  Answered via Answer.text_value as plain text (see Question.TEXT_ANSWER_TYPES) and
+# reported as a free-text answer list, same as textarea.
+_TEXT_LIST_TYPES = frozenset({Question.Type.TEXTAREA, Question.Type.SHORT_TEXT, Question.Type.FORM_FIELD})
+
+
+def _signature_display(text_value: str) -> str:
+    """Render a signature_date answer's `{"name", "date"}` JSON payload as one line."""
+    try:
+        payload = json.loads(text_value)
+    except (TypeError, ValueError):
+        return text_value
+    name = str(payload.get("name") or "").strip()
+    date = str(payload.get("date") or "").strip()
+    return " — ".join(part for part in (name, date) if part) or text_value
+
+
+def _scale_result(question: Question, answers: list) -> dict:
+    """Rating distribution (count per value in [min, max]) + average, for nps/scale5."""
+    default_min, default_max = (0, 10) if question.type == Question.Type.NPS else (1, 5)
+    scale_min = question.settings.get("min", default_min)
+    scale_max = question.settings.get("max", default_max)
+    counts = {str(v): 0 for v in range(scale_min, scale_max + 1)}
+    total = 0
+    values_sum = 0
+    for answer in answers:
+        if not answer.text_value:
+            continue
+        try:
+            value = int(answer.text_value)
+        except ValueError:
+            continue
+        if str(value) not in counts:
+            continue
+        counts[str(value)] += 1
+        total += 1
+        values_sum += value
+    return {
+        "min": scale_min,
+        "max": scale_max,
+        "counts": counts,
+        "responseCount": total,
+        "average": round(values_sum / total, 2) if total else None,
+    }
+
+
 def _aggregate_results(survey: Test) -> dict:
-    """Build scoreless aggregation: per-option counts + textarea response list."""
+    """Build scoreless aggregation, shaped per question type: option counts
+    (single/multiple), a free-text answer list (textarea/short_text/form_field/
+    signature_date), or a rating distribution (nps/scale5). Section headers carry
+    no answer and are omitted."""
     blocks_out = []
     blocks = survey.blocks.prefetch_related("questions__answers__session")
     for block in blocks:
         questions_out = []
         for question in block.questions.all():
+            if question.type == Question.Type.SECTION_HEADER:
+                continue
             answers = [
                 a for a in question.answers.all()
                 if a.session.completed_at is not None
             ]
-            if question.type == Question.Type.TEXTAREA:
+            base = {"id": question.id, "text": question.text, "type": question.type}
+            if question.type in _TEXT_LIST_TYPES:
                 texts = [a.text_value for a in answers if a.text_value]
-                questions_out.append(
-                    {
-                        "id": question.id,
-                        "text": question.text,
-                        "type": question.type,
-                        "textValues": texts,
-                        "responseCount": len(texts),
-                    }
-                )
+                questions_out.append({**base, "textValues": texts, "responseCount": len(texts)})
+            elif question.type == Question.Type.SIGNATURE_DATE:
+                texts = [_signature_display(a.text_value) for a in answers if a.text_value]
+                questions_out.append({**base, "textValues": texts, "responseCount": len(texts)})
+            elif question.type in Question.SCALE_TYPES:
+                questions_out.append({**base, "scale": _scale_result(question, answers)})
             else:
                 counts = {opt["id"]: 0 for opt in question.options}
                 for answer in answers:
@@ -574,9 +652,7 @@ def _aggregate_results(survey: Test) -> dict:
                             counts[oid] += 1
                 questions_out.append(
                     {
-                        "id": question.id,
-                        "text": question.text,
-                        "type": question.type,
+                        **base,
                         "options": [
                             {
                                 "id": opt["id"],
