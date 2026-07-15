@@ -10,6 +10,8 @@ export const paths = {
   employee: '/employee',
   /** Session-scoped, resumable: reloads state from the backend on open, not just local state. */
   survey: (sessionId: number | string) => `/survey/${sessionId}`,
+  /** Public one-time employee self-registration link. */
+  register: (token: string) => `/register/${token}`,
 
   page403: '/403',
   page404: '/404',
