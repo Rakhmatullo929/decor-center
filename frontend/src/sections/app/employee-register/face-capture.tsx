@@ -83,6 +83,91 @@ export default function FaceCapture({ value, onChange }: Props) {
 
   const showCamera = mode === 'camera' && !cameraError;
 
+  const renderMedia = () => {
+    if (value && preview) {
+      return (
+        <Box
+          component="img"
+          src={preview}
+          alt="face"
+          sx={{ width: 1, height: 1, objectFit: 'cover' }}
+        />
+      );
+    }
+    if (showCamera) {
+      return (
+        <Box
+          component="video"
+          ref={videoRef}
+          autoPlay
+          muted
+          playsInline
+          sx={{ width: 1, height: 1, objectFit: 'cover', transform: 'scaleX(-1)' }}
+        />
+      );
+    }
+    return (
+      <Stack sx={{ height: 1, px: 3 }} alignItems="center" justifyContent="center" spacing={1}>
+        <Iconify icon="solar:gallery-add-bold" width={32} sx={{ color: 'grey.500' }} />
+        <Typography variant="body2" sx={{ color: 'common.white', textAlign: 'center' }}>
+          {tx('employees.register.face.cameraUnavailable')}
+        </Typography>
+      </Stack>
+    );
+  };
+
+  const renderControls = () => {
+    if (value) {
+      return (
+        <Button
+          variant="outlined"
+          color="inherit"
+          onClick={handleRetake}
+          startIcon={<Iconify icon="solar:restart-bold" />}
+        >
+          {tx('employees.register.face.retake')}
+        </Button>
+      );
+    }
+    if (showCamera) {
+      return (
+        <>
+          <Button
+            variant="contained"
+            onClick={handleCapture}
+            startIcon={<Iconify icon="solar:camera-bold" />}
+          >
+            {tx('employees.register.face.capture')}
+          </Button>
+          <Button variant="text" color="inherit" onClick={() => setMode('upload')}>
+            {tx('employees.register.face.upload')}
+          </Button>
+        </>
+      );
+    }
+    return (
+      <>
+        <Button
+          variant="contained"
+          onClick={() => fileInputRef.current?.click()}
+          startIcon={<Iconify icon="solar:upload-bold" />}
+        >
+          {tx('employees.register.face.upload')}
+        </Button>
+        <Button
+          variant="text"
+          color="inherit"
+          onClick={() => {
+            setCameraError(false);
+            setMode('camera');
+          }}
+        >
+          {tx('employees.register.face.useCamera')}
+        </Button>
+      </>
+    );
+  };
+
   return (
     <Stack spacing={1.5}>
       <Typography variant="subtitle2">{tx('employees.register.face.title')}</Typography>
@@ -100,78 +185,13 @@ export default function FaceCapture({ value, onChange }: Props) {
           bgcolor: 'grey.900',
         }}
       >
-        {value && preview ? (
-          <Box
-            component="img"
-            src={preview}
-            alt="face"
-            sx={{ width: 1, height: 1, objectFit: 'cover' }}
-          />
-        ) : showCamera ? (
-          <Box
-            component="video"
-            ref={videoRef}
-            autoPlay
-            muted
-            playsInline
-            sx={{ width: 1, height: 1, objectFit: 'cover', transform: 'scaleX(-1)' }}
-          />
-        ) : (
-          <Stack sx={{ height: 1, px: 3 }} alignItems="center" justifyContent="center" spacing={1}>
-            <Iconify icon="solar:gallery-add-bold" width={32} sx={{ color: 'grey.500' }} />
-            <Typography variant="body2" sx={{ color: 'common.white', textAlign: 'center' }}>
-              {tx('employees.register.face.cameraUnavailable')}
-            </Typography>
-          </Stack>
-        )}
+        {renderMedia()}
       </Box>
 
       <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleUpload} />
 
       <Stack direction="row" spacing={1} flexWrap="wrap">
-        {value ? (
-          <Button
-            variant="outlined"
-            color="inherit"
-            onClick={handleRetake}
-            startIcon={<Iconify icon="solar:restart-bold" />}
-          >
-            {tx('employees.register.face.retake')}
-          </Button>
-        ) : showCamera ? (
-          <>
-            <Button
-              variant="contained"
-              onClick={handleCapture}
-              startIcon={<Iconify icon="solar:camera-bold" />}
-            >
-              {tx('employees.register.face.capture')}
-            </Button>
-            <Button variant="text" color="inherit" onClick={() => setMode('upload')}>
-              {tx('employees.register.face.upload')}
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button
-              variant="contained"
-              onClick={() => fileInputRef.current?.click()}
-              startIcon={<Iconify icon="solar:upload-bold" />}
-            >
-              {tx('employees.register.face.upload')}
-            </Button>
-            <Button
-              variant="text"
-              color="inherit"
-              onClick={() => {
-                setCameraError(false);
-                setMode('camera');
-              }}
-            >
-              {tx('employees.register.face.useCamera')}
-            </Button>
-          </>
-        )}
+        {renderControls()}
       </Stack>
     </Stack>
   );
