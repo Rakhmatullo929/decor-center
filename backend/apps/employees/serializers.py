@@ -1,5 +1,6 @@
 from django.core.files.base import ContentFile
 from django.db import transaction
+from django.utils import timezone
 from rest_framework import serializers
 
 from .face_enrollment import add_face_photo
@@ -92,6 +93,15 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         photo = validated_data.pop("photo", None)
+        # Stamp hire_date on first activation. Self-registered employees have no
+        # hire_date until an admin approves them; approving = "Работает с сегодня".
+        if (
+            validated_data.get("is_active") is True
+            and not instance.is_active
+            and instance.hire_date is None
+            and not validated_data.get("hire_date")
+        ):
+            validated_data["hire_date"] = timezone.localdate()
         with transaction.atomic():
             employee = super().update(instance, validated_data)
             if photo is not None:

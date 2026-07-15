@@ -200,3 +200,35 @@ def test_inactive_self_registered_employee_is_not_identifiable(api_client, face_
         "/api/v1/survey-sessions/identify/", {"face_image": face_image}, format="multipart"
     )
     assert resp.status_code == 404
+
+
+def test_activation_stamps_hire_date_when_missing(admin_client, api_client):
+    specialty = SpecialtyFactory()
+    _, raw = create_employee_invite(specialty=specialty)
+    api_client.post(
+        REGISTER_URL,
+        {"token": raw, "full_name": "Pending Person", "phone": "+998901112233",
+         "work_experience": 2, "photo": _reg_photo()},
+        format="multipart",
+    )
+    employee = Employee.objects.get(full_name="Pending Person")
+    assert employee.hire_date is None
+
+    resp = admin_client.patch(
+        f"/api/v1/employees/{employee.id}/", {"is_active": True}, format="json"
+    )
+    assert resp.status_code == 200, resp.data
+    employee.refresh_from_db()
+    assert employee.is_active is True
+    assert employee.hire_date == timezone.localdate()
+
+
+def test_activation_does_not_overwrite_existing_hire_date(admin_client):
+    specialty = SpecialtyFactory()
+    employee = EmployeeFactory(specialty=specialty, is_active=False, hire_date="2020-01-01")
+    resp = admin_client.patch(
+        f"/api/v1/employees/{employee.id}/", {"is_active": True}, format="json"
+    )
+    assert resp.status_code == 200
+    employee.refresh_from_db()
+    assert str(employee.hire_date) == "2020-01-01"
