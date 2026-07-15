@@ -74,9 +74,14 @@ export default function EmployeeTableRow({
         </TableCell>
 
         <TableCell>
-          <Label color={row.isActive ? 'success' : 'default'}>
-            {tx(row.isActive ? 'common.status.active' : 'common.status.inactive')}
-          </Label>
+          <Stack direction="row" spacing={0.75} alignItems="center" flexWrap="wrap">
+            <Label color={row.isActive ? 'success' : 'default'}>
+              {tx(row.isActive ? 'common.status.active' : 'common.status.inactive')}
+            </Label>
+            {row.isSelfRegistered && !row.hireDate && (
+              <Label color="warning">{tx('employees.status.pendingActivation')}</Label>
+            )}
+          </Stack>
         </TableCell>
 
         {canWrite && (

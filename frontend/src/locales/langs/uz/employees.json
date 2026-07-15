@@ -96,6 +96,9 @@
     "active": "Faol",
     "inactive": "Faolsiz"
   },
+  "status": {
+    "pendingActivation": "Faollashtirilishi kutilmoqda"
+  },
   "dialogs": {
     "deactivate": {
       "title": "Xodimni faolsizlantirish",

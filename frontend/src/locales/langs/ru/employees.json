@@ -96,6 +96,9 @@
     "active": "Активные",
     "inactive": "Неактивные"
   },
+  "status": {
+    "pendingActivation": "Ожидает активации"
+  },
   "dialogs": {
     "deactivate": {
       "title": "Деактивировать сотрудника",

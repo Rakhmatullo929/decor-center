@@ -133,6 +133,27 @@ describe('EmployeeTableRow', () => {
     expect(onDelete).toHaveBeenCalledWith(activeEmployee);
   });
 
+  it('shows the pending-activation chip for a self-registered, never-activated employee', () => {
+    renderRow({
+      row: { ...archivedEmployee, isSelfRegistered: true, hireDate: null },
+    });
+    expect(screen.getByText('employees.status.pendingActivation')).toBeInTheDocument();
+  });
+
+  it('does not show the pending chip once a hire date exists', () => {
+    renderRow({
+      row: { ...archivedEmployee, isSelfRegistered: true, hireDate: '2026-07-15' },
+    });
+    expect(screen.queryByText('employees.status.pendingActivation')).not.toBeInTheDocument();
+  });
+
+  it('does not show the pending chip for admin-created employees', () => {
+    renderRow({
+      row: { ...archivedEmployee, isSelfRegistered: false, hireDate: null },
+    });
+    expect(screen.queryByText('employees.status.pendingActivation')).not.toBeInTheDocument();
+  });
+
   it('renders hire date and work experience', () => {
     renderRow({
       row: {
