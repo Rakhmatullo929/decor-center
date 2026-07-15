@@ -40,6 +40,35 @@
     "copied": "Havola nusxalandi",
     "close": "Yopish"
   },
+  "register": {
+    "title": "Xodim ro'yxatdan o'tishi",
+    "subtitle": "Ma'lumotlaringizni to'ldiring. Tekshiruvdan so'ng administrator hisobingizni faollashtiradi.",
+    "specialty": "Mutaxassislik",
+    "fullName": "F.I.Sh.",
+    "phone": "Telefon",
+    "workExperience": "Ish staji (yil)",
+    "submit": "Yuborish",
+    "face": {
+      "title": "Yuz rasmi",
+      "hint": "To'g'ridan-to'g'ri kameraga qarang. Rasm yuzni tanib kirish uchun ishlatiladi.",
+      "capture": "Rasmga olish",
+      "retake": "Qayta olish",
+      "upload": "Fayl yuklash",
+      "useCamera": "Kameradan foydalanish",
+      "cameraUnavailable": "Kamera mavjud emas. Rasmni fayl orqali yuklang.",
+      "required": "Yuz rasmini qo'shing"
+    },
+    "success": {
+      "title": "Ro'yxatdan o'tish yuborildi",
+      "body": "Administrator faollashtirishini kuting. Faollashtirilgach, yuzni tanib kirishingiz mumkin."
+    },
+    "invalid": {
+      "not_found": "Havola yaroqsiz.",
+      "used": "Bu havola allaqachon ishlatilgan.",
+      "expired": "Havola muddati tugagan.",
+      "generic": "Havola yaroqsiz yoki eskirgan."
+    }
+  },
   "facePhotos": {
     "title": "{{name}} — yuz suratlari",
     "hint": "Bir nechta aniq, old tomondan olingan surat qo'shing (turli rakurs/yorug'lik). Aniqlik uchun 3–5 ta tavsiya etiladi.",
