@@ -30,6 +30,16 @@
     "activate": "Faollashtirish",
     "delete": "O'chirish"
   },
+  "invite": {
+    "action": "Xodimni taklif qilish",
+    "title": "Xodimni taklif qilish",
+    "description": "Mutaxassislikni tanlang va bir martalik havola yarating. Xodim o'z ma'lumotlari va yuz rasmini o'zi kiritadi. Administrator faollashtirmaguncha u faol bo'lmaydi.",
+    "generate": "Havola yaratish",
+    "ready": "Havola yaratildi. Uni nusxalab, xodimga yuboring.",
+    "expires": "{{date}} gacha amal qiladi",
+    "copied": "Havola nusxalandi",
+    "close": "Yopish"
+  },
   "facePhotos": {
     "title": "{{name}} — yuz suratlari",
     "hint": "Bir nechta aniq, old tomondan olingan surat qo'shing (turli rakurs/yorug'lik). Aniqlik uchun 3–5 ta tavsiya etiladi.",

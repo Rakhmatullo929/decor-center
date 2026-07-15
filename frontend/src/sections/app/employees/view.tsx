@@ -8,6 +8,7 @@ import Tabs from '@mui/material/Tabs';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
+import Stack from '@mui/material/Stack';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useDebounce } from 'src/hooks/use-debounce';
@@ -46,6 +47,7 @@ import {
   EmployeeTableRow,
   EmployeesTableToolbar,
   EmployeeUpsertDialog,
+  InviteEmployeeDialog,
 } from './components';
 import { EmployeesTableSkeleton } from './skeleton';
 
@@ -120,6 +122,7 @@ export default function EmployeesView() {
   const deleteMutation = useDeleteEmployeeMutation();
 
   const upsertDialog = useBoolean();
+  const inviteDialog = useBoolean();
   const [editing, setEditing] = useState<Employee | null>(null);
   const [deactivating, setDeactivating] = useState<Employee | null>(null);
   const [deleting, setDeleting] = useState<Employee | null>(null);
@@ -218,13 +221,22 @@ export default function EmployeesView() {
         links={[{ name: tx('common.appName'), href: paths.home }, { name: tx('employees.title') }]}
         action={
           canWrite && (
-            <Button
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-              onClick={handleOpenCreate}
-            >
-              {tx('employees.actions.create')}
-            </Button>
+            <Stack direction="row" spacing={1}>
+              <Button
+                variant="outlined"
+                startIcon={<Iconify icon="solar:link-bold" />}
+                onClick={inviteDialog.onTrue}
+              >
+                {tx('employees.invite.action')}
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<Iconify icon="mingcute:add-line" />}
+                onClick={handleOpenCreate}
+              >
+                {tx('employees.actions.create')}
+              </Button>
+            </Stack>
           )
         }
         sx={{ mb: { xs: 3, md: 5 } }}
@@ -294,6 +306,8 @@ export default function EmployeesView() {
         employee={editing}
         onSaved={handleSaved}
       />
+
+      <InviteEmployeeDialog open={inviteDialog.value} onClose={inviteDialog.onFalse} />
 
       <ConfirmDialog
         open={Boolean(deactivating)}

@@ -61,6 +61,12 @@ jest.mock('../../specialties/api/use-specialties-api', () => ({
   useSpecialtyOptionsQuery: () => mockUseSpecialtyOptionsQuery(),
 }));
 
+// The view renders InviteEmployeeDialog (via the components barrel); its real
+// useCreateInviteMutation -> useMutate needs providers test-utils doesn't supply.
+jest.mock('../api/use-employee-invites-api', () => ({
+  useCreateInviteMutation: () => ({ mutate: jest.fn(), isPending: false }),
+}));
+
 // FacePhotosDialog (rendered by the view) pulls in the face-photos hooks → src/hooks/api → axios (ESM).
 jest.mock('../api/use-face-photos-api', () => ({
   useFacePhotosQuery: () => ({ data: [], isPending: false, refetch: jest.fn() }),
