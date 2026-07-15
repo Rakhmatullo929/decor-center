@@ -26,8 +26,9 @@
   "actions": {
     "create": "Xodim qo'shish",
     "managePhotos": "Yuz suratlarini boshqarish",
-    "archive": "Arxivlash",
-    "activate": "Faollashtirish"
+    "deactivate": "Faolsizlantirish",
+    "activate": "Faollashtirish",
+    "delete": "O'chirish"
   },
   "facePhotos": {
     "title": "{{name}} — yuz suratlari",
@@ -52,18 +53,28 @@
       "invalid_image": "Yaroqsiz rasm"
     }
   },
+  "tabs": {
+    "active": "Faol",
+    "inactive": "Faolsiz"
+  },
   "dialogs": {
-    "archive": {
-      "title": "Xodimni arxivlash",
-      "content": "{{name}} arxivlansinmi? Arxivdagi xodim test va tibbiy ko'rik ro'yxatlarida ko'rinmaydi.",
-      "confirm": "Arxivlash"
+    "deactivate": {
+      "title": "Xodimni faolsizlantirish",
+      "content": "{{name}} faolsizlantirilsinmi? Xodim test va tibbiy ko'rik ro'yxatlarida ko'rinmaydi.",
+      "confirm": "Faolsizlantirish"
+    },
+    "delete": {
+      "title": "Xodimni o'chirish",
+      "content": "{{name}} o'chirilsinmi? Bu amalni ortga qaytarib bo'lmaydi: xodim va uning barcha so'rovnoma tarixi butunlay o'chiriladi.",
+      "confirm": "O'chirish"
     }
   },
   "toasts": {
     "created": "Xodim qo'shildi",
     "updated": "Xodim ma'lumotlari yangilandi",
-    "archived": "Xodim arxivlandi",
-    "activated": "Xodim faollashtirildi"
+    "deactivated": "Xodim faolsizlantirildi",
+    "activated": "Xodim faollashtirildi",
+    "deleted": "Xodim o'chirildi"
   },
   "validation": {
     "fullNameRequired": "F.I.Sh. majburiy",

@@ -18,8 +18,6 @@ type Props = {
   onSearch: (value: string) => void;
   specialty: string;
   onSpecialty: (value: string) => void;
-  status: string;
-  onStatus: (value: string) => void;
   specialtyOptions: Specialty[];
 };
 
@@ -28,18 +26,15 @@ export default function EmployeesTableToolbar({
   onSearch,
   specialty,
   onSpecialty,
-  status,
-  onStatus,
   specialtyOptions,
 }: Props) {
   const { tx } = useLocales();
 
-  const hasFilters = !!search || !!specialty || !!status;
+  const hasFilters = !!search || !!specialty;
 
   const handleReset = () => {
     onSearch('');
     onSpecialty('');
-    onStatus('');
   };
 
   return (
@@ -79,19 +74,6 @@ export default function EmployeesTableToolbar({
             {option.name}
           </MenuItem>
         ))}
-      </TextField>
-
-      <TextField
-        select
-        size="small"
-        label={tx('employees.filters.status')}
-        value={status}
-        onChange={(event) => onStatus(event.target.value)}
-        sx={{ width: { xs: 1, sm: 160 }, flexShrink: 0 }}
-      >
-        <MenuItem value="">{tx('common.labels.all')}</MenuItem>
-        <MenuItem value="true">{tx('common.status.active')}</MenuItem>
-        <MenuItem value="false">{tx('common.status.inactive')}</MenuItem>
       </TextField>
 
       {hasFilters && (
