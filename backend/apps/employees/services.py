@@ -1,9 +1,15 @@
 """Bridges a survey-taking Employee to a login-capable User (SRS: kiosk face+OTP flow)."""
+import hashlib
+from datetime import timedelta
+
+from django.conf import settings
 from django.db import transaction
+from django.utils import timezone
+from django.utils.crypto import get_random_string
 
 from apps.accounts.models import Roles, User
 
-from .models import Employee
+from .models import Employee, EmployeeInvite
 
 
 def get_or_create_employee_user(employee: Employee) -> User:
@@ -51,3 +57,33 @@ def delete_employee_with_related(employee: Employee) -> None:
     employee.survey_face_logs.all().delete()
     employee.otp_challenges.all().delete()
     employee.delete()
+
+
+def hash_invite_token(raw_token: str) -> str:
+    """sha256 of the raw invite token (the only form stored in the DB)."""
+    return hashlib.sha256(raw_token.encode()).hexdigest()
+
+
+def create_employee_invite(specialty, created_by=None):
+    """Mint a one-time invite. Returns (invite, raw_token). Store only the hash."""
+    raw_token = get_random_string(48)
+    ttl_days = settings.DECOR["EMPLOYEE_INVITE_TTL_DAYS"]
+    invite = EmployeeInvite.objects.create(
+        token_hash=hash_invite_token(raw_token),
+        specialty=specialty,
+        expires_at=timezone.now() + timedelta(days=ttl_days),
+        created_by=created_by,
+    )
+    return invite, raw_token
+
+
+def get_invite_by_token(raw_token: str):
+    """Look up an invite by raw token (any state). Returns None if unknown/blank."""
+    if not raw_token:
+        return None
+    try:
+        return EmployeeInvite.objects.select_related("specialty").get(
+            token_hash=hash_invite_token(raw_token)
+        )
+    except EmployeeInvite.DoesNotExist:
+        return None

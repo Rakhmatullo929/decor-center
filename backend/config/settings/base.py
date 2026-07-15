@@ -123,6 +123,8 @@ REST_FRAMEWORK = {
         "kiosk_identify": env("DECOR_THROTTLE_IDENTIFY", default="30/min"),
         "kiosk_otp": env("DECOR_THROTTLE_OTP", default="10/min"),
         "kiosk_lookup": env("DECOR_THROTTLE_LOOKUP", default="30/min"),
+        "invite_validate": env("DECOR_THROTTLE_INVITE_VALIDATE", default="30/min"),
+        "invite_register": env("DECOR_THROTTLE_INVITE_REGISTER", default="10/min"),
     },
 }
 
@@ -174,4 +176,6 @@ DECOR = {
     "KIOSK_OTP_STATIC_CODE": env("DECOR_KIOSK_OTP_STATIC_CODE", default="0000"),
     "KIOSK_OTP_TTL_SECONDS": env.int("DECOR_KIOSK_OTP_TTL_SECONDS", default=300),
     "KIOSK_OTP_MAX_ATTEMPTS": env.int("DECOR_KIOSK_OTP_MAX_ATTEMPTS", default=5),
+    # ── Employee self-registration invite links ────────────────────────────
+    "EMPLOYEE_INVITE_TTL_DAYS": env.int("DECOR_EMPLOYEE_INVITE_TTL_DAYS", default=7),
 }
