@@ -118,16 +118,28 @@ export type MoveQuestionPayload = { question: number; targetBlock: number; order
  */
 export type ResultOption = { id: string; text: string; count: number };
 
+/** Present for nps/scale5: rating distribution + average. */
+export type ScaleResult = {
+  min: number;
+  max: number;
+  /** Response count per rating value, keyed by the value as a string (e.g. "7"). */
+  counts: Record<string, number>;
+  responseCount: number;
+  average: number | null;
+};
+
 export type QuestionResult = {
   id: number;
   text: string;
   type: QuestionType;
   /** Present for single/multiple: per-option selection counts. */
   options?: ResultOption[];
-  /** Present for textarea: raw free-text answers. */
+  /** Present for textarea/short_text/form_field/signature_date: free-text answers. */
   textValues?: string[];
-  /** Present for textarea: number of non-empty answers. */
+  /** Present alongside textValues: number of non-empty answers. */
   responseCount?: number;
+  /** Present for nps/scale5. */
+  scale?: ScaleResult;
 };
 
 export type ResultBlock = {
@@ -161,4 +173,39 @@ export type SurveySessionAdmin = {
   status: SurveySessionStatus;
 };
 
-export type SurveySessionListParams = { test: number };
+export type SurveySessionListParams = { test?: number };
+
+/** Matches `AnswerReadSerializer` — one raw answer row within a session detail. */
+export type SessionAnswer = {
+  question: number;
+  questionText: string;
+  questionType: QuestionType;
+  selectedOptionIds: string[];
+  textValue: string;
+};
+
+/** Question as presented to the employee, frozen at session start (`QuestionPublicSerializer`). */
+export type SessionQuestion = {
+  id: number;
+  type: QuestionType;
+  order: number;
+  text: string;
+  options: TestOption[];
+  settings: QuestionSettings;
+  isRequired: boolean;
+  isMindDive: boolean;
+};
+
+export type SessionBlock = {
+  id: number;
+  test: number;
+  order: number;
+  title: string;
+  questions: SessionQuestion[];
+};
+
+/** Matches `SurveySessionDetailSerializer` — one employee's full attempt, question-by-question. */
+export type SurveySessionDetail = SurveySessionAdmin & {
+  answers: SessionAnswer[];
+  blocks: SessionBlock[];
+};

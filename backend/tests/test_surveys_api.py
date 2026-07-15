@@ -6,11 +6,12 @@ from rest_framework.test import APIClient
 from apps.accounts.tokens import issue_token_pair
 from apps.employees.models import Employee
 from apps.employees.services import get_or_create_employee_user
-from apps.surveys.models import Answer, SurveySession
+from apps.surveys.models import Answer, Question, SurveySession
 
 from .factories import (
     EmployeeFactory,
     QuestionBlockFactory,
+    QuestionFactory,
     TestFactory,
 )
 
@@ -187,6 +188,52 @@ def test_retrieve_own_session_includes_blocks_for_resume(survey_with_questions):
     assert resp.status_code == 200, resp.data
     assert {q["id"] for q in resp.data["blocks"][0]["questions"]} == {q_single.id, q_text.id}
     assert {a["question"] for a in resp.data["answers"]} == {q_single.id, q_text.id}
+
+
+def test_resume_ignores_question_added_to_test_after_session_started(survey_with_questions):
+    """An admin editing the test (adding a question) after an employee's session has
+    already started must not strand that session — resume must keep showing exactly
+    the frozen question set, not the test's live definition."""
+    survey, q_single, q_text = survey_with_questions
+    emp = EmployeeFactory()
+    client = kiosk_client(emp.id)
+    session_id = _start(client, survey, emp).data["session"]["id"]
+
+    # Admin adds a third question to the same block after the session started.
+    new_question = QuestionFactory(block=q_single.block, type=Question.Type.SHORT_TEXT, order=2)
+
+    resume = client.get(f"{SESSIONS}{session_id}/")
+    assert resume.status_code == 200, resume.data
+    resumed_ids = {q["id"] for q in resume.data["blocks"][0]["questions"]}
+    assert resumed_ids == {q_single.id, q_text.id}
+    assert new_question.id not in resumed_ids
+
+    restart = _start(client, survey, emp)
+    assert restart.status_code == 200, restart.data
+    restarted_ids = {q["id"] for q in restart.data["blocks"][0]["questions"]}
+    assert restarted_ids == {q_single.id, q_text.id}
+
+
+def test_submit_succeeds_after_question_added_mid_session(survey_with_questions):
+    """The employee must still be able to finish and submit a session that was started
+    before an admin added a new question to the test."""
+    survey, q_single, q_text = survey_with_questions
+    emp = EmployeeFactory()
+    client = kiosk_client(emp.id)
+    session_id = _start(client, survey, emp).data["session"]["id"]
+
+    QuestionFactory(block=q_single.block, type=Question.Type.SHORT_TEXT, order=2)
+
+    resp = client.post(
+        f"{SESSIONS}{session_id}/submit/",
+        {"answers": [
+            {"question": q_single.id, "selected_option_ids": ["a"]},
+            {"question": q_text.id, "text_value": "Nice"},
+        ]},
+        format="json",
+    )
+    assert resp.status_code == 200, resp.data
+    assert resp.data["status"] == "completed"
 
 
 def test_retrieve_other_employees_session_is_forbidden(survey_with_questions):

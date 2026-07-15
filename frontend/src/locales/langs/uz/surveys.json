@@ -101,15 +101,17 @@
     "pickTestPrompt": "Natijalarni ko‘rish uchun so‘rovni tanlang",
     "sessionCount": "Jami o‘tishlar: {{count}}",
     "noAnswers": "Javoblar yo‘q",
+    "scaleAverage": "O‘rtacha baho: {{average}}",
     "toasts": { "exported": "Eksport tayyor" }
   },
   "sessions": {
     "title": "So‘rov o‘tishlari",
     "selectTest": "So‘rovni tanlang",
-    "pickTestPrompt": "Kim boshlagani, jarayonda ekani, tugatgani yoki ulgurmaganini ko‘rish uchun so‘rovni tanlang",
-    "empty": "Bu so‘rovni hali hech kim boshlamagan",
+    "allTests": "Barcha so‘rovlar",
+    "empty": "Hali hech kim birorta ham so‘rovni boshlamagan",
     "table": {
       "employee": "Xodim",
+      "test": "So‘rov",
       "status": "Holat",
       "startedAt": "Boshladi",
       "completedAt": "Tugatdi"
@@ -118,6 +120,11 @@
       "in_progress": "Jarayonda",
       "completed": "Tugatdi",
       "abandoned": "Ulgurmadi"
+    },
+    "detail": {
+      "title": "So‘rov o‘tishi",
+      "noAnswer": "Javob yo‘q",
+      "loadError": "O‘tishni yuklab bo‘lmadi"
     }
   }
 }

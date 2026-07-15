@@ -9,6 +9,7 @@ import {
   fetchQuestionBlocks,
   fetchQuestions,
   fetchSurveyResults,
+  fetchSurveySession,
   fetchSurveySessions,
   fetchTest,
   fetchTests,
@@ -30,6 +31,7 @@ import type {
   ResultsParams,
   SurveyResults,
   SurveySessionAdmin,
+  SurveySessionDetail,
   SurveySessionListParams,
   Test,
 } from './types';
@@ -105,11 +107,18 @@ export function useMoveQuestionMutation() {
 }
 
 // ── Results ────────────────────────────────────────────────────────────
-export function useSurveySessionsQuery(params: SurveySessionListParams | null) {
-  return useFetch<SurveySessionAdmin[]>(
-    ['surveys', 'sessions', params],
-    () => fetchSurveySessions(params as SurveySessionListParams),
-    { enabled: params !== null }
+// `params.test` omitted => every session across every survey (server-side, no client filter).
+export function useSurveySessionsQuery(params: SurveySessionListParams = {}) {
+  return useFetch<SurveySessionAdmin[]>(['surveys', 'sessions', params], () =>
+    fetchSurveySessions(params)
+  );
+}
+
+export function useSurveySessionQuery(sessionId: number) {
+  return useFetch<SurveySessionDetail>(
+    ['surveys', 'session', sessionId],
+    () => fetchSurveySession(sessionId),
+    { enabled: Number.isFinite(sessionId) }
   );
 }
 

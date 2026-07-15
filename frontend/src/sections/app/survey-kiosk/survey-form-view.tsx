@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import Button from '@mui/material/Button';
 import { useSnackbar } from 'src/components/snackbar';
+import Iconify from 'src/components/iconify';
 import { LoadingScreen } from 'src/components/loading-screen';
 import useLocales from 'src/locales/use-locales';
 import { paths } from 'src/routes/paths';
@@ -158,20 +160,33 @@ export default function SurveyFormView() {
     return () => clearTimeout(timer);
   }, [done, finish]);
 
+  // Answers autosave on every change, so leaving mid-survey never loses input — back to the
+  // due-surveys list is always safe. Hidden on the thank-you screen, which auto-returns on its own.
+  const backAction = !done ? (
+    <Button
+      variant="text"
+      size="small"
+      startIcon={<Iconify icon="eva:arrow-back-fill" />}
+      onClick={() => navigate(paths.employee)}
+    >
+      {tx('common.actions.back')}
+    </Button>
+  ) : undefined;
+
   if (loading) return null;
   if (!signedIn) return <Navigate to={paths.scan} replace />;
   if (!sessionId) return <Navigate to={paths.employee} replace />;
   if (sessionQuery.isError) return <Navigate to={paths.employee} replace />;
   if (!sessionQuery.data || !seeded) {
     return (
-      <SurveyPanel maxWidth={760}>
+      <SurveyPanel maxWidth={760} action={backAction}>
         <LoadingScreen />
       </SurveyPanel>
     );
   }
 
   return (
-    <SurveyPanel maxWidth={940}>
+    <SurveyPanel maxWidth={940} action={backAction}>
       {done ? (
         <ThankYouStep employeeName={sessionQuery.data.employeeName} onFinish={finish} />
       ) : (

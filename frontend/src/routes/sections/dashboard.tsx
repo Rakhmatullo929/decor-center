@@ -11,6 +11,7 @@ const SurveyBlocksPage = lazy(() => import('src/pages/app/survey-blocks'));
 const SurveyBlockQuestionsPage = lazy(() => import('src/pages/app/survey-block-questions'));
 const SurveyResultsPage = lazy(() => import('src/pages/app/survey-results'));
 const SurveySessionsPage = lazy(() => import('src/pages/app/survey-sessions'));
+const SurveySessionDetailPage = lazy(() => import('src/pages/app/survey-session-detail'));
 
 export const dashboardRoutes = [
   {
@@ -70,6 +71,14 @@ export const dashboardRoutes = [
         element: (
           <PermissionGuard page="results" action="read">
             <SurveySessionsPage />
+          </PermissionGuard>
+        ),
+      },
+      {
+        path: 'surveys/sessions/:sessionId',
+        element: (
+          <PermissionGuard page="results" action="read">
+            <SurveySessionDetailPage />
           </PermissionGuard>
         ),
       },

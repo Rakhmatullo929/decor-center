@@ -5,6 +5,7 @@ from rest_framework import serializers
 from apps.employees.models import Employee
 
 from .models import Answer, Question, QuestionBlock, SurveySession, Test
+from .services import presented_blocks
 
 
 def _validate_options_shape(options):
@@ -78,16 +79,6 @@ class QuestionBlockSerializer(serializers.ModelSerializer):
     """Block as edited by the admin builder."""
 
     questions = QuestionSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = QuestionBlock
-        fields = ["id", "test", "order", "title", "questions"]
-
-
-class QuestionBlockPublicSerializer(serializers.ModelSerializer):
-    """Block as presented to the kiosk."""
-
-    questions = QuestionPublicSerializer(many=True, read_only=True)
 
     class Meta:
         model = QuestionBlock
@@ -234,8 +225,19 @@ class SurveySessionDetailSerializer(SurveySessionSerializer):
         read_only_fields = fields
 
     def get_blocks(self, obj):
-        blocks = obj.test.blocks.prefetch_related("questions")
-        return QuestionBlockPublicSerializer(blocks, many=True).data
+        return presented_blocks_data(obj)
+
+
+def presented_blocks_data(session: SurveySession) -> list[dict]:
+    """JSON-ready block/question payload for `session`, built from
+    services.presented_blocks (the session's frozen question set) instead of the
+    test's live definition — see that function for why. Shared by
+    SurveySessionDetailSerializer.get_blocks (resume via GET) and
+    SurveySessionViewSet.start (resume via POST), so both agree."""
+    return [
+        {**block, "questions": QuestionPublicSerializer(block["questions"], many=True).data}
+        for block in presented_blocks(session)
+    ]
 
 
 class KioskIdentifiedEmployeeSerializer(serializers.ModelSerializer):

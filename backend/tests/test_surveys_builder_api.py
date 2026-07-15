@@ -1,13 +1,20 @@
 import pytest
 
-from apps.surveys.models import Question
+from apps.surveys.models import Answer, Question, QuestionBlock, Test
 
-from .factories import EmployeeFactory, QuestionBlockFactory, QuestionFactory, TestFactory
+from .factories import (
+    EmployeeFactory,
+    QuestionBlockFactory,
+    QuestionFactory,
+    SurveySessionFactory,
+    TestFactory,
+)
 
 pytestmark = pytest.mark.django_db
 
 BLOCKS = "/api/v1/question-blocks/"
 QUESTIONS = "/api/v1/questions/"
+TESTS = "/api/v1/tests/"
 
 
 # --- block reorder -----------------------------------------------------------
@@ -259,3 +266,42 @@ def test_kiosk_start_returns_flat_text(face_image):
     question_out = block_out["questions"][0]
     assert question_out["text"] == "Вопрос?"
     assert {opt["text"] for opt in question_out["options"]} == {"Да", "Нет"}
+
+
+# --- delete guards (a Question/Answer PROTECT must not surface as a raw 500) -----
+
+def test_delete_question_without_answers_succeeds(admin_client):
+    question = QuestionFactory()
+    resp = admin_client.delete(f"{QUESTIONS}{question.id}/")
+    assert resp.status_code == 204, resp.data
+    assert not Question.objects.filter(pk=question.id).exists()
+
+
+def test_delete_question_with_answers_returns_friendly_error(admin_client):
+    question = QuestionFactory()
+    session = SurveySessionFactory(test=question.block.test, employee=EmployeeFactory())
+    Answer.objects.create(session=session, question=question)
+
+    resp = admin_client.delete(f"{QUESTIONS}{question.id}/")
+    assert resp.status_code == 400, resp.data
+    assert Question.objects.filter(pk=question.id).exists()
+
+
+def test_delete_block_with_answered_questions_returns_friendly_error(admin_client):
+    block = QuestionBlockFactory()
+    question = QuestionFactory(block=block)
+    session = SurveySessionFactory(test=block.test, employee=EmployeeFactory())
+    Answer.objects.create(session=session, question=question)
+
+    resp = admin_client.delete(f"{BLOCKS}{block.id}/")
+    assert resp.status_code == 400, resp.data
+    assert QuestionBlock.objects.filter(pk=block.id).exists()
+
+
+def test_delete_test_with_sessions_returns_friendly_error(admin_client):
+    survey = TestFactory()
+    SurveySessionFactory(test=survey, employee=EmployeeFactory())
+
+    resp = admin_client.delete(f"{TESTS}{survey.id}/")
+    assert resp.status_code == 400, resp.data
+    assert Test.objects.filter(pk=survey.id).exists()
