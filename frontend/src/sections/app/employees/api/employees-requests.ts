@@ -63,3 +63,11 @@ export function updateEmployee(id: number, payload: Partial<EmployeeUpsertPayloa
     data: buildEmployeeBody(payload),
   });
 }
+
+/** Hard-delete an employee (cascades their survey history on the backend). */
+export function deleteEmployee(id: number) {
+  return request<void>({
+    method: 'DELETE',
+    url: API_ENDPOINTS.employees.detail(id),
+  });
+}

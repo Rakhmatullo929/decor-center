@@ -45,7 +45,7 @@
   },
   "status": {
     "active": "Активен",
-    "inactive": "Архив",
+    "inactive": "Неактивен",
     "approved": "Утверждён",
     "draft": "Не утверждён",
     "passed": "Сдал",

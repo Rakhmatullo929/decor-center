@@ -12,10 +12,12 @@ const mockEnqueueSnackbar = jest.fn();
 const mockPermissions = jest.fn();
 const mockUseEmployeesQuery = jest.fn();
 const mockUseSpecialtyOptionsQuery = jest.fn();
+const mockDeleteItem = jest.fn();
 
 const mockToggleMutation = { mutate: jest.fn(), mutateAsync: jest.fn(), isPending: false };
 const mockCreateMutation = { mutate: jest.fn(), mutateAsync: jest.fn(), isPending: false };
 const mockUpdateMutation = { mutate: jest.fn(), mutateAsync: jest.fn(), isPending: false };
+const mockDeleteMutation = { mutate: jest.fn(), mutateAsync: jest.fn(), isPending: false };
 
 jest.mock('src/locales/use-locales', () => ({
   __esModule: true,
@@ -52,6 +54,7 @@ jest.mock('../api/use-employees-api', () => ({
   useToggleEmployeeActiveMutation: () => mockToggleMutation,
   useCreateEmployeeMutation: () => mockCreateMutation,
   useUpdateEmployeeMutation: () => mockUpdateMutation,
+  useDeleteEmployeeMutation: () => mockDeleteMutation,
 }));
 
 jest.mock('../../specialties/api/use-specialties-api', () => ({
@@ -100,6 +103,7 @@ function mockEmployeesData(results: Employee[], extra?: Partial<Record<string, u
     isFetching: false,
     addItem: jest.fn(),
     updateItem: jest.fn(),
+    deleteItem: mockDeleteItem,
     ...extra,
   });
 }
@@ -122,6 +126,7 @@ describe('EmployeesView', () => {
       isFetching: true,
       addItem: jest.fn(),
       updateItem: jest.fn(),
+      deleteItem: jest.fn(),
     });
 
     const { container } = render(<EmployeesView />);
@@ -175,7 +180,7 @@ describe('EmployeesView', () => {
     expect(within(row).queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it('archiving an active employee asks for confirmation, then calls the toggle mutation', async () => {
+  it('deactivating an active employee asks for confirmation, then calls the toggle mutation', async () => {
     const user = userEvent.setup();
     mockEmployeesData([activeEmployee]);
 
@@ -184,22 +189,27 @@ describe('EmployeesView', () => {
     const row = screen.getByText('Alisher Karimov').closest('tr') as HTMLTableRowElement;
     await user.click(within(row).getByRole('button'));
 
-    await user.click(await screen.findByText('employees.actions.archive'));
+    await user.click(await screen.findByText('employees.actions.deactivate'));
 
     // ConfirmDialog opens; the mutation must not fire before confirmation.
-    expect(await screen.findByText('employees.dialogs.archive.title')).toBeInTheDocument();
+    expect(await screen.findByText('employees.dialogs.deactivate.title')).toBeInTheDocument();
     expect(mockToggleMutation.mutate).not.toHaveBeenCalled();
 
-    await user.click(screen.getByText('employees.dialogs.archive.confirm'));
+    // Run the success path so the row-removal + toast behavior is actually exercised.
+    mockToggleMutation.mutate.mockImplementationOnce((_vars, opts) => opts.onSuccess());
+    await user.click(screen.getByText('employees.dialogs.deactivate.confirm'));
 
     expect(mockToggleMutation.mutate).toHaveBeenCalledTimes(1);
     expect(mockToggleMutation.mutate).toHaveBeenCalledWith(
       { id: 1, isActive: false },
       expect.objectContaining({ onSuccess: expect.any(Function) })
     );
+    // Deactivated employee no longer matches the Active tab — it is dropped from the list.
+    expect(mockDeleteItem).toHaveBeenCalledWith(1);
+    expect(mockEnqueueSnackbar).toHaveBeenCalledWith('employees.toasts.deactivated');
   });
 
-  it('activating an archived employee calls the toggle mutation without confirmation', async () => {
+  it('activating an inactive employee calls the toggle mutation without confirmation', async () => {
     const user = userEvent.setup();
     mockEmployeesData([archivedEmployee]);
 
@@ -210,11 +220,85 @@ describe('EmployeesView', () => {
 
     await user.click(await screen.findByText('employees.actions.activate'));
 
-    expect(screen.queryByText('employees.dialogs.archive.title')).not.toBeInTheDocument();
+    expect(screen.queryByText('employees.dialogs.deactivate.title')).not.toBeInTheDocument();
     expect(mockToggleMutation.mutate).toHaveBeenCalledWith(
       { id: 2, isActive: true },
       expect.objectContaining({ onSuccess: expect.any(Function) })
     );
+  });
+
+  it('deleting an employee asks for confirmation, then calls the delete mutation', async () => {
+    const user = userEvent.setup();
+    mockEmployeesData([activeEmployee]);
+
+    render(<EmployeesView />);
+
+    const row = screen.getByText('Alisher Karimov').closest('tr') as HTMLTableRowElement;
+    await user.click(within(row).getByRole('button'));
+
+    await user.click(await screen.findByText('employees.actions.delete'));
+
+    // ConfirmDialog opens; the mutation must not fire before confirmation.
+    expect(await screen.findByText('employees.dialogs.delete.title')).toBeInTheDocument();
+    expect(mockDeleteMutation.mutate).not.toHaveBeenCalled();
+
+    // Run the success path so the row-removal + toast behavior is actually exercised.
+    mockDeleteMutation.mutate.mockImplementationOnce((_id, opts) => opts.onSuccess());
+    await user.click(screen.getByText('employees.dialogs.delete.confirm'));
+
+    expect(mockDeleteMutation.mutate).toHaveBeenCalledTimes(1);
+    expect(mockDeleteMutation.mutate).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({ onSuccess: expect.any(Function) })
+    );
+    expect(mockDeleteItem).toHaveBeenCalledWith(1);
+    expect(mockEnqueueSnackbar).toHaveBeenCalledWith('employees.toasts.deleted');
+  });
+
+  it('defaults to the Active tab and queries active employees', () => {
+    mockEmployeesData([activeEmployee]);
+
+    render(<EmployeesView />);
+
+    expect(screen.getByRole('tab', { name: 'employees.tabs.active' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    );
+    // The tab must actually drive the server filter, not just the visual selection.
+    expect(mockUseEmployeesQuery).toHaveBeenCalledWith(expect.objectContaining({ isActive: true }));
+    expect(mockUseEmployeesQuery).not.toHaveBeenCalledWith(
+      expect.objectContaining({ isActive: false })
+    );
+  });
+
+  it('reflects the URL param on the Inactive tab and queries inactive employees', () => {
+    mockEmployeesData([archivedEmployee]);
+
+    render(<EmployeesView />, { routerEntries: ['/employees?is_active=false'] });
+
+    expect(screen.getByRole('tab', { name: 'employees.tabs.inactive' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    );
+    expect(mockUseEmployeesQuery).toHaveBeenCalledWith(expect.objectContaining({ isActive: false }));
+    expect(mockUseEmployeesQuery).not.toHaveBeenCalledWith(
+      expect.objectContaining({ isActive: true })
+    );
+  });
+
+  it('switching to the Inactive tab selects it and re-queries with isActive false', async () => {
+    const user = userEvent.setup();
+    mockEmployeesData([activeEmployee]);
+
+    render(<EmployeesView />);
+
+    await user.click(screen.getByRole('tab', { name: 'employees.tabs.inactive' }));
+
+    expect(screen.getByRole('tab', { name: 'employees.tabs.inactive' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    );
+    expect(mockUseEmployeesQuery).toHaveBeenCalledWith(expect.objectContaining({ isActive: false }));
   });
 
   it('opens the upsert dialog in create mode from the create button', async () => {

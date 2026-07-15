@@ -14,6 +14,7 @@ from .serializers import (
     EmployeeSerializer,
     SpecialtySerializer,
 )
+from .services import delete_employee_with_related
 
 
 class SpecialtyViewSet(viewsets.ModelViewSet):
@@ -43,6 +44,15 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     filterset_fields = ["specialty", "is_active"]
     search_fields = ["full_name"]
     ordering_fields = ["full_name", "hire_date", "created_at"]
+
+    def perform_destroy(self, instance):
+        """Hard-delete the employee and cascade their survey history (admin only)."""
+        try:
+            delete_employee_with_related(instance)
+        except ProtectedError as exc:
+            raise ValidationError(
+                {"detail": "Нельзя удалить сотрудника: остались связанные записи."}
+            ) from exc
 
     @action(detail=True, methods=["get", "post"], url_path="face-photos")
     def face_photos(self, request, pk=None):

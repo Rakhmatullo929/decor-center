@@ -24,6 +24,7 @@ type Props = {
   canWrite: boolean;
   onEdit: (employee: Employee) => void;
   onToggleActive: (employee: Employee) => void;
+  onDelete: (employee: Employee) => void;
 };
 
 export default function EmployeeTableRow({
@@ -31,6 +32,7 @@ export default function EmployeeTableRow({
   canWrite,
   onEdit,
   onToggleActive,
+  onDelete,
 }: Props) {
   const { tx } = useLocales();
   const popover = usePopover();
@@ -107,8 +109,19 @@ export default function EmployeeTableRow({
           }}
           sx={{ color: row.isActive ? 'error.main' : 'success.main' }}
         >
-          <Iconify icon={row.isActive ? 'solar:archive-bold' : 'solar:restart-bold'} />
-          {tx(row.isActive ? 'employees.actions.archive' : 'employees.actions.activate')}
+          <Iconify icon={row.isActive ? 'solar:forbidden-circle-bold' : 'solar:restart-bold'} />
+          {tx(row.isActive ? 'employees.actions.deactivate' : 'employees.actions.activate')}
+        </MenuItem>
+
+        <MenuItem
+          onClick={() => {
+            popover.onClose();
+            onDelete(row);
+          }}
+          sx={{ color: 'error.main' }}
+        >
+          <Iconify icon="solar:trash-bin-trash-bold" />
+          {tx('employees.actions.delete')}
         </MenuItem>
       </CustomPopover>
     </>

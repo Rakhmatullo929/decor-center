@@ -2,7 +2,13 @@ import { keepPreviousData } from '@tanstack/react-query';
 
 import { useFetch, useFetchList, useMutate } from 'src/hooks/api';
 
-import { createEmployee, fetchEmployee, fetchEmployees, updateEmployee } from './employees-requests';
+import {
+  createEmployee,
+  deleteEmployee,
+  fetchEmployee,
+  fetchEmployees,
+  updateEmployee,
+} from './employees-requests';
 import type { Employee, EmployeeListParams, EmployeeUpsertPayload } from './types';
 
 export function useEmployeesQuery(params: EmployeeListParams) {
@@ -31,9 +37,14 @@ export function useUpdateEmployeeMutation() {
   );
 }
 
-/** Archive / activate from the list — global error toast is fine here. */
+/** Deactivate / activate from the list — global error toast is fine here. */
 export function useToggleEmployeeActiveMutation() {
   return useMutate<Employee, { id: number; isActive: boolean }>(({ id, isActive }) =>
     updateEmployee(id, { isActive })
   );
+}
+
+/** Hard-delete from the list — global error toast is fine here. */
+export function useDeleteEmployeeMutation() {
+  return useMutate<void, number>((id) => deleteEmployee(id));
 }

@@ -1,4 +1,6 @@
 """Bridges a survey-taking Employee to a login-capable User (SRS: kiosk face+OTP flow)."""
+from django.db import transaction
+
 from apps.accounts.models import Roles, User
 
 from .models import Employee
@@ -29,3 +31,23 @@ def get_or_create_employee_user(employee: Employee) -> User:
     employee.user = user
     employee.save(update_fields=["user"])
     return user
+
+
+@transaction.atomic
+def delete_employee_with_related(employee: Employee) -> None:
+    """Hard-delete an employee together with all their survey history.
+
+    The surveys app references Employee with ``on_delete=PROTECT`` (SurveySession,
+    FaceVerificationLog, OtpChallenge), so a plain ``employee.delete()`` raises
+    ProtectedError. We clear those protected reverse relations first — via the reverse
+    accessors, so this module never imports surveys models — then delete the employee.
+    Deleting the sessions cascades to their Answers; deleting the employee cascades to
+    EmployeeFacePhoto. The whole operation is atomic.
+
+    The employee's linked login ``User`` (OneToOne, SET_NULL) and stored media files are
+    intentionally left in place — they are harmless artifacts, not survey history.
+    """
+    employee.survey_sessions.all().delete()
+    employee.survey_face_logs.all().delete()
+    employee.otp_challenges.all().delete()
+    employee.delete()

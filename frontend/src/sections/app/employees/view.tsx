@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from 'react';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import Container from '@mui/material/Container';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
@@ -34,7 +36,11 @@ import {
 import { paths } from 'src/routes/paths';
 //
 import { useSpecialtyOptionsQuery } from '../specialties/api/use-specialties-api';
-import { useEmployeesQuery, useToggleEmployeeActiveMutation } from './api/use-employees-api';
+import {
+  useDeleteEmployeeMutation,
+  useEmployeesQuery,
+  useToggleEmployeeActiveMutation,
+} from './api/use-employees-api';
 import type { Employee, EmployeeListParams } from './api/types';
 import {
   EmployeeTableRow,
@@ -47,10 +53,14 @@ import { EmployeesTableSkeleton } from './skeleton';
 
 const SORTABLE_COLUMNS = ['full_name', 'hire_date'];
 
-/** Extra list filters live in the URL next to page/search/ordering (module-level schema). */
+/**
+ * Extra list filters live in the URL next to page/search/ordering (module-level schema).
+ * `is_active` defaults to `'true'` so the page opens on the Active tab; the value doubles
+ * as the selected tab and survives a page refresh via the URL.
+ */
 const FILTERS_SCHEMA = {
   specialty: stringParam(''),
-  is_active: stringParam(''),
+  is_active: stringParam('true'),
   page: intParam(1),
 };
 
@@ -74,6 +84,7 @@ export default function EmployeesView() {
   });
 
   const filters = useUrlQueryState(FILTERS_SCHEMA);
+  const activeTab = filters.values.is_active === 'false' ? 'false' : 'true';
 
   const [searchInput, setSearchInput] = useState(list.search);
   const debouncedSearch = useDebounce(searchInput, 400);
@@ -91,9 +102,9 @@ export default function EmployeesView() {
       ordering: list.ordering,
       ...(list.search ? { search: list.search } : {}),
       ...(filters.values.specialty ? { specialty: Number(filters.values.specialty) } : {}),
-      ...(filters.values.is_active ? { isActive: filters.values.is_active === 'true' } : {}),
+      isActive: activeTab === 'true',
     }),
-    [filters.values.is_active, filters.values.specialty, list.ordering, list.page, list.rowsPerPage, list.search]
+    [activeTab, filters.values.specialty, list.ordering, list.page, list.rowsPerPage, list.search]
   );
 
   const employeesQuery = useEmployeesQuery(queryParams);
@@ -106,10 +117,12 @@ export default function EmployeesView() {
   const specialtyOptions = specialtyOptionsQuery.data?.results ?? [];
 
   const toggleActiveMutation = useToggleEmployeeActiveMutation();
+  const deleteMutation = useDeleteEmployeeMutation();
 
   const upsertDialog = useBoolean();
   const [editing, setEditing] = useState<Employee | null>(null);
-  const [archiving, setArchiving] = useState<Employee | null>(null);
+  const [deactivating, setDeactivating] = useState<Employee | null>(null);
+  const [deleting, setDeleting] = useState<Employee | null>(null);
 
   const orderBy = list.ordering.startsWith('-') ? list.ordering.slice(1) : list.ordering;
   const order: 'asc' | 'desc' = list.ordering.startsWith('-') ? 'desc' : 'asc';
@@ -118,6 +131,10 @@ export default function EmployeesView() {
     if (!SORTABLE_COLUMNS.includes(columnId)) return;
     const next = orderBy === columnId && order === 'asc' ? `-${columnId}` : columnId;
     list.setOrdering(next);
+  };
+
+  const handleTabChange = (_event: React.SyntheticEvent, value: string) => {
+    filters.setValues({ is_active: value, page: 1 });
   };
 
   const handleOpenCreate = () => {
@@ -140,33 +157,50 @@ export default function EmployeesView() {
 
   const handleToggleActive = (employee: Employee) => {
     if (employee.isActive) {
-      // Archiving hides the employee from testing/medical lists — confirm first.
-      setArchiving(employee);
+      // Deactivating hides the employee from testing/medical lists — confirm first.
+      setDeactivating(employee);
       return;
     }
     toggleActiveMutation.mutate(
       { id: employee.id, isActive: true },
       {
-        onSuccess: (updated) => {
-          employeesQuery.updateItem(updated);
+        onSuccess: () => {
+          // The employee no longer matches the current (inactive) tab — drop the row.
+          employeesQuery.deleteItem(employee.id);
           enqueueSnackbar(tx('employees.toasts.activated'));
         },
       }
     );
   };
 
-  const handleConfirmArchive = () => {
-    if (!archiving) return;
+  const handleConfirmDeactivate = () => {
+    if (!deactivating) return;
     toggleActiveMutation.mutate(
-      { id: archiving.id, isActive: false },
+      { id: deactivating.id, isActive: false },
       {
-        onSuccess: (updated) => {
-          employeesQuery.updateItem(updated);
-          enqueueSnackbar(tx('employees.toasts.archived'));
-          setArchiving(null);
+        onSuccess: () => {
+          // The employee no longer matches the current (active) tab — drop the row.
+          employeesQuery.deleteItem(deactivating.id);
+          enqueueSnackbar(tx('employees.toasts.deactivated'));
+          setDeactivating(null);
         },
       }
     );
+  };
+
+  const handleDelete = (employee: Employee) => {
+    setDeleting(employee);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deleting) return;
+    deleteMutation.mutate(deleting.id, {
+      onSuccess: () => {
+        employeesQuery.deleteItem(deleting.id);
+        enqueueSnackbar(tx('employees.toasts.deleted'));
+        setDeleting(null);
+      },
+    });
   };
 
   const headLabel = [
@@ -197,13 +231,20 @@ export default function EmployeesView() {
       />
 
       <Card>
+        <Tabs
+          value={activeTab}
+          onChange={handleTabChange}
+          sx={{ px: 2.5, borderBottom: 1, borderColor: 'divider' }}
+        >
+          <Tab value="true" label={tx('employees.tabs.active')} />
+          <Tab value="false" label={tx('employees.tabs.inactive')} />
+        </Tabs>
+
         <EmployeesTableToolbar
           search={searchInput}
           onSearch={setSearchInput}
           specialty={filters.values.specialty}
           onSpecialty={(value) => filters.setValues({ specialty: value, page: 1 })}
-          status={filters.values.is_active}
-          onStatus={(value) => filters.setValues({ is_active: value, page: 1 })}
           specialtyOptions={specialtyOptions}
         />
 
@@ -227,6 +268,7 @@ export default function EmployeesView() {
                       canWrite={canWrite}
                       onEdit={handleOpenEdit}
                       onToggleActive={handleToggleActive}
+                      onDelete={handleDelete}
                     />
                   ))}
 
@@ -254,19 +296,37 @@ export default function EmployeesView() {
       />
 
       <ConfirmDialog
-        open={Boolean(archiving)}
-        onClose={() => setArchiving(null)}
-        title={tx('employees.dialogs.archive.title')}
-        content={tx('employees.dialogs.archive.content', { name: archiving?.fullName ?? '' })}
+        open={Boolean(deactivating)}
+        onClose={() => setDeactivating(null)}
+        title={tx('employees.dialogs.deactivate.title')}
+        content={tx('employees.dialogs.deactivate.content', { name: deactivating?.fullName ?? '' })}
         cancelText={tx('common.actions.cancel')}
         action={
           <Button
             variant="contained"
             color="error"
-            onClick={handleConfirmArchive}
+            onClick={handleConfirmDeactivate}
             disabled={toggleActiveMutation.isPending}
           >
-            {tx('employees.dialogs.archive.confirm')}
+            {tx('employees.dialogs.deactivate.confirm')}
+          </Button>
+        }
+      />
+
+      <ConfirmDialog
+        open={Boolean(deleting)}
+        onClose={() => setDeleting(null)}
+        title={tx('employees.dialogs.delete.title')}
+        content={tx('employees.dialogs.delete.content', { name: deleting?.fullName ?? '' })}
+        cancelText={tx('common.actions.cancel')}
+        action={
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleConfirmDelete}
+            disabled={deleteMutation.isPending}
+          >
+            {tx('employees.dialogs.delete.confirm')}
           </Button>
         }
       />

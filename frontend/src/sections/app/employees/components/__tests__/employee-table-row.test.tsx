@@ -44,6 +44,7 @@ type RowProps = Partial<ComponentProps<typeof EmployeeTableRow>>;
 function renderRow(props?: RowProps) {
   const onEdit = jest.fn();
   const onToggleActive = jest.fn();
+  const onDelete = jest.fn();
 
   const utils = render(
     <table>
@@ -53,13 +54,14 @@ function renderRow(props?: RowProps) {
           canWrite
           onEdit={onEdit}
           onToggleActive={onToggleActive}
+          onDelete={onDelete}
           {...props}
         />
       </tbody>
     </table>
   );
 
-  return { ...utils, onEdit, onToggleActive };
+  return { ...utils, onEdit, onToggleActive, onDelete };
 }
 
 describe('EmployeeTableRow', () => {
@@ -98,26 +100,37 @@ describe('EmployeeTableRow', () => {
     expect(onEdit).toHaveBeenCalledWith(activeEmployee);
   });
 
-  it('shows archive action for an active employee and calls onToggleActive', async () => {
+  it('shows deactivate action for an active employee and calls onToggleActive', async () => {
     const user = userEvent.setup();
     const { onToggleActive } = renderRow();
 
     await user.click(screen.getByRole('button'));
-    await user.click(await screen.findByText('employees.actions.archive'));
+    await user.click(await screen.findByText('employees.actions.deactivate'));
 
     expect(onToggleActive).toHaveBeenCalledTimes(1);
     expect(onToggleActive).toHaveBeenCalledWith(activeEmployee);
   });
 
-  it('shows activate action for an archived employee', async () => {
+  it('shows activate action for an inactive employee', async () => {
     const user = userEvent.setup();
     const { onToggleActive } = renderRow({ row: archivedEmployee });
 
     await user.click(screen.getByRole('button'));
     await user.click(await screen.findByText('employees.actions.activate'));
 
-    expect(screen.queryByText('employees.actions.archive')).not.toBeInTheDocument();
+    expect(screen.queryByText('employees.actions.deactivate')).not.toBeInTheDocument();
     expect(onToggleActive).toHaveBeenCalledWith(archivedEmployee);
+  });
+
+  it('shows delete action and calls onDelete with the row', async () => {
+    const user = userEvent.setup();
+    const { onDelete } = renderRow();
+
+    await user.click(screen.getByRole('button'));
+    await user.click(await screen.findByText('employees.actions.delete'));
+
+    expect(onDelete).toHaveBeenCalledTimes(1);
+    expect(onDelete).toHaveBeenCalledWith(activeEmployee);
   });
 
   it('renders hire date and work experience', () => {
