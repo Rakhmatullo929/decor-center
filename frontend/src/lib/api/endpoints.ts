@@ -22,6 +22,11 @@ export const API_ENDPOINTS = {
     facePhoto: (id: number | string, photoId: number | string) =>
       `${API_V1}/employees/${id}/face-photos/${photoId}/`,
   },
+  employeeInvites: {
+    create: `${API_V1}/employee-invites/`,
+    validate: `${API_V1}/employee-invites/validate/`,
+    register: `${API_V1}/employee-invites/register/`,
+  },
   surveys: {
     // Admin CRUD
     tests: `${API_V1}/tests/`,
