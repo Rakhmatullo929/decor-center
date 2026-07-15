@@ -232,3 +232,21 @@ def test_activation_does_not_overwrite_existing_hire_date(admin_client):
     assert resp.status_code == 200
     employee.refresh_from_db()
     assert str(employee.hire_date) == "2020-01-01"
+
+
+def test_is_self_registered_flag(admin_client, api_client):
+    specialty = SpecialtyFactory()
+    _, raw = create_employee_invite(specialty=specialty)
+    api_client.post(
+        REGISTER_URL,
+        {"token": raw, "full_name": "Self Reg", "phone": "+998901112233",
+         "work_experience": 1, "photo": _reg_photo()},
+        format="multipart",
+    )
+    admin_made = EmployeeFactory(specialty=specialty, full_name="Admin Made")
+
+    resp = admin_client.get("/api/v1/employees/", {"is_active": "false", "search": "Self Reg"})
+    assert resp.data["results"][0]["is_self_registered"] is True
+
+    resp2 = admin_client.get(f"/api/v1/employees/{admin_made.id}/")
+    assert resp2.data["is_self_registered"] is False

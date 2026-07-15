@@ -30,6 +30,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
         allow_blank=True,
         error_messages={"invalid": "Phone must be E.164, e.g. +998901234567."},
     )
+    is_self_registered = serializers.SerializerMethodField()
 
     class Meta:
         model = Employee
@@ -44,9 +45,16 @@ class EmployeeSerializer(serializers.ModelSerializer):
             "hire_date",
             "work_experience",
             "is_active",
+            "is_self_registered",
             "created_at",
         ]
         read_only_fields = ["created_at"]
+
+    def get_is_self_registered(self, obj) -> bool:
+        annotated = getattr(obj, "is_self_registered", None)
+        if annotated is not None:
+            return bool(annotated)
+        return obj.invites.exists()
 
     def _current_user(self):
         request = self.context.get("request")

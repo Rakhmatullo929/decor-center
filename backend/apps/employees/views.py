@@ -1,5 +1,5 @@
 from django.db import transaction
-from django.db.models import ProtectedError
+from django.db.models import Exists, OuterRef, ProtectedError
 from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -47,7 +47,11 @@ class SpecialtyViewSet(viewsets.ModelViewSet):
 class EmployeeViewSet(viewsets.ModelViewSet):
     """Employees: read (selection screens) for all roles, write for admin (SRS §4, §8.1)."""
 
-    queryset = Employee.objects.select_related("specialty")
+    queryset = Employee.objects.select_related("specialty").annotate(
+        is_self_registered=Exists(
+            EmployeeInvite.objects.filter(employee=OuterRef("pk"))
+        )
+    )
     serializer_class = EmployeeSerializer
     permission_classes = [IsAdminOrReadOnly]
     filterset_fields = ["specialty", "is_active"]
