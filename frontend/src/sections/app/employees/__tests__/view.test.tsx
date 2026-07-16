@@ -13,6 +13,7 @@ const mockPermissions = jest.fn();
 const mockUseEmployeesQuery = jest.fn();
 const mockUseSpecialtyOptionsQuery = jest.fn();
 const mockDeleteItem = jest.fn();
+const mockInvalidateQueries = jest.fn();
 
 const mockToggleMutation = { mutate: jest.fn(), mutateAsync: jest.fn(), isPending: false };
 const mockCreateMutation = { mutate: jest.fn(), mutateAsync: jest.fn(), isPending: false };
@@ -25,6 +26,12 @@ jest.mock('src/locales/use-locales', () => ({
     tx: (key: string, _opts?: Record<string, unknown>) => key,
     currentLang: { value: 'uz' },
   }),
+}));
+
+// Spy on cross-tab cache invalidation (activating/deactivating must refresh the other tab).
+jest.mock('@tanstack/react-query', () => ({
+  ...jest.requireActual('@tanstack/react-query'),
+  useQueryClient: () => ({ invalidateQueries: mockInvalidateQueries }),
 }));
 
 jest.mock('src/auth/hooks', () => ({
@@ -213,6 +220,9 @@ describe('EmployeesView', () => {
     // Deactivated employee no longer matches the Active tab — it is dropped from the list.
     expect(mockDeleteItem).toHaveBeenCalledWith(1);
     expect(mockEnqueueSnackbar).toHaveBeenCalledWith('employees.toasts.deactivated');
+    // The Inactive tab is a separate cached query — invalidate it so the employee shows
+    // there immediately on switch (not only after a hard refresh).
+    expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey: ['employees', 'list'] });
   });
 
   it('activating an inactive employee calls the toggle mutation without confirmation', async () => {
@@ -224,6 +234,7 @@ describe('EmployeesView', () => {
     const row = screen.getByText('Bobur Toshev').closest('tr') as HTMLTableRowElement;
     await user.click(within(row).getByRole('button'));
 
+    mockToggleMutation.mutate.mockImplementationOnce((_vars, opts) => opts.onSuccess());
     await user.click(await screen.findByText('employees.actions.activate'));
 
     expect(screen.queryByText('employees.dialogs.deactivate.title')).not.toBeInTheDocument();
@@ -231,6 +242,9 @@ describe('EmployeesView', () => {
       { id: 2, isActive: true },
       expect.objectContaining({ onSuccess: expect.any(Function) })
     );
+    // Activated employee leaves the Inactive tab and must appear on the Active tab at once.
+    expect(mockDeleteItem).toHaveBeenCalledWith(2);
+    expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey: ['employees', 'list'] });
   });
 
   it('deleting an employee asks for confirmation, then calls the delete mutation', async () => {

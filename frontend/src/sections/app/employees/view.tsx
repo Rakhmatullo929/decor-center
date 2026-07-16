@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 // @mui
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -71,8 +72,15 @@ export default function EmployeesView() {
   const settings = useSettingsContext();
   const { enqueueSnackbar } = useSnackbar();
   const { canWritePage } = useCheckPermission();
+  const queryClient = useQueryClient();
 
   const canWrite = canWritePage('employees');
+
+  // Active/Inactive tabs are separate cached queries (isActive is in the query key).
+  // Toggling status moves an employee between them, so invalidate both lists — the
+  // other (unmounted) tab is marked stale and refetches on switch, even within staleTime.
+  const invalidateEmployeeLists = () =>
+    queryClient.invalidateQueries({ queryKey: ['employees', 'list'] });
 
   const table = useTable();
   const list = useUrlListState({ defaultPageSize: 15, defaultOrdering: '-created_at' });
@@ -170,6 +178,8 @@ export default function EmployeesView() {
         onSuccess: () => {
           // The employee no longer matches the current (inactive) tab — drop the row.
           employeesQuery.deleteItem(employee.id);
+          // ...and now belongs on the Active tab — refresh both lists so it shows there.
+          invalidateEmployeeLists();
           enqueueSnackbar(tx('employees.toasts.activated'));
         },
       }
@@ -184,6 +194,8 @@ export default function EmployeesView() {
         onSuccess: () => {
           // The employee no longer matches the current (active) tab — drop the row.
           employeesQuery.deleteItem(deactivating.id);
+          // ...and now belongs on the Inactive tab — refresh both lists so it shows there.
+          invalidateEmployeeLists();
           enqueueSnackbar(tx('employees.toasts.deactivated'));
           setDeactivating(null);
         },
