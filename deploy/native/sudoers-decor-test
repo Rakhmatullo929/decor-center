@@ -1,0 +1,4 @@
+# Narrow, passwordless sudo for the GitHub Actions deploy (deploy-native.sh) only.
+# Installed to /etc/sudoers.d/decor-test (mode 0440) by root-setup.sh and validated with visudo.
+# Scope is limited to restarting/inspecting THIS backend and reloading nginx — nothing else.
+al-bukhari ALL=(root) NOPASSWD: /usr/bin/systemctl restart decor-test-backend, /usr/bin/systemctl reload nginx, /usr/bin/systemctl is-active decor-test-backend, /usr/bin/systemctl status decor-test-backend
