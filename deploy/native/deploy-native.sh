@@ -27,7 +27,8 @@ echo "[deploy] frontend build (node 18, memory-guarded)"
 export NVM_DIR="$HOME/.nvm"
 # shellcheck disable=SC1091
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-nvm use 18 >/dev/null 2>&1 || true
+# Use nvm's default node (v22 here; react-scripts 5 builds fine on it). node 18 is not installed.
+nvm use default >/dev/null 2>&1 || true
 cd "$REPO_DIR/frontend"
 yarn install --frozen-lockfile --network-timeout 600000
 GENERATE_SOURCEMAP=false CI=false NODE_OPTIONS=--max-old-space-size=2048 \
