@@ -1,0 +1,10 @@
+# decor-center TEST stand — gunicorn socket (mirrors the server's existing pattern).
+# Installed to /etc/systemd/system/decor-test-backend.socket by root-setup.sh.
+[Unit]
+Description=decor-test-backend socket
+
+[Socket]
+ListenStream=/run/decor-test-backend.sock
+
+[Install]
+WantedBy=sockets.target

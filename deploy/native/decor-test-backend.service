@@ -1,0 +1,24 @@
+# decor-center TEST stand — gunicorn daemon (Django API on api-test.monday-projects.uz).
+# Installed to /etc/systemd/system/decor-test-backend.service by root-setup.sh.
+# Runs as root:www-data to match the other services on this host, so the unix socket
+# gunicorn creates is reachable by nginx (www-data).
+[Unit]
+Description=decor-test-backend daemon
+Requires=decor-test-backend.socket
+After=network.target postgresql.service
+
+[Service]
+User=root
+Group=www-data
+WorkingDirectory=/home/al-bukhari/decor-test/decor-center/backend
+Environment=DJANGO_SETTINGS_MODULE=config.settings.prod
+ExecStart=/home/al-bukhari/decor-test/decor-center/backend/.venv/bin/gunicorn \
+          --access-logfile - --error-logfile - \
+          --workers 2 --timeout 120 \
+          --bind unix:/run/decor-test-backend.sock \
+          config.wsgi:application
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
