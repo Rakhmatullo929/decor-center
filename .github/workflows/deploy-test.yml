@@ -1,6 +1,6 @@
 name: Deploy (test)
 
-# Auto-deploy the TEST stand (test.monday-projects.uz / api-test.monday-projects.uz)
+# Auto-deploy the TEST stand (test.monday-projects.uz / api.test.monday-projects.uz)
 # on every push to main. Requires these repo secrets (Settings -> Secrets -> Actions):
 #   TEST_DEPLOY_HOST  = 144.91.64.70
 #   TEST_DEPLOY_USER  = al-bukhari

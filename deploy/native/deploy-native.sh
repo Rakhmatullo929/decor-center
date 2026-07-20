@@ -32,7 +32,7 @@ nvm use default >/dev/null 2>&1 || true
 cd "$REPO_DIR/frontend"
 yarn install --frozen-lockfile --network-timeout 600000
 GENERATE_SOURCEMAP=false CI=false NODE_OPTIONS=--max-old-space-size=2048 \
-  REACT_APP_HOST_API=https://api-test.monday-projects.uz \
+  REACT_APP_HOST_API=https://api.test.monday-projects.uz \
   yarn build
 
 echo "[deploy] restart backend"

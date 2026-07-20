@@ -50,7 +50,7 @@ systemctl is-active --quiet decor-test-backend.service \
 
 echo "== [4/6] nginx vhosts (HTTP; certbot upgrades to HTTPS later) =="
 install -m 0644 "$NATIVE/nginx-test.monday-projects.uz.conf"     /etc/nginx/sites-available/decor-test
-install -m 0644 "$NATIVE/nginx-api-test.monday-projects.uz.conf" /etc/nginx/sites-available/decor-test-api
+install -m 0644 "$NATIVE/nginx-api.test.monday-projects.uz.conf" /etc/nginx/sites-available/decor-test-api
 ln -sf /etc/nginx/sites-available/decor-test     /etc/nginx/sites-enabled/decor-test
 ln -sf /etc/nginx/sites-available/decor-test-api /etc/nginx/sites-enabled/decor-test-api
 if nginx -t; then
@@ -70,6 +70,6 @@ echo "== [6/6] status =="
 systemctl --no-pager --full status decor-test-backend.service | head -12 || true
 echo
 echo "DONE (HTTP). Local checks:"
-echo "  curl -s -H 'Host: api-test.monday-projects.uz' http://127.0.0.1/health/"
-echo "Once DNS for test/api-test resolves to 144.91.64.70, issue TLS:"
+echo "  curl -s -H 'Host: api.test.monday-projects.uz' http://127.0.0.1/health/"
+echo "Once DNS for test/api.test resolves to 144.91.64.70, issue TLS:"
 echo "  sudo bash $NATIVE/tls-golive.sh"

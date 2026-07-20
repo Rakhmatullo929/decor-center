@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # decor-center TEST stand — TLS go-live (Phase C). Run as root AFTER the DNS A-records
-# for test.monday-projects.uz and api-test.monday-projects.uz resolve to 144.91.64.70:
+# for test.monday-projects.uz and api.test.monday-projects.uz resolve to 144.91.64.70:
 #   sudo bash deploy/native/tls-golive.sh
 #
 # Issues a Let's Encrypt cert for both names via the nginx plugin (adds 443 + 80->443
@@ -17,7 +17,7 @@ EMAIL="${CERTBOT_EMAIL:-tillo3305@gmail.com}"
 
 echo "== DNS pre-check =="
 ok=1
-for d in test.monday-projects.uz api-test.monday-projects.uz; do
+for d in test.monday-projects.uz api.test.monday-projects.uz; do
   ip="$(dig +short "$d" @8.8.8.8 | tail -1)"
   echo "  $d -> ${ip:-<none>}"
   [ "$ip" = "144.91.64.70" ] || ok=0
@@ -30,7 +30,7 @@ fi
 echo "== issuing certificate (nginx plugin) =="
 certbot --nginx \
   -d test.monday-projects.uz \
-  -d api-test.monday-projects.uz \
+  -d api.test.monday-projects.uz \
   --non-interactive --agree-tos -m "$EMAIL" --redirect
 
 nginx -t && systemctl reload nginx
@@ -43,4 +43,4 @@ systemctl is-active --quiet decor-test-backend && echo "  backend active over HT
   echo "  ERROR: backend did not come back up"; journalctl -u decor-test-backend --no-pager -n 30; exit 1;
 }
 
-echo "DONE. https://test.monday-projects.uz  +  https://api-test.monday-projects.uz"
+echo "DONE. https://test.monday-projects.uz  +  https://api.test.monday-projects.uz"

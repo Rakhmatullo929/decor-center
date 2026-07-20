@@ -1,4 +1,4 @@
-# decor-center TEST stand — gunicorn daemon (Django API on api-test.monday-projects.uz).
+# decor-center TEST stand — gunicorn daemon (Django API on api.test.monday-projects.uz).
 # Installed to /etc/systemd/system/decor-test-backend.service by root-setup.sh.
 # Runs as root:www-data to match the other services on this host, so the unix socket
 # gunicorn creates is reachable by nginx (www-data).

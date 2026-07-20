@@ -6,7 +6,7 @@ Authoritative guide for the **test** environment on the `al-bukhari` server
 `lokomotiv-decor.uz`) and does **not** apply here.
 
 - **Frontend:** https://test.monday-projects.uz  → React CRA build served by nginx
-- **Backend API:** https://api-test.monday-projects.uz → Django/gunicorn (unix socket)
+- **Backend API:** https://api.test.monday-projects.uz → Django/gunicorn (unix socket)
 
 ## 1. Why native (not docker)
 
@@ -36,7 +36,7 @@ own names, so nothing shared with the other live projects is touched.
 |---|---|
 | `decor-test-backend.socket` / `.service` | systemd units |
 | `nginx-test.monday-projects.uz.conf` | frontend vhost |
-| `nginx-api-test.monday-projects.uz.conf` | backend API vhost |
+| `nginx-api.test.monday-projects.uz.conf` | backend API vhost |
 | `sudoers-decor-test` | narrow NOPASSWD (restart backend / reload nginx) for CI |
 | `root-setup.sh` | **Phase B** — one-time privileged bring-up (run with sudo) |
 | `deploy-native.sh` | per-deploy script (CI + manual): pull → build → migrate → restart |
@@ -64,7 +64,7 @@ the config is invalid — the other sites can't be taken down by it.
 Verify (HTTP, before DNS):
 
 ```bash
-curl -s -H 'Host: api-test.monday-projects.uz' http://127.0.0.1/health/    # {"status": "ok"}
+curl -s -H 'Host: api.test.monday-projects.uz' http://127.0.0.1/health/    # {"status": "ok"}
 ```
 
 **Phase C — TLS (after DNS resolves to 144.91.64.70):**
