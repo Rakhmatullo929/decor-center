@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
 #
-# decor-center TEST stand — per-deploy script (run by GitHub Actions on push to main,
-# and safe to run by hand). Runs as al-bukhari; only the final restart uses the narrow
-# passwordless sudo installed by root-setup.sh.
+# decor-center prod (native stand) — per-deploy script. Invoked by the
+# deploy-production.yml workflow, which first syncs the repo to origin/production; this
+# script does NOT touch git. To run by hand, sync first:
+#   git fetch origin && git reset --hard origin/production
+# Runs as al-bukhari; only the final restart uses the narrow passwordless sudo installed
+# by root-setup.sh.
 #
 set -euo pipefail
 
 REPO_DIR="/home/al-bukhari/decor-test/decor-center"
 cd "$REPO_DIR"
-
-echo "[deploy] sync code -> origin/main"
-git fetch --quiet origin
-git reset --hard origin/main
 
 echo "[deploy] backend deps + migrate + collectstatic"
 cd "$REPO_DIR/backend"

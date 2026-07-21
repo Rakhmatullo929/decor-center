@@ -75,9 +75,12 @@ sudo bash deploy/native/tls-golive.sh
 
 ## 5. CI/CD
 
-`.github/workflows/ci.yml` runs on every PR/push (ruff + pytest + frontend build).
-`.github/workflows/deploy-test.yml` runs on **push to `main`**: it SSHes in and runs
-`deploy/native/deploy-native.sh`. Required repo secrets:
+`.github/workflows/ci.yml` runs on every PR + push to `main` (ruff + pytest + frontend build) via
+the reusable `tests.yml` — it does **not** deploy.
+`.github/workflows/deploy-production.yml` runs on **push to the `production` branch**: it runs the
+same test suite as a gate, then SSHes in, syncs the repo to `origin/production`, and runs
+`deploy/native/deploy-native.sh`. Promote a release with a PR from `main` → `production`.
+Required repo secrets:
 
 | Secret | Value |
 |---|---|

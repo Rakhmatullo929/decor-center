@@ -1,8 +1,11 @@
 # Deployment Runbook — Lokomotiv Decor
 
-This document is the authoritative operational guide for deploying and maintaining the `decor`
-application in production. Follow it top-to-bottom for first deploy; jump to relevant sections
-for day-to-day operations.
+This document is the operational guide for deploying and maintaining the `decor` application.
+
+> **Live production is the native stand — `test.monday-projects.uz` / `api.test.monday-projects.uz`**
+> (host `144.91.64.70`, user `al-bukhari`). Its CI/CD is **§3** below and the server work lives in
+> `deploy/native/`. Sections **§1, §4–§8 describe the legacy Docker stack (`lokomotiv-decor.uz`),
+> which is currently dormant/unused** — keep for reference only.
 
 ---
 
@@ -97,33 +100,53 @@ DECOR_TTS_VOICE_UZ=lola
 
 ## 3. CI/CD Flow
 
-### CI gate (`.github/workflows/ci.yml`)
+Two branches, one deploy target (the native stand):
 
-Triggered on every **pull request** and every push to **`main`**.
+- **`main`** — integration branch. CI runs, but it **never deploys**.
+- **`production`** — release branch. Pushing to it runs CI **and then deploys** to the stand.
+
+### Reusable checks (`.github/workflows/tests.yml`)
+
+Shared `workflow_call` suite so CI and the pre-deploy gate use one definition (no drift):
 
 | Job | Steps |
 |---|---|
-| `backend` | Spins up a `postgres:18` service container; installs `backend/requirements/dev.txt`; runs `ruff check .`; runs `pytest` |
-| `frontend` | Installs deps via `yarn install --frozen-lockfile`; runs `yarn build` (with `CI=false` to treat warnings as non-fatal) |
+| `backend` | `postgres:18` service; installs `backend/requirements/dev.txt`; `ruff check .`; `pytest` |
+| `frontend` | `yarn install --frozen-lockfile`; `yarn build` (`CI=false` so warnings are non-fatal) |
 
-### Deployment workflow (`.github/workflows/deploy-production.yml`)
+### CI (`.github/workflows/ci.yml`)
 
-Triggered on every push to the **`production`** branch (concurrency guard prevents overlapping
-deployments). Steps:
+Triggered on every **pull request** and every push to **`main`** → calls `tests.yml`. **No deploy.**
 
-1. GitHub Actions connects to the server over SSH via **appleboy/ssh-action@v1.2.0**.
-2. On the server: `cd ~/decor && git fetch origin && git checkout production && git reset --hard origin/production && ./deploy/deploy.sh`
+### Release → deploy (`.github/workflows/deploy-production.yml`)
+
+**Promote a release by opening a PR from `main` → `production` and merging it.** On push to
+`production` (concurrency-guarded):
+
+1. `tests` job → calls `tests.yml`. The `deploy` job `needs: tests`, so a red suite blocks the deploy.
+2. `deploy` job connects over SSH (**appleboy/ssh-action@v1.2.0**) and runs:
+   ```
+   cd /home/al-bukhari/decor-test/decor-center
+   git fetch origin && git checkout -B production origin/production
+   bash deploy/native/deploy-native.sh
+   ```
+   The **workflow** owns the git sync (to `production`); `deploy-native.sh` only does
+   deps → `migrate --noinput` → `collectstatic` → seed → frontend `yarn build` → `systemctl restart`.
+   **Migrations run automatically** on every deploy.
 
 ### Required GitHub Actions secrets
 
-Configure these in **Settings → Secrets and variables → Actions** on the GitHub repository:
+**Settings → Secrets and variables → Actions**:
 
 | Secret | Value |
 |---|---|
-| `DEPLOY_HOST` | `207.180.210.65` |
-| `DEPLOY_USER` | `rakhmonov` |
-| `DEPLOY_SSH_KEY` | Private key matching the server's `~/.ssh/authorized_keys` |
-| `DEPLOY_PORT` | `22` (or whichever SSH port the server uses) |
+| `TEST_DEPLOY_HOST` | `144.91.64.70` |
+| `TEST_DEPLOY_USER` | `al-bukhari` |
+| `TEST_DEPLOY_KEY` | Private key whose public half is in the server's `~/.ssh/authorized_keys` |
+| `TEST_DEPLOY_PORT` | `22` |
+
+> Recommended: protect the `production` branch (require a PR + passing CI, block direct pushes) in
+> **Settings → Branches**.
 
 ---
 
