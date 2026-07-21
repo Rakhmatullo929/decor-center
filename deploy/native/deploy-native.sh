@@ -12,12 +12,12 @@ set -euo pipefail
 REPO_DIR="/home/al-bukhari/decor-test/decor-center"
 cd "$REPO_DIR"
 
-# nginx serves /media/ directly (see nginx-api...conf) but runs as www-data, which cannot
-# traverse the deploy user's home dir (0700) -> 403 on every /media/*. We own the home + repo
-# dirs, so make the path to the media root traversable (o+x) without sudo. Uploaded files are
-# root:www-data 0644 and Django's media subdirs 0755 already, so no recursive chmod is needed.
+# nginx serves /media/ directly (see nginx-api...conf) but runs as www-data. Every dir in the
+# path to the media files must be traversable (o+x). The media root itself is created 0700 by
+# the app user, which is the one that 403s; its subdirs (root:www-data 0755) and files (0644)
+# are already world-readable. We own these dirs, so make them traversable without sudo.
 echo "[deploy] ensure nginx can traverse to the media dir"
-chmod o+x "$HOME" "$HOME/decor-test" "$REPO_DIR" "$REPO_DIR/backend" 2>/dev/null || true
+chmod o+x "$HOME" "$HOME/decor-test" "$REPO_DIR" "$REPO_DIR/backend" "$REPO_DIR/backend/media" 2>/dev/null || true
 
 echo "[deploy] backend deps + migrate + collectstatic"
 cd "$REPO_DIR/backend"
