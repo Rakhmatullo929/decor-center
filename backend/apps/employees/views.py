@@ -80,7 +80,11 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         upload = request.FILES.get("photo")
         if upload is None:
             return Response(
-                {"code": ["invalid_image"], "photo": ["No photo was provided."]},
+                {
+                    "detail": "No photo was provided.",
+                    "code": ["invalid_image"],
+                    "photo": ["No photo was provided."],
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         upload.seek(0)

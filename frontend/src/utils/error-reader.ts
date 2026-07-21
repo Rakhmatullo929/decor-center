@@ -10,7 +10,10 @@ function pickDetail(data: Record<string, unknown>): string | null {
   if (Array.isArray(detail)) {
     return detail.map(String).join(', ');
   }
-  const firstKey = Object.keys(data)[0];
+  // `code` is a machine-readable discriminator (e.g. "no_face"), never prose — skip it so a
+  // backend error that forgets top-level `detail` still surfaces its real field message
+  // (e.g. `photo`) instead of the bare code.
+  const firstKey = Object.keys(data).find((key) => key !== 'code');
   if (!firstKey) {
     return null;
   }
