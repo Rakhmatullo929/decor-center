@@ -35,6 +35,20 @@ def test_identify_is_public_and_returns_masked_phone(api_client, face_image):
 
 
 @pytest.mark.django_db
+def test_identify_returns_absolute_photo_url(api_client, face_image):
+    # The kiosk frontend runs on a different origin than the API in prod, so the photo URL
+    # must be absolute (built from the request), not a relative /media/... path — otherwise
+    # the browser resolves it against the frontend origin and the photo never loads.
+    EmployeeFactory(phone="+998901234567")
+    resp = api_client.post(
+        "/api/v1/survey-sessions/identify/", {"face_image": face_image}, format="multipart"
+    )
+    assert resp.status_code == 200, resp.content
+    photo = resp.data["employee"]["photo"]
+    assert photo and photo.startswith("http"), f"expected absolute URL, got {photo!r}"
+
+
+@pytest.mark.django_db
 def test_request_otp_public(api_client):
     emp = EmployeeFactory(phone="+998901234567")
     resp = api_client.post(
