@@ -92,7 +92,11 @@ def backend_model_version(service) -> str:
 
 
 def _fail(code: str, message: str):
-    raise ValidationError({"code": [code], "photo": [message]})
+    # `detail` is required: the frontend's generic error reader (errorReader.pickDetail)
+    # shows `detail` if present, otherwise falls back to the first object key — which was
+    # `code` (a machine slug, not prose) here, so the UI showed e.g. "no_face" instead of
+    # the actual message. `code`/`photo` are kept as-is for existing API consumers/tests.
+    raise ValidationError({"detail": message, "code": [code], "photo": [message]})
 
 
 def _check_blur(image_bytes: bytes, min_variance: float) -> None:
