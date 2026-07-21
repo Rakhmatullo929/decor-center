@@ -1,5 +1,12 @@
 name: Deploy (production)
 
+# Prod = the native stand test.monday-projects.uz / api.test.monday-projects.uz.
+# Ships ONLY from the `production` branch (promote via a PR from main -> production).
+# Deploy runs only after the reusable test suite passes. Requires repo secrets:
+#   TEST_DEPLOY_HOST = 144.91.64.70
+#   TEST_DEPLOY_USER = al-bukhari
+#   TEST_DEPLOY_PORT = 22
+#   TEST_DEPLOY_KEY  = <private key whose public half is in the server's authorized_keys>
 on:
   push:
     branches: [production]
@@ -9,22 +16,28 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  tests:
+    uses: ./.github/workflows/tests.yml
+
   deploy:
+    needs: tests
     runs-on: ubuntu-latest
     steps:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: ${{ secrets.DEPLOY_PORT }}
+          host: ${{ secrets.TEST_DEPLOY_HOST }}
+          username: ${{ secrets.TEST_DEPLOY_USER }}
+          key: ${{ secrets.TEST_DEPLOY_KEY }}
+          port: ${{ secrets.TEST_DEPLOY_PORT }}
           script_stop: true
           command_timeout: 30m
+          # The workflow owns the git sync (to production), then runs the build/migrate/restart
+          # script. Keeping git here — not in the on-server script — makes the target branch
+          # deterministic from the very first deploy.
           script: |
             set -e
-            cd ~/decor
+            cd /home/al-bukhari/decor-test/decor-center
             git fetch origin
-            git checkout production
-            git reset --hard origin/production
-            ./deploy/deploy.sh
+            git checkout -B production origin/production
+            bash deploy/native/deploy-native.sh
