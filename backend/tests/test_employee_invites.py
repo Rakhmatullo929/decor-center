@@ -1,7 +1,8 @@
+from datetime import timedelta
+
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
-from datetime import timedelta
 
 from apps.employees.models import Employee, EmployeeInvite
 from apps.employees.services import (
