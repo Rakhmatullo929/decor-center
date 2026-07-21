@@ -80,3 +80,47 @@ class EmployeeFacePhoto(TimeStampedModel):
 
     def __str__(self):
         return f"FacePhoto<employee={self.employee_id}>"
+
+
+class EmployeeInvite(TimeStampedModel):
+    """One-time link that lets a person self-register as an (inactive) employee.
+
+    Mirrors OtpChallenge: only the sha256 of the raw token is stored; the raw
+    token lives only in the invite URL. Single-use (is_used) with an expiry.
+    """
+
+    token_hash = models.CharField(max_length=64, unique=True, db_index=True)
+    specialty = models.ForeignKey(
+        Specialty, on_delete=models.PROTECT, related_name="invites"
+    )
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+    used_at = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="employee_invites",
+    )
+    employee = models.ForeignKey(
+        Employee,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="invites",
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"EmployeeInvite<specialty={self.specialty_id} used={self.is_used}>"
+
+    def is_expired(self) -> bool:
+        from django.utils import timezone
+
+        return timezone.now() >= self.expires_at
+
+    def is_valid(self) -> bool:
+        return not self.is_used and not self.is_expired()

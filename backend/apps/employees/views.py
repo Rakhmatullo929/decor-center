@@ -1,20 +1,29 @@
 from django.db import transaction
-from django.db.models import ProtectedError
+from django.db.models import Exists, OuterRef, ProtectedError
+from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 
-from apps.accounts.permissions import IsAdminOrReadOnly
+from apps.accounts.permissions import IsAdmin, IsAdminOrReadOnly
 
 from .face_enrollment import add_face_photo, recompute_centroid
-from .models import Employee, EmployeeFacePhoto, Specialty
+from .models import Employee, EmployeeFacePhoto, EmployeeInvite, Specialty
 from .serializers import (
     EmployeeFacePhotoSerializer,
+    EmployeeInviteCreateSerializer,
     EmployeeSerializer,
     SpecialtySerializer,
 )
-from .services import delete_employee_with_related
+from .services import (
+    create_employee_invite,
+    delete_employee_with_related,
+    get_invite_by_token,
+)
 
 
 class SpecialtyViewSet(viewsets.ModelViewSet):
@@ -38,7 +47,11 @@ class SpecialtyViewSet(viewsets.ModelViewSet):
 class EmployeeViewSet(viewsets.ModelViewSet):
     """Employees: read (selection screens) for all roles, write for admin (SRS §4, §8.1)."""
 
-    queryset = Employee.objects.select_related("specialty")
+    queryset = Employee.objects.select_related("specialty").annotate(
+        is_self_registered=Exists(
+            EmployeeInvite.objects.filter(employee=OuterRef("pk"))
+        )
+    )
     serializer_class = EmployeeSerializer
     permission_classes = [IsAdminOrReadOnly]
     filterset_fields = ["specialty", "is_active"]
@@ -99,3 +112,85 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             recompute_centroid(employee)
             transaction.on_commit(lambda: photo_file.delete(save=False))
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class EmployeeInviteViewSet(viewsets.GenericViewSet):
+    """One-time employee self-registration invites.
+
+    - create   POST /employee-invites/            admin only  -> {token, expires_at}
+    - validate GET  /employee-invites/validate/   public      -> {valid, reason, specialty_name}
+    - register POST /employee-invites/register/    public      -> 201 {status: "pending"}
+    """
+
+    queryset = EmployeeInvite.objects.all()
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    _THROTTLE_SCOPES = {"validate": "invite_validate", "register": "invite_register"}
+
+    def get_permissions(self):
+        if self.action in ("validate", "register"):
+            return [AllowAny()]
+        return [IsAdmin()]
+
+    def get_throttles(self):
+        scope = self._THROTTLE_SCOPES.get(self.action)
+        if scope:
+            self.throttle_scope = scope
+            return [ScopedRateThrottle()]
+        return super().get_throttles()
+
+    def create(self, request):
+        serializer = EmployeeInviteCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        invite, raw_token = create_employee_invite(
+            specialty=serializer.validated_data["specialty"],
+            created_by=request.user,
+        )
+        return Response(
+            {"token": raw_token, "expires_at": invite.expires_at},
+            status=status.HTTP_201_CREATED,
+        )
+
+    @action(detail=False, methods=["get"])
+    def validate(self, request):
+        invite = get_invite_by_token(request.query_params.get("token") or "")
+        if invite is None:
+            return Response({"valid": False, "reason": "not_found"})
+        if invite.is_used:
+            return Response({"valid": False, "reason": "used"})
+        if invite.is_expired():
+            return Response({"valid": False, "reason": "expired"})
+        return Response(
+            {"valid": True, "reason": "ok", "specialty_name": invite.specialty.name}
+        )
+
+    @action(detail=False, methods=["post"])
+    def register(self, request):
+        invite = get_invite_by_token(request.data.get("token") or "")
+        if invite is None or not invite.is_valid():
+            return Response(
+                {"detail": "Invite link is invalid or already used.", "code": "invite_invalid"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        data = {
+            "full_name": request.data.get("full_name"),
+            "phone": request.data.get("phone"),
+            "specialty": invite.specialty_id,
+            "is_active": False,
+            "photo": request.FILES.get("photo"),
+        }
+        work_experience = request.data.get("work_experience")
+        if work_experience not in (None, ""):
+            data["work_experience"] = work_experience
+
+        # No request in context -> face-photo created_by resolves to None (anonymous).
+        serializer = EmployeeSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        with transaction.atomic():
+            employee = serializer.save()
+            invite.is_used = True
+            invite.used_at = timezone.now()
+            invite.employee = employee
+            invite.save(update_fields=["is_used", "used_at", "employee", "updated_at"])
+        return Response({"status": "pending"}, status=status.HTTP_201_CREATED)

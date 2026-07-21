@@ -12,6 +12,8 @@ export type Employee = {
   hireDate: string | null;
   /** Manually entered years of experience; independent of hireDate. */
   workExperience: number | null;
+  /** True iff this employee self-registered via an invite link (drives the "pending" chip). */
+  isSelfRegistered?: boolean;
   createdAt: string;
 };
 
@@ -41,4 +43,26 @@ export type FacePhoto = {
   photo: string;
   modelVersion: string;
   createdAt: string;
+};
+
+export type CreateInviteResponse = {
+  token: string;
+  /** ISO datetime the link expires. */
+  expiresAt: string;
+};
+
+export type InviteInvalidReason = 'ok' | 'used' | 'expired' | 'not_found';
+
+export type ValidateInviteResponse = {
+  valid: boolean;
+  reason: InviteInvalidReason;
+  specialtyName?: string;
+};
+
+export type RegisterEmployeePayload = {
+  token: string;
+  fullName: string;
+  phone: string;
+  workExperience: number;
+  photo: File;
 };

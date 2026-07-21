@@ -1,5 +1,6 @@
 from django.core.files.base import ContentFile
 from django.db import transaction
+from django.utils import timezone
 from rest_framework import serializers
 
 from .face_enrollment import add_face_photo
@@ -13,6 +14,14 @@ class SpecialtySerializer(serializers.ModelSerializer):
         read_only_fields = ["created_at"]
 
 
+class EmployeeInviteCreateSerializer(serializers.Serializer):
+    """Admin input for minting a one-time invite: only the specialty (role)."""
+
+    specialty = serializers.PrimaryKeyRelatedField(
+        queryset=Specialty.objects.filter(is_active=True)
+    )
+
+
 class EmployeeSerializer(serializers.ModelSerializer):
     specialty_name = serializers.CharField(source="specialty.name", read_only=True)
     phone = serializers.RegexField(
@@ -21,6 +30,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
         allow_blank=True,
         error_messages={"invalid": "Phone must be E.164, e.g. +998901234567."},
     )
+    is_self_registered = serializers.SerializerMethodField()
 
     class Meta:
         model = Employee
@@ -35,13 +45,21 @@ class EmployeeSerializer(serializers.ModelSerializer):
             "hire_date",
             "work_experience",
             "is_active",
+            "is_self_registered",
             "created_at",
         ]
         read_only_fields = ["created_at"]
 
+    def get_is_self_registered(self, obj) -> bool:
+        annotated = getattr(obj, "is_self_registered", None)
+        if annotated is not None:
+            return bool(annotated)
+        return obj.invites.exists()
+
     def _current_user(self):
         request = self.context.get("request")
-        return getattr(request, "user", None) if request is not None else None
+        user = getattr(request, "user", None) if request is not None else None
+        return user if (user is not None and user.is_authenticated) else None
 
     @staticmethod
     def _read_upload(photo) -> tuple[bytes, str]:
@@ -83,6 +101,15 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         photo = validated_data.pop("photo", None)
+        # Stamp hire_date on first activation. Self-registered employees have no
+        # hire_date until an admin approves them; approving = "Работает с сегодня".
+        if (
+            validated_data.get("is_active") is True
+            and not instance.is_active
+            and instance.hire_date is None
+            and not validated_data.get("hire_date")
+        ):
+            validated_data["hire_date"] = timezone.localdate()
         with transaction.atomic():
             employee = super().update(instance, validated_data)
             if photo is not None:

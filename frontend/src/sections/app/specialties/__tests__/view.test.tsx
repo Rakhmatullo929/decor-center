@@ -14,6 +14,7 @@ const mockUseSpecialtiesQuery = jest.fn();
 
 const mockCreateMutation = { mutate: jest.fn(), mutateAsync: jest.fn(), isPending: false };
 const mockUpdateMutation = { mutate: jest.fn(), mutateAsync: jest.fn(), isPending: false };
+const mockDeleteMutation = { mutate: jest.fn(), mutateAsync: jest.fn(), isPending: false };
 
 jest.mock('src/locales/use-locales', () => ({
   __esModule: true,
@@ -44,6 +45,7 @@ jest.mock('../api/use-specialties-api', () => ({
   useSpecialtiesQuery: (...args: unknown[]) => mockUseSpecialtiesQuery(...args),
   useCreateSpecialtyMutation: () => mockCreateMutation,
   useUpdateSpecialtyMutation: () => mockUpdateMutation,
+  useDeleteSpecialtyMutation: () => mockDeleteMutation,
 }));
 
 // ----------------------------------------------------------------------
@@ -143,6 +145,8 @@ describe('SpecialtiesView', () => {
 
     const row = screen.getByText('Therapist').closest('tr') as HTMLTableRowElement;
     await user.click(within(row).getByRole('button'));
+    // The row action is a popover menu (Edit / Delete) — pick Edit to open the dialog.
+    await user.click(await screen.findByText('common.actions.edit'));
 
     expect(await screen.findByText('specialties.form.editTitle')).toBeInTheDocument();
     expect(screen.getByLabelText('specialties.form.name *')).toHaveValue('Therapist');
