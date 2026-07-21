@@ -327,7 +327,10 @@ class SurveySessionViewSet(viewsets.ReadOnlyModelViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
         employee = Employee.objects.select_related("specialty").get(id=best_id)
-        return Response({"employee": KioskIdentifiedEmployeeSerializer(employee).data})
+        # Pass request context so `photo` serializes as an absolute URL — the kiosk frontend
+        # is on a different origin than the API in prod, so a relative /media/... path breaks.
+        data = KioskIdentifiedEmployeeSerializer(employee, context={"request": request}).data
+        return Response({"employee": data})
 
     @extend_schema(request={"application/json": {"type": "object",
         "properties": {"employee": {"type": "integer"}}, "required": ["employee"]}})
