@@ -29,6 +29,12 @@ if [ "${DECOR_SKIP_SEED:-0}" != "1" ]; then
   .venv/bin/python manage.py seed_initial_data
 fi
 
+# Load the curated survey content (standard + demo surveys) on a DB with none yet.
+# Idempotent and independent of DECOR_SKIP_SEED: a no-op once any survey exists, so it
+# never overwrites admin edits. This is what actually seeds surveys on the native stand
+# (the Docker entrypoint is not used here).
+.venv/bin/python manage.py load_survey_content
+
 echo "[deploy] frontend build (node 18, memory-guarded)"
 export NVM_DIR="$HOME/.nvm"
 # shellcheck disable=SC1091
