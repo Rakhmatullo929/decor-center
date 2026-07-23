@@ -14,6 +14,11 @@ else
   python manage.py seed_initial_data
 fi
 
+# Load the curated survey content (standard + demo surveys) on a DB that has none yet.
+# Idempotent: a no-op once any survey exists, so it never overwrites admin edits.
+echo "[entrypoint] load_survey_content..."
+python manage.py load_survey_content
+
 echo "[entrypoint] collectstatic..."
 python manage.py collectstatic --noinput
 

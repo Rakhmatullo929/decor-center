@@ -1,0 +1,1897 @@
+[
+{
+  "model": "surveys.test",
+  "pk": 1,
+  "fields": {
+    "created_at": "2026-07-07T19:50:02.341Z",
+    "updated_at": "2026-07-07T19:50:02.341Z",
+    "title": "Через 30 дней после найма",
+    "is_active": true,
+    "is_admin_conducted": false,
+    "is_after_application": true,
+    "after_days": 30,
+    "test_days_from": null,
+    "test_days_to": null,
+    "month": []
+  }
+},
+{
+  "model": "surveys.test",
+  "pk": 2,
+  "fields": {
+    "created_at": "2026-07-07T19:50:02.342Z",
+    "updated_at": "2026-07-07T19:50:02.342Z",
+    "title": "Через 90 дней после найма",
+    "is_active": true,
+    "is_admin_conducted": false,
+    "is_after_application": true,
+    "after_days": 90,
+    "test_days_from": null,
+    "test_days_to": null,
+    "month": []
+  }
+},
+{
+  "model": "surveys.test",
+  "pk": 3,
+  "fields": {
+    "created_at": "2026-07-07T19:50:02.344Z",
+    "updated_at": "2026-07-07T19:50:02.344Z",
+    "title": "1в1 ежемесячно (беседа)",
+    "is_active": true,
+    "is_admin_conducted": true,
+    "is_after_application": false,
+    "after_days": null,
+    "test_days_from": null,
+    "test_days_to": null,
+    "month": []
+  }
+},
+{
+  "model": "surveys.test",
+  "pk": 4,
+  "fields": {
+    "created_at": "2026-07-07T19:50:02.345Z",
+    "updated_at": "2026-07-07T19:50:02.345Z",
+    "title": "Краткий пульс",
+    "is_active": true,
+    "is_admin_conducted": false,
+    "is_after_application": false,
+    "after_days": null,
+    "test_days_from": 1,
+    "test_days_to": 7,
+    "month": [
+      1,
+      4,
+      7,
+      10
+    ]
+  }
+},
+{
+  "model": "surveys.test",
+  "pk": 5,
+  "fields": {
+    "created_at": "2026-07-07T19:50:02.346Z",
+    "updated_at": "2026-07-07T19:50:02.346Z",
+    "title": "Глубокий опрос",
+    "is_active": true,
+    "is_admin_conducted": false,
+    "is_after_application": false,
+    "after_days": null,
+    "test_days_from": 1,
+    "test_days_to": 14,
+    "month": [
+      1,
+      7
+    ]
+  }
+},
+{
+  "model": "surveys.test",
+  "pk": 6,
+  "fields": {
+    "created_at": "2026-07-07T19:50:04.197Z",
+    "updated_at": "2026-07-07T19:50:04.197Z",
+    "title": "Опрос вовлечённости (демо)",
+    "is_active": true,
+    "is_admin_conducted": false,
+    "is_after_application": false,
+    "after_days": null,
+    "test_days_from": 1,
+    "test_days_to": 28,
+    "month": []
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 2,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.241Z",
+    "updated_at": "2026-07-07T19:50:03.241Z",
+    "test": 5,
+    "order": 1,
+    "title": "II. ЛОЯЛЬНОСТЬ"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 3,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.242Z",
+    "updated_at": "2026-07-07T19:50:03.242Z",
+    "test": 5,
+    "order": 2,
+    "title": "III. МОТИВАЦИЯ"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 4,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.243Z",
+    "updated_at": "2026-07-07T19:50:03.243Z",
+    "test": 5,
+    "order": 3,
+    "title": "IV. ПОТРЕБНОСТИ И ЖЕЛАНИЯ"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 5,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.245Z",
+    "updated_at": "2026-07-07T19:50:03.245Z",
+    "test": 5,
+    "order": 4,
+    "title": "V. РАБОЧАЯ СРЕДА"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 6,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.247Z",
+    "updated_at": "2026-07-07T19:50:03.247Z",
+    "test": 5,
+    "order": 5,
+    "title": "VI. ЭНЕРГИЯ И СОСТОЯНИЕ"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 7,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.248Z",
+    "updated_at": "2026-07-07T19:50:03.248Z",
+    "test": 5,
+    "order": 6,
+    "title": "VII. СВОБОДНОЕ МНЕНИЕ"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 8,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.250Z",
+    "updated_at": "2026-07-07T19:50:03.250Z",
+    "test": 4,
+    "order": 0,
+    "title": "ОБЩАЯ ИНФОРМАЦИЯ"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 9,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.250Z",
+    "updated_at": "2026-07-07T19:50:03.250Z",
+    "test": 4,
+    "order": 1,
+    "title": "БЫСТРАЯ ОЦЕНКА"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 10,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.252Z",
+    "updated_at": "2026-07-07T19:51:37.808Z",
+    "test": 3,
+    "order": 0,
+    "title": "ОБЩАЯ ИНФОРМАЦИЯ"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 11,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.253Z",
+    "updated_at": "2026-07-07T19:51:37.808Z",
+    "test": 3,
+    "order": 1,
+    "title": "ВОПРОСЫ БЕСЕДЫ"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 12,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.254Z",
+    "updated_at": "2026-07-07T19:50:03.254Z",
+    "test": 3,
+    "order": 2,
+    "title": "ДОГОВОРЁННОСТИ"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 13,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.256Z",
+    "updated_at": "2026-07-07T19:50:03.256Z",
+    "test": 1,
+    "order": 0,
+    "title": "ОБЩАЯ ИНФОРМАЦИЯ"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 14,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.258Z",
+    "updated_at": "2026-07-07T19:50:03.258Z",
+    "test": 1,
+    "order": 1,
+    "title": "ПРОЦЕСС АДАПТАЦИИ"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 15,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.260Z",
+    "updated_at": "2026-07-07T19:50:03.260Z",
+    "test": 2,
+    "order": 0,
+    "title": "ОБЩАЯ ИНФОРМАЦИЯ"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 16,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.261Z",
+    "updated_at": "2026-07-07T19:50:03.261Z",
+    "test": 2,
+    "order": 1,
+    "title": "ОЦЕНКА 90 ДНЕЙ"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 17,
+  "fields": {
+    "created_at": "2026-07-07T19:50:04.198Z",
+    "updated_at": "2026-07-07T19:50:04.198Z",
+    "test": 6,
+    "order": 0,
+    "title": "Рабочее место и условия"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 18,
+  "fields": {
+    "created_at": "2026-07-07T19:50:04.200Z",
+    "updated_at": "2026-07-07T19:50:04.200Z",
+    "test": 6,
+    "order": 1,
+    "title": "Обратная связь"
+  }
+},
+{
+  "model": "surveys.questionblock",
+  "pk": 19,
+  "fields": {
+    "created_at": "2026-07-08T19:15:31.880Z",
+    "updated_at": "2026-07-08T19:15:31.880Z",
+    "test": 5,
+    "order": 6,
+    "title": ""
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 5,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.241Z",
+    "updated_at": "2026-07-07T19:50:03.241Z",
+    "block": 2,
+    "type": "nps",
+    "order": 0,
+    "text": "Рекомендовали бы Decor Center другу, ищущему работу? (1-10)",
+    "options": [],
+    "settings": {
+      "max": 10,
+      "min": 1,
+      "left_label": "Не рекомендую",
+      "right_label": "Обязательно рекомендую"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 6,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.241Z",
+    "updated_at": "2026-07-07T19:50:03.241Z",
+    "block": 2,
+    "type": "textarea",
+    "order": 1,
+    "text": "Назовите 3 лучшие стороны работы в Decor Center.",
+    "options": [],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 7,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.241Z",
+    "updated_at": "2026-07-07T19:50:03.241Z",
+    "block": 2,
+    "type": "textarea",
+    "order": 2,
+    "text": "Что бы Вы изменили в компании и почему?",
+    "options": [],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 8,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.241Z",
+    "updated_at": "2026-07-07T19:50:03.241Z",
+    "block": 2,
+    "type": "single",
+    "order": 3,
+    "text": "Планируете ли работать в Decor Center в следующем году?",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Да, обязательно останусь"
+      },
+      {
+        "id": "o2",
+        "text": "Да, в зависимости от ситуации"
+      },
+      {
+        "id": "o3",
+        "text": "Не уверен, размышляю"
+      },
+      {
+        "id": "o4",
+        "text": "Думаю перейти в другое место"
+      }
+    ],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 9,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.241Z",
+    "updated_at": "2026-07-07T19:50:03.241Z",
+    "block": 2,
+    "type": "textarea",
+    "order": 4,
+    "text": "Что сделаете, если конкурент предложит на 15-20% больше? Почему?",
+    "options": [],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 10,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.243Z",
+    "updated_at": "2026-07-07T19:50:03.243Z",
+    "block": 3,
+    "type": "multiple",
+    "order": 0,
+    "text": "Что больше всего мотивирует Вас? (несколько вариантов)",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Хорошая зарплата и бонусы"
+      },
+      {
+        "id": "o2",
+        "text": "Признание руководителя"
+      },
+      {
+        "id": "o3",
+        "text": "Дружный коллектив"
+      },
+      {
+        "id": "o4",
+        "text": "Ответственные задачи"
+      },
+      {
+        "id": "o5",
+        "text": "Карьерный рост"
+      },
+      {
+        "id": "o6",
+        "text": "Саморазвитие"
+      },
+      {
+        "id": "o7",
+        "text": "Баланс работы и жизни"
+      },
+      {
+        "id": "o8",
+        "text": "Вера в миссию компании"
+      }
+    ],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 11,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.243Z",
+    "updated_at": "2026-07-07T19:50:03.243Z",
+    "block": 3,
+    "type": "textarea",
+    "order": 1,
+    "text": "Опишите момент за 3 месяца, когда чувствовали себя ЛУЧШЕ всего.",
+    "options": [],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 12,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.243Z",
+    "updated_at": "2026-07-07T19:50:03.243Z",
+    "block": 3,
+    "type": "textarea",
+    "order": 2,
+    "text": "Опишите момент за 3 месяца, когда чувствовали себя ХУЖЕ всего.",
+    "options": [],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 13,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.243Z",
+    "updated_at": "2026-07-07T19:50:03.243Z",
+    "block": 3,
+    "type": "single",
+    "order": 3,
+    "text": "Чувствуете, что руководитель ценит Вашу работу?",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Да, я чувствую, что меня ценят"
+      },
+      {
+        "id": "o2",
+        "text": "Иногда меня ценят"
+      },
+      {
+        "id": "o3",
+        "text": "Редко получаю признание"
+      },
+      {
+        "id": "o4",
+        "text": "Мой труд не замечают"
+      }
+    ],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 14,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.243Z",
+    "updated_at": "2026-07-07T19:50:03.243Z",
+    "block": 3,
+    "type": "textarea",
+    "order": 4,
+    "text": "Что должно сделать руководство, чтобы мотивировать Вас лучше?",
+    "options": [],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 15,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.244Z",
+    "updated_at": "2026-07-07T19:50:03.244Z",
+    "block": 4,
+    "type": "scale5",
+    "order": 0,
+    "text": "Удовлетворены ли текущей зарплатой?",
+    "options": [],
+    "settings": {
+      "max": 5,
+      "min": 1,
+      "left_label": "Не удовлетворён",
+      "right_label": "Полностью"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 16,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.244Z",
+    "updated_at": "2026-07-07T19:50:03.244Z",
+    "block": 4,
+    "type": "multiple",
+    "order": 1,
+    "text": "В каких областях хотите больше поддержки?",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Профессиональное обучение"
+      },
+      {
+        "id": "o2",
+        "text": "Чёткий план карьеры"
+      },
+      {
+        "id": "o3",
+        "text": "Больше обратной связи"
+      },
+      {
+        "id": "o4",
+        "text": "Командные мероприятия"
+      },
+      {
+        "id": "o5",
+        "text": "Гибкий график"
+      },
+      {
+        "id": "o6",
+        "text": "Современные инструменты"
+      },
+      {
+        "id": "o7",
+        "text": "Психологическая поддержка"
+      }
+    ],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 17,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.244Z",
+    "updated_at": "2026-07-07T19:50:03.244Z",
+    "block": 4,
+    "type": "textarea",
+    "order": 2,
+    "text": "Где и кем хотите работать через 5 лет? Как Decor Center может помочь?",
+    "options": [],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 18,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.244Z",
+    "updated_at": "2026-07-07T19:50:03.244Z",
+    "block": 4,
+    "type": "textarea",
+    "order": 3,
+    "text": "Полностью ли раскрывают Ваши способности текущие задачи?",
+    "options": [],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 19,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.245Z",
+    "updated_at": "2026-07-07T19:50:03.245Z",
+    "block": 5,
+    "type": "scale5",
+    "order": 0,
+    "text": "Удовлетворены ли отношениями в коллективе?",
+    "options": [],
+    "settings": {
+      "max": 5,
+      "min": 1,
+      "left_label": "Очень плохо",
+      "right_label": "Отлично"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 20,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.245Z",
+    "updated_at": "2026-07-07T19:50:03.245Z",
+    "block": 5,
+    "type": "scale5",
+    "order": 1,
+    "text": "Удовлетворены ли руководителем?",
+    "options": [],
+    "settings": {
+      "max": 5,
+      "min": 1,
+      "left_label": "Не удовлетворён",
+      "right_label": "Полностью"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 21,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.245Z",
+    "updated_at": "2026-07-07T19:50:03.245Z",
+    "block": 5,
+    "type": "single",
+    "order": 2,
+    "text": "Можете ли свободно обсудить проблему с руководителем?",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Да, всегда могу открыто"
+      },
+      {
+        "id": "o2",
+        "text": "Иногда, но трудно"
+      },
+      {
+        "id": "o3",
+        "text": "Редко, чувствую дискомфорт"
+      },
+      {
+        "id": "o4",
+        "text": "Нет, не могу"
+      }
+    ],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 22,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.245Z",
+    "updated_at": "2026-07-07T19:50:03.245Z",
+    "block": 5,
+    "type": "textarea",
+    "order": 3,
+    "text": "Напишите о себе то, что руководитель должен знать.",
+    "options": [],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 23,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.247Z",
+    "updated_at": "2026-07-07T19:50:03.247Z",
+    "block": 6,
+    "type": "nps",
+    "order": 0,
+    "text": "Общий уровень удовлетворённости работой.",
+    "options": [],
+    "settings": {
+      "max": 10,
+      "min": 1,
+      "left_label": "Не удовлетворён",
+      "right_label": "Полностью"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 24,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.247Z",
+    "updated_at": "2026-07-07T19:50:03.247Z",
+    "block": 6,
+    "type": "single",
+    "order": 1,
+    "text": "Чувствуете ли выгорание?",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Нет, энергия полная"
+      },
+      {
+        "id": "o2",
+        "text": "Иногда устаю"
+      },
+      {
+        "id": "o3",
+        "text": "Часто чувствую усталость"
+      },
+      {
+        "id": "o4",
+        "text": "Да, серьёзное выгорание"
+      }
+    ],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 25,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.247Z",
+    "updated_at": "2026-07-07T19:50:03.247Z",
+    "block": 6,
+    "type": "textarea",
+    "order": 2,
+    "text": "Как чувствуете себя, идя на работу в понедельник?",
+    "options": [],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 26,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.248Z",
+    "updated_at": "2026-07-07T19:50:03.248Z",
+    "block": 7,
+    "type": "textarea",
+    "order": 0,
+    "text": "Какие предложения для улучшения Decor Center?",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 27,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.248Z",
+    "updated_at": "2026-07-07T19:50:03.248Z",
+    "block": 7,
+    "type": "textarea",
+    "order": 1,
+    "text": "Что-то конфиденциально для руководства?",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 28,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.248Z",
+    "updated_at": "2026-07-07T19:50:03.248Z",
+    "block": 7,
+    "type": "signature_date",
+    "order": 2,
+    "text": "Подпись сотрудника",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 29,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.250Z",
+    "updated_at": "2026-07-07T19:50:03.250Z",
+    "block": 8,
+    "type": "form_field",
+    "order": 0,
+    "text": "Ф.И.О.",
+    "options": [],
+    "settings": {
+      "field_type": "text"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 30,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.250Z",
+    "updated_at": "2026-07-07T19:50:03.250Z",
+    "block": 8,
+    "type": "form_field",
+    "order": 1,
+    "text": "Должность",
+    "options": [],
+    "settings": {
+      "field_type": "text"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 31,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.250Z",
+    "updated_at": "2026-07-07T19:50:03.250Z",
+    "block": 8,
+    "type": "form_field",
+    "order": 2,
+    "text": "Дата",
+    "options": [],
+    "settings": {
+      "field_type": "date"
+    },
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 32,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.251Z",
+    "updated_at": "2026-07-07T19:50:03.251Z",
+    "block": 9,
+    "type": "nps",
+    "order": 0,
+    "text": "Общая удовлетворённость работой?",
+    "options": [],
+    "settings": {
+      "max": 10,
+      "min": 1,
+      "left_label": "Очень плохо",
+      "right_label": "Отлично"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 33,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.251Z",
+    "updated_at": "2026-07-07T19:50:03.251Z",
+    "block": 9,
+    "type": "scale5",
+    "order": 1,
+    "text": "Ваш уровень энергии и настроения сегодня?",
+    "options": [],
+    "settings": {
+      "max": 5,
+      "min": 1,
+      "left_label": "Очень устал",
+      "right_label": "Полная энергия"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 34,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.251Z",
+    "updated_at": "2026-07-07T19:50:03.251Z",
+    "block": 9,
+    "type": "scale5",
+    "order": 2,
+    "text": "Удовлетворены ли отношениями с руководителем?",
+    "options": [],
+    "settings": {
+      "max": 5,
+      "min": 1,
+      "left_label": "Не удовлетворён",
+      "right_label": "Полностью"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 35,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.251Z",
+    "updated_at": "2026-07-07T19:50:03.251Z",
+    "block": 9,
+    "type": "single",
+    "order": 3,
+    "text": "Удовлетворены ли рабочей нагрузкой?",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Слишком много — устал"
+      },
+      {
+        "id": "o2",
+        "text": "Немного многовато"
+      },
+      {
+        "id": "o3",
+        "text": "На идеальном уровне"
+      },
+      {
+        "id": "o4",
+        "text": "Немного мало"
+      }
+    ],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 36,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.251Z",
+    "updated_at": "2026-07-07T19:50:03.251Z",
+    "block": 9,
+    "type": "textarea",
+    "order": 4,
+    "text": "Что в этом квартале прошло лучше всего?",
+    "options": [],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 37,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.251Z",
+    "updated_at": "2026-07-07T19:50:03.251Z",
+    "block": 9,
+    "type": "textarea",
+    "order": 5,
+    "text": "Что в этом квартале Вас затруднило?",
+    "options": [],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 38,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.251Z",
+    "updated_at": "2026-07-07T19:50:03.251Z",
+    "block": 9,
+    "type": "textarea",
+    "order": 6,
+    "text": "Одно предложение на следующий квартал?",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 39,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.251Z",
+    "updated_at": "2026-07-07T19:50:03.251Z",
+    "block": 9,
+    "type": "signature_date",
+    "order": 7,
+    "text": "Подпись сотрудника",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 40,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.253Z",
+    "updated_at": "2026-07-07T19:50:03.253Z",
+    "block": 10,
+    "type": "form_field",
+    "order": 0,
+    "text": "Ф.И.О. сотрудника",
+    "options": [],
+    "settings": {
+      "field_type": "text"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 41,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.253Z",
+    "updated_at": "2026-07-07T19:50:03.253Z",
+    "block": 10,
+    "type": "form_field",
+    "order": 1,
+    "text": "Должность",
+    "options": [],
+    "settings": {
+      "field_type": "text"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 42,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.253Z",
+    "updated_at": "2026-07-07T19:50:03.253Z",
+    "block": 10,
+    "type": "form_field",
+    "order": 2,
+    "text": "Ф.И.О. руководителя",
+    "options": [],
+    "settings": {
+      "field_type": "text"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 43,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.253Z",
+    "updated_at": "2026-07-07T19:50:03.253Z",
+    "block": 10,
+    "type": "form_field",
+    "order": 3,
+    "text": "Дата беседы",
+    "options": [],
+    "settings": {
+      "field_type": "date"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 44,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.254Z",
+    "updated_at": "2026-07-07T19:50:03.254Z",
+    "block": 11,
+    "type": "textarea",
+    "order": 0,
+    "text": "Что в этом месяце прошло лучше всего? Чем гордитесь?",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 45,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.254Z",
+    "updated_at": "2026-07-07T19:50:03.254Z",
+    "block": 11,
+    "type": "textarea",
+    "order": 1,
+    "text": "Что было трудно в этом месяце?",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 46,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.254Z",
+    "updated_at": "2026-07-07T19:50:03.254Z",
+    "block": 11,
+    "type": "textarea",
+    "order": 2,
+    "text": "Какая помощь нужна была от руководителя?",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 47,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.254Z",
+    "updated_at": "2026-07-07T19:50:03.254Z",
+    "block": 11,
+    "type": "textarea",
+    "order": 3,
+    "text": "Ваши 1-2 основные цели на следующий месяц?",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 48,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.254Z",
+    "updated_at": "2026-07-07T19:50:03.254Z",
+    "block": 11,
+    "type": "textarea",
+    "order": 4,
+    "text": "Хотите ли, чтобы что-то изменилось?",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 49,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.254Z",
+    "updated_at": "2026-07-07T19:50:03.254Z",
+    "block": 11,
+    "type": "textarea",
+    "order": 5,
+    "text": "Есть что сказать руководителю?",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 50,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.255Z",
+    "updated_at": "2026-07-07T19:50:03.255Z",
+    "block": 12,
+    "type": "short_text",
+    "order": 0,
+    "text": "Должно быть выполнено до следующего месяца (1)",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 51,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.255Z",
+    "updated_at": "2026-07-07T19:50:03.255Z",
+    "block": 12,
+    "type": "short_text",
+    "order": 1,
+    "text": "Должно быть выполнено до следующего месяца (2)",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 52,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.255Z",
+    "updated_at": "2026-07-07T19:50:03.255Z",
+    "block": 12,
+    "type": "short_text",
+    "order": 2,
+    "text": "Должно быть выполнено до следующего месяца (3)",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 53,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.255Z",
+    "updated_at": "2026-07-07T19:50:03.255Z",
+    "block": 12,
+    "type": "signature_date",
+    "order": 3,
+    "text": "Подпись сотрудника",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 54,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.255Z",
+    "updated_at": "2026-07-07T19:50:03.255Z",
+    "block": 12,
+    "type": "signature_date",
+    "order": 4,
+    "text": "Подпись руководителя",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 55,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.255Z",
+    "updated_at": "2026-07-07T19:50:03.255Z",
+    "block": 12,
+    "type": "form_field",
+    "order": 5,
+    "text": "Дата следующей беседы",
+    "options": [],
+    "settings": {
+      "field_type": "date"
+    },
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 56,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.257Z",
+    "updated_at": "2026-07-07T19:50:03.257Z",
+    "block": 13,
+    "type": "form_field",
+    "order": 0,
+    "text": "Ф.И.О.",
+    "options": [],
+    "settings": {
+      "field_type": "text"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 57,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.257Z",
+    "updated_at": "2026-07-07T19:50:03.257Z",
+    "block": 13,
+    "type": "form_field",
+    "order": 1,
+    "text": "Должность",
+    "options": [],
+    "settings": {
+      "field_type": "text"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 58,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.257Z",
+    "updated_at": "2026-07-07T19:50:03.257Z",
+    "block": 13,
+    "type": "form_field",
+    "order": 2,
+    "text": "Дата приёма",
+    "options": [],
+    "settings": {
+      "field_type": "date"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 59,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.257Z",
+    "updated_at": "2026-07-07T19:50:03.257Z",
+    "block": 13,
+    "type": "form_field",
+    "order": 3,
+    "text": "Сегодняшняя дата",
+    "options": [],
+    "settings": {
+      "field_type": "date"
+    },
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 60,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.258Z",
+    "updated_at": "2026-07-07T19:50:03.258Z",
+    "block": 14,
+    "type": "scale5",
+    "order": 0,
+    "text": "Как оцениваете свой приход в Decor Center?",
+    "options": [],
+    "settings": {
+      "max": 5,
+      "min": 1,
+      "left_label": "Очень трудно",
+      "right_label": "Очень легко"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 61,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.258Z",
+    "updated_at": "2026-07-07T19:50:03.258Z",
+    "block": 14,
+    "type": "single",
+    "order": 1,
+    "text": "Хорошо ли Вас встретили и помогли?",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Да, встретили очень хорошо"
+      },
+      {
+        "id": "o2",
+        "text": "Средне, была некоторая помощь"
+      },
+      {
+        "id": "o3",
+        "text": "Нет, адаптировался сам"
+      }
+    ],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 62,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.258Z",
+    "updated_at": "2026-07-07T19:50:03.258Z",
+    "block": 14,
+    "type": "single",
+    "order": 2,
+    "text": "Чётко ли понимаете свои обязанности?",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Да, полностью понимаю"
+      },
+      {
+        "id": "o2",
+        "text": "Многое понимаю, некоторое неясно"
+      },
+      {
+        "id": "o3",
+        "text": "В общем, но есть вопросы"
+      },
+      {
+        "id": "o4",
+        "text": "Нет, ещё многое не знаю"
+      }
+    ],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 63,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.258Z",
+    "updated_at": "2026-07-07T19:50:03.258Z",
+    "block": 14,
+    "type": "scale5",
+    "order": 3,
+    "text": "Соответствует ли рабочее место ожиданиям?",
+    "options": [],
+    "settings": {
+      "max": 5,
+      "min": 1,
+      "left_label": "Не соответствует",
+      "right_label": "Полностью"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 64,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.258Z",
+    "updated_at": "2026-07-07T19:50:03.258Z",
+    "block": 14,
+    "type": "textarea",
+    "order": 4,
+    "text": "Что больше всего затруднило за 30 дней?",
+    "options": [],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 65,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.258Z",
+    "updated_at": "2026-07-07T19:50:03.258Z",
+    "block": 14,
+    "type": "textarea",
+    "order": 5,
+    "text": "Что хотели бы знать до трудоустройства?",
+    "options": [],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 66,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.258Z",
+    "updated_at": "2026-07-07T19:50:03.258Z",
+    "block": 14,
+    "type": "textarea",
+    "order": 6,
+    "text": "Предложения по улучшению адаптации?",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 67,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.258Z",
+    "updated_at": "2026-07-07T19:50:03.258Z",
+    "block": 14,
+    "type": "signature_date",
+    "order": 7,
+    "text": "Подпись сотрудника",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 68,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.260Z",
+    "updated_at": "2026-07-07T19:50:03.260Z",
+    "block": 15,
+    "type": "form_field",
+    "order": 0,
+    "text": "Ф.И.О.",
+    "options": [],
+    "settings": {
+      "field_type": "text"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 69,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.260Z",
+    "updated_at": "2026-07-07T19:50:03.260Z",
+    "block": 15,
+    "type": "form_field",
+    "order": 1,
+    "text": "Должность",
+    "options": [],
+    "settings": {
+      "field_type": "text"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 70,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.260Z",
+    "updated_at": "2026-07-07T19:50:03.260Z",
+    "block": 15,
+    "type": "form_field",
+    "order": 2,
+    "text": "Дата приёма",
+    "options": [],
+    "settings": {
+      "field_type": "date"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 71,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.260Z",
+    "updated_at": "2026-07-07T19:50:03.260Z",
+    "block": 15,
+    "type": "form_field",
+    "order": 3,
+    "text": "Сегодняшняя дата",
+    "options": [],
+    "settings": {
+      "field_type": "date"
+    },
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 72,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.261Z",
+    "updated_at": "2026-07-07T19:50:03.261Z",
+    "block": 16,
+    "type": "nps",
+    "order": 0,
+    "text": "Насколько соответствует ожиданиям?",
+    "options": [],
+    "settings": {
+      "max": 10,
+      "min": 1,
+      "left_label": "Не соответствует",
+      "right_label": "Полностью"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 73,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.261Z",
+    "updated_at": "2026-07-07T19:50:03.261Z",
+    "block": 16,
+    "type": "textarea",
+    "order": 1,
+    "text": "Сравните до и после. Что изменилось?",
+    "options": [],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 74,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.261Z",
+    "updated_at": "2026-07-07T19:50:03.261Z",
+    "block": 16,
+    "type": "scale5",
+    "order": 2,
+    "text": "Соответствует ли должность 5-летним целям?",
+    "options": [],
+    "settings": {
+      "max": 5,
+      "min": 1,
+      "left_label": "Не соответствует",
+      "right_label": "Полностью"
+    },
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 75,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.261Z",
+    "updated_at": "2026-07-07T19:50:03.261Z",
+    "block": 16,
+    "type": "single",
+    "order": 3,
+    "text": "Достаточно ли руководитель уделяет внимания?",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Да, очень хорошо поддерживает"
+      },
+      {
+        "id": "o2",
+        "text": "Средне, нужно улучшить"
+      },
+      {
+        "id": "o3",
+        "text": "Мало внимания уделяет"
+      },
+      {
+        "id": "o4",
+        "text": "Совсем не уделяет"
+      }
+    ],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 76,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.261Z",
+    "updated_at": "2026-07-07T19:50:03.261Z",
+    "block": 16,
+    "type": "textarea",
+    "order": 4,
+    "text": "Что мешает остаться в компании?",
+    "options": [],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 77,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.261Z",
+    "updated_at": "2026-07-07T19:50:03.261Z",
+    "block": 16,
+    "type": "single",
+    "order": 5,
+    "text": "Планируете ли долгосрочную работу?",
+    "options": [
+      {
+        "id": "o1",
+        "text": "Да, обязательно"
+      },
+      {
+        "id": "o2",
+        "text": "Да, по ситуации"
+      },
+      {
+        "id": "o3",
+        "text": "Ещё не определился"
+      },
+      {
+        "id": "o4",
+        "text": "Скорее нет"
+      }
+    ],
+    "settings": {},
+    "is_required": true,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 78,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.261Z",
+    "updated_at": "2026-07-07T19:50:03.261Z",
+    "block": 16,
+    "type": "textarea",
+    "order": 6,
+    "text": "Одна важная вещь для Вас?",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": true
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 79,
+  "fields": {
+    "created_at": "2026-07-07T19:50:03.261Z",
+    "updated_at": "2026-07-07T19:50:03.261Z",
+    "block": 16,
+    "type": "signature_date",
+    "order": 7,
+    "text": "Подпись сотрудника",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 80,
+  "fields": {
+    "created_at": "2026-07-07T19:50:04.198Z",
+    "updated_at": "2026-07-07T19:50:04.198Z",
+    "block": 17,
+    "type": "single",
+    "order": 0,
+    "text": "Насколько вы довольны своим рабочим местом?",
+    "options": [
+      {
+        "id": "s5",
+        "text": "Полностью доволен"
+      },
+      {
+        "id": "s4",
+        "text": "Скорее доволен"
+      },
+      {
+        "id": "s3",
+        "text": "Нейтрально"
+      },
+      {
+        "id": "s2",
+        "text": "Скорее не доволен"
+      },
+      {
+        "id": "s1",
+        "text": "Совсем не доволен"
+      }
+    ],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 81,
+  "fields": {
+    "created_at": "2026-07-07T19:50:04.199Z",
+    "updated_at": "2026-07-07T19:50:04.199Z",
+    "block": 17,
+    "type": "multiple",
+    "order": 1,
+    "text": "Что стоит улучшить в первую очередь?",
+    "options": [
+      {
+        "id": "m1",
+        "text": "Освещение"
+      },
+      {
+        "id": "m2",
+        "text": "Инструменты и оборудование"
+      },
+      {
+        "id": "m3",
+        "text": "График работы"
+      },
+      {
+        "id": "m4",
+        "text": "Коммуникация в команде"
+      },
+      {
+        "id": "m5",
+        "text": "Обучение и развитие"
+      }
+    ],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+},
+{
+  "model": "surveys.question",
+  "pk": 82,
+  "fields": {
+    "created_at": "2026-07-07T19:50:04.200Z",
+    "updated_at": "2026-07-07T19:50:04.200Z",
+    "block": 18,
+    "type": "textarea",
+    "order": 0,
+    "text": "Что бы вы предложили изменить в компании?",
+    "options": [],
+    "settings": {},
+    "is_required": false,
+    "is_mind_dive": false
+  }
+}
+]
